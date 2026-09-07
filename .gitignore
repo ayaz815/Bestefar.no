@@ -31,3 +31,4 @@ httpd.www/ayaz/
 # Local server helpers
 maintenance.jpeg
 "index maintenance.html"
+.env
