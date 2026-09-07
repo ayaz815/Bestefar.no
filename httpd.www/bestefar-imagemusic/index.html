@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Musikk og bilder</title>
+    <style>
+      @font-face {
+        font-family: "AGENCYB";
+        src: url("./data/fonts/AGENCYB.TTF") format("truetype");
+        font-display: block;
+      }
+      @font-face {
+        font-family: "AGENCYR";
+        src: url("./data/fonts/AGENCYR.TTF") format("truetype");
+        font-display: block;
+      }
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      #opening {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding-bottom: 10vh;
+      }
+      .sub {
+        font-family: "AGENCYR", "Arial Narrow", Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(1rem, 2.5vw, 1.6rem);
+        color: #ffc000;
+        letter-spacing: 0.15em;
+        text-align: center;
+        line-height: 1.4;
+        min-height: 1.4em;
+      }
+      .main {
+        font-family: "AGENCYR", "Arial Narrow", Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(2.5rem, 8vw, 6rem);
+        color: #ffc000;
+        letter-spacing: 0.05em;
+        text-align: center;
+        line-height: 1;
+        height: 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0.15em 0 0.3em;
+        overflow: visible;
+      }
+      .showname {
+        font-family: "AGENCYR", "Arial Narrow", Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(1rem, 2.5vw, 1.8rem);
+        color: #ffc000;
+        letter-spacing: 0.12em;
+        text-align: center;
+        margin-bottom: 3em;
+        min-height: 2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo img {
+        height: clamp(2.5rem, 7vw, 5rem);
+        width: auto;
+        object-fit: contain;
+      }
+
+      /* ── Share-link loading state ──────────────────────────────────────────
+         Only ever shown when opened via ?show=<id> (the shareable-link
+         path). The normal in-app open (Preview, or no query string) never
+         touches this — it goes straight to the opening screen exactly as
+         before, with zero behavior change. */
+      #share-loading {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.2em;
+      }
+      #share-loading.visible {
+        display: flex;
+      }
+      #share-bar-track {
+        width: 8em;
+        height: 3px;
+        border-radius: 9999px;
+        background: rgba(255, 192, 0, 0.2);
+        overflow: hidden;
+      }
+      #share-bar-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: 9999px;
+        background: #ffc000;
+        transition: width 0.2s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="opening">
+      <div class="sub">Musikk og bilder</div>
+      <div class="main">For kropp og sjel</div>
+      <div class="showname" id="show-name"></div>
+      <div class="logo">
+        <img src="./data/assets/logo.jpg" alt="Bestefar.no" />
+      </div>
+    </div>
+
+    <div id="share-loading">
+      <div id="share-bar-track">
+        <div id="share-bar-fill"></div>
+      </div>
+    </div>
+
+    <script>
+      const SHOW_API_BASE = "https://api.bestefar.no/api/image-music";
+      const showId = new URLSearchParams(location.search).get("show");
+
+      // ── Existing in-app behavior — UNCHANGED ──────────────────────────────
+      // Runs whenever there's no ?show param: reads localStorage (set by
+      // QuizForm.jsx's Preview flow) exactly as before. Nothing here is
+      // different from the working version.
+      function applyName(data) {
+        document.getElementById("show-name").textContent =
+          (data && data.quizName) || "";
+        if (data && data.quizName) document.title = data.quizName;
+      }
+
+      function initNormalOpen() {
+        try {
+          const stored = localStorage.getItem("im_preview_json");
+          if (stored) {
+            applyName(JSON.parse(stored));
+            return;
+          }
+        } catch {}
+        fetch("./data/content/imagemusic.json")
+          .then((r) => r.json())
+          .then(applyName)
+          .catch(() => {});
+      }
+
+      // ── Navigation — UNCHANGED ─────────────────────────────────────────────
+      const opening = document.getElementById("opening");
+
+      function goToShow() {
+        window.location.href = "./data/screens/imageMusic.html";
+      }
+
+      opening.addEventListener("click", goToShow);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "Enter") {
+          e.preventDefault();
+          goToShow();
+        }
+      });
+
+      // ── Shareable link path: ?show=<id> ────────────────────────────────────
+      // Entirely additive. Fetches the show from the public API, fully
+      // preloads every image/video/audio it references (mirroring
+      // IMPreviewPlayer.jsx's preload behavior exactly), writes the result
+      // into the SAME localStorage key imageMusic.html already reads, then
+      // proceeds into the normal flow. By the time imageMusic.html runs,
+      // it sees exactly what it would see from an in-app Preview — same
+      // smooth playback, no live loading once the show starts.
+      const isVideoUrl = (url) => !!url && /\.(mp4|webm|ogg|mov)$/i.test(url);
+
+      const preloadImage = (url) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = img.onerror = () => resolve();
+          img.src = url;
+        });
+
+      const preloadVideo = (url) =>
+        new Promise((resolve) => {
+          const vid = document.createElement("video");
+          vid.preload = "auto";
+          vid.muted = true;
+          vid.oncanplaythrough = vid.onerror = () => resolve();
+          vid.src = url;
+        });
+
+      const preloadAudio = (url) =>
+        new Promise((resolve) => {
+          const a = new Audio();
+          a.oncanplaythrough = a.onerror = () => resolve();
+          a.src = url;
+        });
+
+      async function initShareLink(id) {
+        const loadingEl = document.getElementById("share-loading");
+        const fillEl = document.getElementById("share-bar-fill");
+        if (fillEl) fillEl.style.width = "0%";
+        loadingEl.classList.add("visible");
+
+        let data = null;
+        try {
+          const r = await fetch(`${SHOW_API_BASE}/get-image-music-show/${id}`);
+          if (r.ok) data = await r.json();
+        } catch {}
+
+        if (!data) {
+          // Fetch failed — fall back to the normal flow rather than
+          // leaving the viewer stuck on a loading screen forever.
+          loadingEl.classList.remove("visible");
+          initNormalOpen();
+          return;
+        }
+
+        applyName(data);
+
+        const screens = data.screens || [];
+        const mediaUrls = screens.map((s) => s.mediaFileUrl).filter(Boolean);
+        const audioUrls = [
+          data.sharedMp3Url,
+          ...screens.map((s) => s.perSlideMp3Url),
+        ].filter(Boolean);
+
+        const tasks = [
+          ...mediaUrls.map((url) =>
+            (isVideoUrl(url) ? preloadVideo : preloadImage)(url)
+          ),
+          ...audioUrls.map(preloadAudio),
+        ];
+
+        const total = tasks.length;
+        let loaded = 0;
+        const setFill = (pct) => {
+          if (fillEl) fillEl.style.width = `${pct}%`;
+        };
+
+        if (total > 0) {
+          await Promise.all(
+            tasks.map((p) =>
+              p.then(() => {
+                loaded += 1;
+                setFill((loaded / total) * 100);
+              })
+            )
+          );
+        } else {
+          setFill(100);
+        }
+
+        try {
+          localStorage.setItem("im_preview_json", JSON.stringify(data));
+        } catch {}
+
+        // Stop here — show the opening screen and wait for the user to
+        // click or press Enter, exactly like the normal in-app flow.
+        // No auto-advance.
+        loadingEl.classList.remove("visible");
+      }
+
+      // ── Entry point ────────────────────────────────────────────────────────
+      if (showId) {
+        initShareLink(showId);
+      } else {
+        initNormalOpen();
+      }
+    </script>
+  </body>
+</html>

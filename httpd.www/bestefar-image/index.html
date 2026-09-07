@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @font-face {
+        font-family: "AgencyR";
+        src: url("./data/fonts/AGENCYR.TTF") format("truetype");
+      }
+      .font-agency {
+        font-family: "AgencyR", sans-serif;
+      }
+
+      /* ── Share-link loading state ──────────────────────────────────────────
+         Only ever shown when opened via ?show=<id> (the shareable-link
+         path). The normal in-app open (Preview, or no query string) never
+         touches this — it goes straight to the opening screen exactly as
+         before, with zero behavior change. */
+      #share-loading {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.2em;
+        z-index: 50;
+      }
+      #share-loading.visible {
+        display: flex;
+      }
+      #share-bar-track {
+        width: 8em;
+        height: 3px;
+        border-radius: 9999px;
+        background: rgba(157, 195, 231, 0.25);
+        overflow: hidden;
+      }
+      #share-bar-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: 9999px;
+        background: #9dc3e7;
+        transition: width 0.2s ease-out;
+      }
+    </style>
+  </head>
+  <body class="font-agency bg-black h-screen overflow-hidden">
+    <a
+      id="quizLink"
+      href="#"
+      class="h-full flex flex-col items-center pt-[22vh] mt-[10vh] md:mt-[2vh]"
+    >
+      <h2 class="text-[#FFC000] text-md md:text-2xl tracking-widest">
+        BildeQuiz om:
+      </h2>
+      <h1
+        id="quizTitle"
+        class="text-[#9DC3E7] text-5xl md:text-7xl mt-6 md:mt-7"
+      >
+        ...
+      </h1>
+      <img
+        src="./data/assets/logo.jpg"
+        alt=""
+        class="w-[60%] md:w-[30%] mt-auto mb-[53vh] md:mb-[45vh]"
+      />
+    </a>
+
+    <div id="share-loading">
+      <div id="share-bar-track">
+        <div id="share-bar-fill"></div>
+      </div>
+    </div>
+
+    <script>
+      const IQ_API_BASE = "https://api.bestefar.no/api/image-quiz";
+      const IQ_STORAGE_KEY = "iq_preview_json";
+      const showId = new URLSearchParams(location.search).get("show");
+
+      const quizLink = document.getElementById("quizLink");
+      const quizTitle = document.getElementById("quizTitle");
+
+      function applyTitle(data) {
+        quizTitle.textContent = (data && data.quizName) || "Quiz";
+        if (data && data.quizName) document.title = data.quizName;
+      }
+
+      function goToQuiz() {
+        quizLink.href = showId
+          ? `./data/screens/dynamicQuiz.html?show=${encodeURIComponent(showId)}`
+          : "./data/screens/dynamicQuiz.html";
+        quizLink.click();
+      }
+
+      // ── Existing in-app behavior — UNCHANGED ──────────────────────────────
+      // Runs whenever there's no ?show param: reads localStorage first (set
+      // by QuizForm.jsx's Preview flow), falling back to content.json,
+      // exactly matching dynamicQuiz.html's own loading priority.
+      function initNormalOpen() {
+        try {
+          const stored = localStorage.getItem(IQ_STORAGE_KEY);
+          if (stored) {
+            applyTitle(JSON.parse(stored));
+            quizLink.href = "./data/screens/dynamicQuiz.html";
+            return;
+          }
+        } catch {}
+        // content.json is only a last-resort fallback for standalone use —
+        // the real app always goes through localStorage (set by Preview)
+        // or the API (set by a shareable link). A missing file here is
+        // expected/harmless, not an error worth surfacing.
+        fetch("./data/content/content.json")
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (data) {
+              applyTitle(data);
+              quizLink.href = "./data/screens/dynamicQuiz.html";
+            }
+          })
+          .catch(() => {});
+      }
+
+      // ── Shareable link path: ?show=<id> ────────────────────────────────────
+      // Entirely additive. Fetches the quiz from the public API, fully
+      // preloads every question's image/video + audio, writes the result
+      // into the SAME localStorage key dynamicQuiz.html already reads
+      // first, then proceeds into the normal flow — no auto-advance, the
+      // viewer clicks/presses Enter same as the in-app path.
+      const isVideoUrl = (url) => !!url && /\.(mp4|webm|ogg|mov)$/i.test(url);
+
+      const preloadImage = (url) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = img.onerror = () => resolve();
+          img.src = url;
+        });
+
+      const preloadVideo = (url) =>
+        new Promise((resolve) => {
+          const vid = document.createElement("video");
+          vid.preload = "auto";
+          vid.muted = true;
+          vid.oncanplaythrough = vid.onerror = () => resolve();
+          vid.src = url;
+        });
+
+      const preloadAudio = (url) =>
+        new Promise((resolve) => {
+          const a = new Audio();
+          a.oncanplaythrough = a.onerror = () => resolve();
+          a.src = url;
+        });
+
+      async function initShareLink(id) {
+        const loadingEl = document.getElementById("share-loading");
+        const fillEl = document.getElementById("share-bar-fill");
+        if (fillEl) fillEl.style.width = "0%";
+        loadingEl.classList.add("visible");
+
+        let data = null;
+        try {
+          const r = await fetch(`${IQ_API_BASE}/get-image-quiz/${id}`);
+          if (r.ok) data = await r.json();
+        } catch {}
+
+        if (!data) {
+          // Fetch failed — fall back to the normal flow rather than
+          // leaving the viewer stuck on a loading screen forever.
+          loadingEl.classList.remove("visible");
+          initNormalOpen();
+          return;
+        }
+
+        // The real API returns { screens: [...] } with mediaFileUrl /
+        // audioFileUrl / imageQuestionType / optionA-C — NOT the
+        // questions[]/image/audio/type/options shape dynamicQuiz.html
+        // expects. Map it here, mirroring QuizForm.jsx's IQPreviewPlayer
+        // mapping exactly, so the share-link path produces the same
+        // shape internal Preview already produces correctly.
+        const mappedQuestions = (data.screens || []).map((s) => {
+          const type =
+            s.imageQuestionType === "multiple-questions"
+              ? "multiple"
+              : s.imageQuestionType === "bit-by-bit"
+              ? "bit"
+              : "single";
+          return {
+            type,
+            question: s.question || "",
+            image: s.mediaFileUrl || "",
+            audio: s.audioFileUrl || "",
+            bgColor: s.bgColor || "#000000",
+            answer: s.answer || "",
+            options:
+              type === "multiple"
+                ? [s.optionA, s.optionB, s.optionC].filter(Boolean)
+                : undefined,
+            bitSize: s.bitSize,
+            bitRemovalDuration: s.bitRemovalDuration,
+            notes: s.additionalNotes || "",
+          };
+        });
+        data = {
+          quizName: data.quizName,
+          id: data.id,
+          questions: mappedQuestions,
+        };
+
+        applyTitle(data);
+
+        const questions = data.questions || [];
+        const mediaUrls = questions.map((q) => q.image).filter(Boolean);
+        const audioUrls = questions.map((q) => q.audio).filter(Boolean);
+
+        const tasks = [
+          ...mediaUrls.map((url) =>
+            (isVideoUrl(url) ? preloadVideo : preloadImage)(url)
+          ),
+          ...audioUrls.map(preloadAudio),
+        ];
+
+        const total = tasks.length;
+        let loaded = 0;
+        const setFill = (pct) => {
+          if (fillEl) fillEl.style.width = `${pct}%`;
+        };
+
+        if (total > 0) {
+          await Promise.all(
+            tasks.map((p) =>
+              p.then(() => {
+                loaded += 1;
+                setFill((loaded / total) * 100);
+              })
+            )
+          );
+        } else {
+          setFill(100);
+        }
+
+        try {
+          // data already has the correct shape AND id stamped from the
+          // mapping above — dynamicQuiz.html verifies this id matches
+          // ?show=<id> before trusting any cache.
+          localStorage.setItem(IQ_STORAGE_KEY, JSON.stringify(data));
+        } catch {}
+
+        // Stop here — show the opening screen and wait for the user to
+        // click or press Enter, exactly like the normal in-app flow.
+        // No auto-advance.
+        loadingEl.classList.remove("visible");
+        quizLink.href = `./data/screens/dynamicQuiz.html?show=${encodeURIComponent(
+          id
+        )}`;
+      }
+
+      // ── Entry point ────────────────────────────────────────────────────────
+      if (showId) {
+        initShareLink(showId);
+      } else {
+        initNormalOpen();
+      }
+
+      // ── Navigation ───────────────────────────────────────────────────────
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") {
+          quizLink.click();
+        }
+        if (e.key === "ArrowLeft") {
+          quizLink.style.transform = "scale(0.98)";
+          setTimeout(() => {
+            quizLink.style.transform = "scale(1)";
+          }, 120);
+        }
+      });
+    </script>
+  </body>
+</html>

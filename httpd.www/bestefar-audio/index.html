@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-os="" data-browser="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Music App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      @font-face {
+        font-family: "AgencyR";
+        src: url("./data/fonts/AGENCYR.TTF") format("truetype");
+      }
+      .font-agency {
+        font-family: "AgencyR", sans-serif;
+      }
+
+      /* ------------------------------
+         OS + Browser specific targets
+         ------------------------------ */
+
+      /* iOS Safari only */
+      :root[data-os="ios"][data-browser="safari"] .bottom-bar {
+        height: 14rem !important; /* taller only on iPhone/iPad Safari */
+      }
+
+      /* iOS Chrome (a.k.a. CriOS) */
+      :root[data-os="ios"][data-browser="chrome"] .bottom-bar {
+        height: 12rem !important; /* different than Safari on iOS */
+      }
+
+      /* Android Chrome */
+      :root[data-os="android"][data-browser="chrome"] .bottom-bar {
+        height: 10rem !important;
+      }
+
+      /* (Examples) Desktop Safari vs Chrome — tweak or remove if not needed */
+      :root[data-os="mac"][data-browser="safari"] .bottom-bar {
+        height: 2.5rem !important; /* same as default, shown for example */
+      }
+      :root[data-os="mac"][data-browser="chrome"] .bottom-bar {
+        height: 2.5rem !important;
+      }
+    </style>
+
+    <script>
+      // Set data-os and data-browser on <html>
+      (function () {
+        const root = document.documentElement;
+        const ua = navigator.userAgent || "";
+        const plat = navigator.platform || "";
+
+        // ----- OS detection (pragmatic) -----
+        let os = "unknown";
+        const isiOS =
+          /iPhone|iPad|iPod/.test(ua) ||
+          /iPhone|iPad|iPod/.test(plat) ||
+          (/(Mac)/.test(plat) && "ontouchstart" in window); // iPadOS reports "Mac"
+        const isAndroid = /Android/.test(ua) || /Android/.test(plat);
+
+        if (isiOS) os = "ios";
+        else if (isAndroid) os = "android";
+        else if (/Win/.test(plat)) os = "windows";
+        else if (/Mac/.test(plat)) os = "mac";
+        else if (/Linux/.test(plat)) os = "linux";
+
+        // ----- Browser detection (good enough for styling) -----
+        let browser = "unknown";
+        if (/Edg\//.test(ua)) browser = "edge";
+        else if (/OPR\//.test(ua)) browser = "opera";
+        else if (/CriOS|Chrome\//.test(ua))
+          browser = "chrome"; // Chrome & Chrome on iOS (CriOS)
+        else if (
+          /Safari\//.test(ua) &&
+          /Version\//.test(ua) &&
+          !/Chrome|CriOS|Edg\//.test(ua)
+        )
+          browser = "safari";
+        else if (/Firefox\//.test(ua)) browser = "firefox";
+
+        root.setAttribute("data-os", os);
+        root.setAttribute("data-browser", browser);
+      })();
+    </script>
+  </head>
+
+  <body class="h-screen bg-[#FFC000] flex justify-center" id="screen1">
+    <div class="sm:w-full sm:block hidden"></div>
+
+    <div
+      class="fullscreen-target w-full sm:w-[1500px] lg:w-[70%] h-screen bg-black flex flex-col justify-between main-container opacity-0 transition-opacity duration-200"
+      id="screen2FullScreen"
+    >
+      <!-- Right Top Navigation (25%) -->
+      <div
+        id="rightTopNav"
+        class="absolute top-0 right-0 w-[25%] h-[50px] cursor-pointer bg-transparent z-[50] pointer-events-auto"
+        onclick="navigateToScreen('./data/screens/screen18.html')"
+      ></div>
+
+      <div
+        id="rightNavigation"
+        class="absolute top-0 right-0 w-[10%] h-full z-20 cursor-pointer bg-transparent transition-all"
+        onclick="navigateToScreen('./data/screens/screen.html')"
+      ></div>
+
+      <!-- TOP YELLOW BAR (responsive safe-area) -->
+      <div
+        class="h-12 flex justify-between items-center px-[5%] bg-[#FFC000] pt-[env(safe-area-inset-top)]"
+      >
+        <!-- <p class="font-bold">10:09</p> -->
+        <!-- <img src="data/signals.png" alt="" class="w-20 pt-1" /> -->
+      </div>
+
+      <div class="flex flex-col justify-end items-center h-full pb-2">
+        <div class="relative flex justify-center items-center w-full mb-5 mt-0">
+          <!-- Main Quiz Image -->
+          <img
+            src="./data/assets/quiz.png"
+            alt="Quiz"
+            class="w-1/4 h-auto z-10"
+          />
+          <!-- Overlay Image (initially visible) -->
+          <!--
+          <img
+            id="introOverlay"
+            src="./data/assets/phonto.jpeg"
+            alt="Intro"
+            class="absolute z-20 w-1/2 h-auto opacity-100 transition-opacity duration-1000"
+          />
+          -->
+        </div>
+
+        <img
+          src="data/assets/logo.jpg"
+          alt=""
+          class="w-full px-[5%] mb-3 mt-0"
+        />
+      </div>
+
+      <!-- Fullscreen Trigger Button -->
+      <!--
+      <button
+        id="fullscreenBtn"
+        class="fixed bottom-6 right-6 z-50 bg-[#FFC000] text-black font-agency px-4 py-2 rounded-lg shadow-md hover:bg-[#ffb300]"
+      >
+        Enter Fullscreen
+      </button>
+      -->
+
+      <button
+        id="quizName"
+        class="flex justify-center items-start h-full w-full pt-2 font-agency text-3xl text-[#FFC000] bg-transparent hover:border-none border-none focus-visible:outline-none focus:outline-none"
+      >
+        Loading...
+      </button>
+
+      <!-- DEFAULT = h-10 (2.5rem); OS/Browser rules override when they match -->
+      <div
+        class="w-full bg-[#FFC000] h-10 pb-[env(safe-area-inset-bottom)] bottom-bar"
+      >
+        <!-- <hr class="border-black h-[0.1px]" />
+        <p class="py-1 text-xs text-center">@Random Text</p> -->
+      </div>
+    </div>
+
+    <div class="sm:w-full sm:block hidden"></div>
+    <script src="./data/script.js" defer></script>
+  </body>
+</html>

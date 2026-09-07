@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Musikk og bilder</title>
+    <style>
+      @font-face {
+        font-family: "AGENCYB";
+        src: url("../fonts/AGENCYB.TTF") format("truetype");
+      }
+      @font-face {
+        font-family: "AGENCYR";
+        src: url("../fonts/AGENCYR.TTF") format("truetype");
+      }
+      @font-face {
+        font-family: "AptosDisplay";
+        src: url("../fonts/AptosDisplay.ttf") format("truetype");
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+        font-family: "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+      }
+
+      #fs-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      #show {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+        transition: opacity 1.2s ease;
+        pointer-events: none;
+      }
+      #show.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 1.95s ease;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      .slide.active {
+        opacity: 1;
+      }
+      .slide.slide-first {
+        transition: opacity 2.93s ease;
+      }
+
+      .slide video,
+      .slide img.slide-media {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .slide video.media-ready,
+      .slide img.slide-media.media-ready {
+        opacity: 1;
+      }
+
+      .slide-text {
+        position: absolute;
+        bottom: 12%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        max-width: 80%;
+        font-family: "AptosDisplay", "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+        color: #fff;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        padding: 0.2em 1em;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 1s ease;
+        pointer-events: none;
+        white-space: normal;
+        overflow-wrap: normal;
+        word-break: normal;
+        letter-spacing: 0.02em;
+        border-radius: 4px;
+        line-height: 1.25;
+      }
+      .slide-text.hidden {
+        opacity: 0;
+      }
+      .slide-text.visible {
+        opacity: 1;
+      }
+
+      #page-badge {
+        position: fixed;
+        bottom: 0.9rem;
+        right: 1rem;
+        z-index: 50;
+        background: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        font-family: "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+        padding: 3px 9px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        pointer-events: none;
+      }
+
+      #notes-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 60;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      #notes-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #notes-panel {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%) translateY(100%);
+        width: min(580px, 92vw);
+        max-height: 80vh;
+        background: #fff;
+        border-radius: 16px 16px 0 0;
+        z-index: 70;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        pointer-events: none;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 -8px 60px rgba(0, 0, 0, 0.6);
+      }
+      #notes-panel.open {
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+      }
+      #notes-header {
+        padding: 16px 20px 12px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+      #notes-title {
+        font-family: "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        font-size: 1.1rem;
+        color: #222;
+        letter-spacing: 0.04em;
+      }
+      #notes-close {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: #f0f0f0;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #notes-body {
+        padding: 16px 20px 24px;
+        overflow-y: auto;
+        flex: 1;
+        font-family: Arial, sans-serif;
+        font-weight: 400;
+        font-size: 0.95rem;
+        line-height: 1.65;
+        color: #333;
+      }
+      #notes-body h1,
+      #notes-body h2,
+      #notes-body h3 {
+        margin: 0.6em 0 0.3em;
+        font-weight: 600;
+      }
+      #notes-body p {
+        margin: 0 0 0.5em;
+      }
+      #notes-body ul,
+      #notes-body ol {
+        padding-left: 1.4em;
+        margin: 0.3em 0;
+      }
+      #notes-body img {
+        max-width: 100%;
+        border-radius: 6px;
+        margin: 8px 0;
+      }
+
+      #drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 55;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      #drawer-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: clamp(150px, 18vw, 210px);
+        height: 100%;
+        background: rgba(8, 8, 8, 0.96);
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        z-index: 60;
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      #drawer.open {
+        transform: translateX(0);
+      }
+      .drawer-item {
+        border-radius: 6px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        background: #111;
+        transition: border-color 0.2s;
+        flex-shrink: 0;
+      }
+      .drawer-item:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      .drawer-item.active {
+        border-color: #ffc000;
+      }
+      .drawer-item.cursor {
+        outline: 2px solid rgba(255, 255, 255, 0.85);
+        outline-offset: -2px;
+      }
+      .drawer-item img,
+      .drawer-item video {
+        width: 100%;
+        height: 85px;
+        object-fit: cover;
+        display: block;
+      }
+      .drawer-item-ph {
+        width: 100%;
+        height: 85px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+      }
+      .drawer-item-label {
+        padding: 5px 7px 7px;
+        font-family: "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.3;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+      }
+
+      #nav-left {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 20%;
+        height: 100%;
+        z-index: 40;
+        cursor: pointer;
+      }
+      #nav-right {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 20%;
+        height: 100%;
+        z-index: 40;
+        cursor: pointer;
+      }
+      #nav-notes {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 25%;
+        height: 25%;
+        z-index: 40;
+        cursor: pointer;
+      }
+      #nav-drawer {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 20%;
+        height: 20%;
+        z-index: 40;
+        cursor: pointer;
+      }
+      body.drawer-open #nav-left,
+      body.drawer-open #nav-right,
+      body.drawer-open #nav-notes,
+      body.notes-open #nav-left,
+      body.notes-open #nav-right,
+      body.notes-open #nav-drawer {
+        pointer-events: none;
+      }
+
+      #slutt {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 90;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 3.5s ease;
+      }
+      #slutt.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #slutt-word {
+        font-family: "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: clamp(4rem, 12vw, 10rem);
+        color: #ffc000;
+        letter-spacing: 0.05em;
+      }
+      #slutt-btn {
+        margin-top: 2.5rem;
+        padding: 0.6em 2em;
+        font-family: "AGENCYR", Arial Narrow, Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(1rem, 2vw, 1.4rem);
+        color: #000;
+        background: #ffc000;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        transition: background 0.2s;
+      }
+      #slutt-btn:hover {
+        background: #e6af00;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fs-overlay"></div>
+
+    <div id="show"><div id="slides-container"></div></div>
+    <div id="page-badge"></div>
+
+    <div id="slutt">
+      <div id="slutt-word">Slutt</div>
+      <button id="slutt-btn">Start på nytt</button>
+    </div>
+
+    <div id="nav-left"></div>
+    <div id="nav-right"></div>
+    <div id="nav-notes"></div>
+    <div id="nav-drawer"></div>
+
+    <div id="notes-backdrop"></div>
+    <div id="notes-panel">
+      <div id="notes-header">
+        <div id="notes-title">Om denne presentasjonen</div>
+        <button id="notes-close">✕</button>
+      </div>
+      <div id="notes-body"></div>
+    </div>
+
+    <div id="drawer-backdrop"></div>
+    <div id="drawer"></div>
+
+    <audio id="shared-audio" loop></audio>
+
+    <script>
+      // ── FULLSCREEN ─────────────────────────────────────────────────────────
+      (function () {
+        const overlay = document.getElementById("fs-overlay");
+        function requestFs() {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          }
+        }
+        requestFs();
+        overlay.addEventListener(
+          "click",
+          function onFirstClick(e) {
+            e.stopPropagation();
+            requestFs();
+            overlay.remove();
+          },
+          { once: true }
+        );
+        document.addEventListener(
+          "keydown",
+          function onFirstKey() {
+            requestFs();
+            if (overlay.parentNode) overlay.remove();
+            document.removeEventListener("keydown", onFirstKey);
+          },
+          { once: true }
+        );
+      })();
+
+      // ── State ──────────────────────────────────────────────────────────────
+      let slides = [],
+        currentIndex = -1;
+      let autoTimer = null;
+      let showStarted = false;
+      let notesOpen = false,
+        drawerOpen = false;
+      let drawerCursorIndex = 0;
+      let currentAudioSrc = "";
+
+      const sharedAudio = document.getElementById("shared-audio");
+      const showEl = document.getElementById("show");
+      const sluttEl = document.getElementById("slutt");
+      const slidesWrap = document.getElementById("slides-container");
+      const pageBadge = document.getElementById("page-badge");
+
+      const isVideo = (url) => url && /\.(mp4|webm|ogg|mov)/i.test(url);
+
+      // ── Audio ──────────────────────────────────────────────────────────────
+      function handleAudio(slide) {
+        const mode = slide.imMusicMode || "shared";
+        const src =
+          mode === "perslide"
+            ? slide.perSlideMp3Url || slide.musicFileUrl || ""
+            : slide.sharedMp3Url || slide.musicFileUrl || "";
+        if (!src) return;
+        if (mode === "shared" && src === currentAudioSrc) {
+          if (sharedAudio.paused) sharedAudio.play().catch(() => {});
+          return;
+        }
+        currentAudioSrc = src;
+        sharedAudio.src = src;
+        sharedAudio.loop = mode === "shared";
+        sharedAudio.volume = 1;
+        sharedAudio.play().catch(() => {});
+      }
+
+      // ── Build DOM ──────────────────────────────────────────────────────────
+      // CRITICAL: only slide 0 gets a real src at build time. Every other
+      // slide is built as an empty shell with its media URL parked in
+      // data-src. This is the actual fix for "black screen / browser
+      // busy on first load" — setting src/preload="auto" on N slides
+      // simultaneously saturates the browser's network+decode pipeline
+      // before slide 0 can even render. Only one media load happens up
+      // front; the rest hydrate via hydrateAround()/ensureHydrated(),
+      // called from startShow() and goToSlide() below.
+      function buildSlides(screens) {
+        slidesWrap.innerHTML = "";
+        screens.forEach((s, i) => {
+          const div = document.createElement("div");
+          div.className = i === 0 ? "slide slide-first" : "slide";
+          div.style.backgroundColor = s.bgColor || "#000";
+          const bg = s.mediaFileUrl || "";
+          const eager = i === 0;
+
+          if (isVideo(bg)) {
+            const vid = document.createElement("video");
+            vid.preload = eager ? "auto" : "none";
+            vid.loop = true;
+            vid.muted = true;
+            vid.playsInline = true;
+            vid.className = "slide-media";
+            vid.addEventListener(
+              "loadeddata",
+              () => vid.classList.add("media-ready"),
+              { once: true }
+            );
+            if (eager) vid.src = bg;
+            else vid.dataset.src = bg;
+            div.appendChild(vid);
+          } else if (bg) {
+            const img = document.createElement("img");
+            img.className = "slide-media slide-img";
+            img.decoding = "async";
+            if (eager) {
+              if (img.complete) img.classList.add("media-ready");
+              else
+                img.addEventListener(
+                  "load",
+                  () => img.classList.add("media-ready"),
+                  { once: true }
+                );
+              img.src = bg;
+            } else {
+              img.dataset.src = bg;
+            }
+            div.appendChild(img);
+          }
+
+          if (s.screenText && s.mediaFileUrl) {
+            const txt = document.createElement("div");
+            txt.className = "slide-text";
+            txt.textContent = s.screenText;
+            div.appendChild(txt);
+          }
+
+          slidesWrap.appendChild(div);
+        });
+      }
+
+      // ── Hydration: always keep a lookahead window loaded ────────────────
+      // Instead of loading everything up front (the bug above) or one
+      // linear sweep from the start (which can fall behind if an early
+      // slide is heavy), we hydrate based on WHERE THE VIEWER CURRENTLY
+      // IS. ensureHydrated(i) loads slide i if it's still deferred —
+      // called for the current slide + the next two, every time the
+      // viewer moves. This guarantees a buffer ahead at all times.
+      const LOOKAHEAD = 2;
+
+      function ensureHydrated(index) {
+        const el = slidesWrap.children[index];
+        if (!el) return;
+        const media = el.querySelector("video[data-src], img[data-src]");
+        if (!media) return; // already hydrated, or no media on this slide
+
+        if (media.tagName === "VIDEO") {
+          media.preload = "auto";
+          media.addEventListener(
+            "loadeddata",
+            () => media.classList.add("media-ready"),
+            { once: true }
+          );
+        } else {
+          media.addEventListener(
+            "load",
+            () => media.classList.add("media-ready"),
+            { once: true }
+          );
+        }
+        media.src = media.dataset.src;
+        delete media.dataset.src;
+      }
+
+      function hydrateAround(index) {
+        for (let i = index; i <= index + LOOKAHEAD && i < slides.length; i++) {
+          ensureHydrated(i);
+        }
+      }
+
+      let drawerHydrated = false;
+
+      function buildDrawer(screens) {
+        const drawer = document.getElementById("drawer");
+        drawer.innerHTML = "";
+        screens.forEach((s, i) => {
+          const item = document.createElement("div");
+          item.className = "drawer-item";
+          const bg = s.mediaFileUrl || "";
+          if (isVideo(bg)) {
+            const v = document.createElement("video");
+            v.dataset.src = bg;
+            v.muted = true;
+            v.preload = "none";
+            v.style.pointerEvents = "none";
+            item.appendChild(v);
+          } else if (bg) {
+            const img = document.createElement("img");
+            img.dataset.src = bg;
+            img.alt = "";
+            img.onerror = () => (img.style.display = "none");
+            item.appendChild(img);
+          } else {
+            const ph = document.createElement("div");
+            ph.className = "drawer-item-ph";
+            ph.style.background = s.bgColor || "#1a1a1a";
+            ph.textContent = "🎵";
+            item.appendChild(ph);
+          }
+          const lbl = document.createElement("div");
+          lbl.className = "drawer-item-label";
+          item.appendChild(lbl);
+          item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeDrawer();
+            goToSlide(i);
+          });
+          drawer.appendChild(item);
+        });
+        drawerHydrated = false;
+      }
+
+      function hydrateDrawerThumbs() {
+        if (drawerHydrated) return;
+        drawerHydrated = true;
+        document
+          .getElementById("drawer")
+          .querySelectorAll("img[data-src], video[data-src]")
+          .forEach((el) => {
+            el.src = el.dataset.src;
+            if (el.tagName === "VIDEO") el.preload = "metadata";
+          });
+      }
+
+      function highlightDrawer(i) {
+        document
+          .querySelectorAll(".drawer-item")
+          .forEach((el, idx) => el.classList.toggle("active", idx === i));
+      }
+      function openDrawerWithCursor() {
+        drawerCursorIndex = currentIndex;
+        openDrawer();
+        updateDrawerCursor(drawerCursorIndex);
+      }
+      function updateDrawerCursor(index) {
+        const items = document
+          .getElementById("drawer")
+          .querySelectorAll(".drawer-item");
+        items.forEach((el, i) => el.classList.toggle("cursor", i === index));
+        items[index]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+
+      // ── startShow ──────────────────────────────────────────────────────────
+      function startShow() {
+        if (showStarted) return;
+        showStarted = true;
+        showEl.classList.add("visible");
+        goToSlide(0);
+        hydrateAround(0);
+      }
+
+      // ── Slutt ──────────────────────────────────────────────────────────────
+      function showSlutt() {
+        sharedAudio.pause();
+        sluttEl.classList.add("visible");
+      }
+
+      document.getElementById("slutt-btn").addEventListener("click", () => {
+        sluttEl.classList.remove("visible");
+        if (currentIndex >= 0)
+          slidesWrap.children[currentIndex]?.classList.remove("active");
+        currentIndex = -1;
+        showStarted = false;
+        clearTimeout(autoTimer);
+        currentAudioSrc = "";
+        sharedAudio.pause();
+        sharedAudio.src = "";
+        showEl.classList.remove("visible");
+        const s0 = slides[0];
+        if (s0 && s0.sharedMp3Url) {
+          sharedAudio.src = s0.sharedMp3Url;
+          sharedAudio.preload = "auto";
+          currentAudioSrc = s0.sharedMp3Url;
+        }
+        startShow();
+      });
+
+      // ── goToSlide ──────────────────────────────────────────────────────────
+      function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+        clearTimeout(autoTimer);
+
+        const prevIndex = currentIndex;
+        const prevEl = prevIndex >= 0 ? slidesWrap.children[prevIndex] : null;
+
+        currentIndex = index;
+        const slide = slides[currentIndex];
+        const el = slidesWrap.children[currentIndex];
+        if (!el) return;
+
+        if (prevEl && prevEl !== el) prevEl.classList.remove("active");
+        el.classList.add("active");
+
+        hydrateAround(currentIndex);
+
+        const vid = el.querySelector("video");
+        if (vid) {
+          if (vid.currentTime > 0.05) vid.currentTime = 0;
+          vid.play().catch(() => {});
+        }
+
+        pageBadge.textContent = `${currentIndex + 1} / ${slides.length}`;
+        highlightDrawer(currentIndex);
+        handleAudio(slide);
+
+        const txt = el.querySelector(".slide-text");
+        if (txt) {
+          txt.classList.remove("visible");
+          txt.classList.add("hidden");
+          const media = el.querySelector(".slide-media");
+
+          const revealText = () => {
+            txt.classList.remove("hidden");
+            txt.classList.add("visible");
+            setTimeout(() => {
+              txt.classList.remove("visible");
+              txt.classList.add("hidden");
+            }, 8000);
+          };
+
+          if (!media || media.classList.contains("media-ready")) {
+            setTimeout(revealText, 1500);
+          } else {
+            const onReady = () => setTimeout(revealText, 400);
+            media.addEventListener("loadeddata", onReady, { once: true });
+            media.addEventListener("load", onReady, { once: true });
+          }
+        }
+
+        const fadeMs = currentIndex === 0 && prevIndex === -1 ? 2930 : 1950;
+        const secs = parseInt(slide.displaySeconds) || 8;
+        autoTimer = setTimeout(() => {
+          if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+          else showSlutt();
+        }, fadeMs + secs * 1000);
+      }
+
+      // ── Notes / Drawer ─────────────────────────────────────────────────────
+      function getAboutShow() {
+        const cur = slides[currentIndex],
+          s0 = slides[0];
+        return (
+          (cur && (cur.aboutShow || cur.additionalNotes)) ||
+          (s0 && (s0.aboutShow || s0.additionalNotes)) ||
+          "<p>Ingen notater for dette showet.</p>"
+        );
+      }
+      function openNotes() {
+        document.getElementById("notes-body").innerHTML = getAboutShow();
+        document.getElementById("notes-panel").classList.add("open");
+        document.getElementById("notes-backdrop").classList.add("open");
+        document.body.classList.add("notes-open");
+        notesOpen = true;
+      }
+      function closeNotes() {
+        document.getElementById("notes-panel").classList.remove("open");
+        document.getElementById("notes-backdrop").classList.remove("open");
+        document.body.classList.remove("notes-open");
+        notesOpen = false;
+      }
+      function openDrawer() {
+        hydrateDrawerThumbs();
+        document.getElementById("drawer").classList.add("open");
+        document.getElementById("drawer-backdrop").classList.add("open");
+        document.body.classList.add("drawer-open");
+        drawerOpen = true;
+      }
+      function closeDrawer() {
+        document.getElementById("drawer").classList.remove("open");
+        document.getElementById("drawer-backdrop").classList.remove("open");
+        document.body.classList.remove("drawer-open");
+        drawerOpen = false;
+        document
+          .getElementById("drawer")
+          .querySelectorAll(".drawer-item")
+          .forEach((el) => el.classList.remove("cursor"));
+      }
+
+      // ── Navigation ─────────────────────────────────────────────────────────
+      document.getElementById("nav-left").addEventListener("click", () => {
+        if (drawerOpen) {
+          closeDrawer();
+          return;
+        }
+        if (notesOpen) {
+          closeNotes();
+          return;
+        }
+        if (currentIndex > 0) goToSlide(currentIndex - 1);
+      });
+      document.getElementById("nav-right").addEventListener("click", () => {
+        if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+      });
+      document.getElementById("nav-notes").addEventListener("click", (e) => {
+        e.stopPropagation();
+        notesOpen ? closeNotes() : openNotes();
+      });
+      document.getElementById("nav-drawer").addEventListener("click", (e) => {
+        e.stopPropagation();
+        drawerOpen ? closeDrawer() : openDrawerWithCursor();
+      });
+      document
+        .getElementById("notes-close")
+        .addEventListener("click", closeNotes);
+      document
+        .getElementById("notes-backdrop")
+        .addEventListener("click", closeNotes);
+      document
+        .getElementById("drawer-backdrop")
+        .addEventListener("click", closeDrawer);
+
+      document.addEventListener("keydown", (e) => {
+        const key = e.key;
+        if (drawerOpen) {
+          if (
+            [
+              "ArrowUp",
+              "ArrowDown",
+              "ArrowLeft",
+              "ArrowRight",
+              "Enter",
+              "Escape",
+            ].includes(key)
+          )
+            e.preventDefault();
+          switch (key) {
+            case "ArrowUp":
+            case "ArrowLeft":
+              drawerCursorIndex = Math.max(0, drawerCursorIndex - 1);
+              updateDrawerCursor(drawerCursorIndex);
+              break;
+            case "ArrowDown":
+            case "ArrowRight":
+              drawerCursorIndex = Math.min(
+                slides.length - 1,
+                drawerCursorIndex + 1
+              );
+              updateDrawerCursor(drawerCursorIndex);
+              break;
+            case "Enter":
+              currentIndex = drawerCursorIndex;
+              closeDrawer();
+              goToSlide(currentIndex);
+              break;
+            case "Escape":
+              closeDrawer();
+              break;
+          }
+          return;
+        }
+        if (notesOpen) {
+          if (["ArrowUp", "ArrowDown", "Escape"].includes(key))
+            e.preventDefault();
+          switch (key) {
+            case "ArrowUp":
+              document
+                .getElementById("notes-body")
+                .scrollBy({ top: -80, behavior: "smooth" });
+              break;
+            case "ArrowDown":
+            case "Escape":
+              closeNotes();
+              break;
+          }
+          return;
+        }
+        if (["ArrowUp", "ArrowDown"].includes(key)) e.preventDefault();
+        switch (key) {
+          case "ArrowRight":
+            if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+            break;
+          case "ArrowLeft":
+            if (currentIndex > 0) goToSlide(currentIndex - 1);
+            break;
+          case "ArrowUp":
+            if (showStarted) openDrawerWithCursor();
+            break;
+          case "ArrowDown":
+            if (showStarted) openNotes();
+            break;
+          case "Escape":
+            closeNotes();
+            closeDrawer();
+            break;
+        }
+      });
+
+      // ── Load ───────────────────────────────────────────────────────────────
+      async function loadShow() {
+        let data = null;
+        try {
+          data = JSON.parse(localStorage.getItem("im_preview_json"));
+        } catch {}
+        if (!data) {
+          try {
+            const r = await fetch("../content/imagemusic.json");
+            if (r.ok) data = await r.json();
+          } catch {}
+        }
+        if (!data) return;
+
+        const sharedMp3 = data.sharedMp3Url || "";
+        const musicMode = data.imMusicMode || "shared";
+        const showLevelAboutShow =
+          (data.screens && data.screens[0]?.aboutShow) || data.aboutShow || "";
+
+        const savedTotal =
+          data.totalPages && data.totalPages > 0
+            ? data.totalPages
+            : (data.screens || []).length;
+
+        const screensToUse = (data.screens || [])
+          .slice(0, savedTotal)
+          .filter((s) => s.mediaFileUrl && s.mediaFileUrl.trim() !== "");
+
+        if (screensToUse.length === 0) return;
+
+        slides = screensToUse.map((s) => ({
+          ...s,
+          sharedMp3Url: s.sharedMp3Url || sharedMp3,
+          imMusicMode: s.imMusicMode || musicMode,
+          aboutShow: s.aboutShow || showLevelAboutShow,
+          displaySeconds: parseInt(s.displaySeconds) || 8,
+        }));
+
+        document.title = data.quizName || "Musikk og bilder";
+        buildSlides(slides);
+        buildDrawer(slides);
+
+        if (sharedMp3) {
+          sharedAudio.src = sharedMp3;
+          sharedAudio.loop = true;
+          sharedAudio.volume = 1;
+          sharedAudio.preload = "auto";
+          currentAudioSrc = sharedMp3;
+        }
+
+        startShow();
+      }
+
+      loadShow();
+    </script>
+  </body>
+</html>
