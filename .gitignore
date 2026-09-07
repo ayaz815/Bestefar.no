@@ -1,0 +1,33 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Local scratch and old copies that don't belong in the repo
+New folder/
+httpd.private/
+*.zip
+*.tar.gz
+*.sql
+*.sql.gz
+
+# CodeIgniter runtime files (regenerated at runtime)
+httpd.www/application/logs/*.php
+httpd.www/application/cache/*
+!httpd.www/application/cache/index.html
+!httpd.www/application/cache/.htaccess
+httpd.www/application/sessions/*
+!httpd.www/application/sessions/index.html
+
+# User generated uploads (kept on the server, not in git)
+httpd.www/uploads/
+httpd.www/application/uploads/
+
+# Ayaz's personal portfolio folder – not part of the site
+httpd.www/ayaz/
+
+# Local server helpers
+maintenance.jpeg
+"index maintenance.html"
