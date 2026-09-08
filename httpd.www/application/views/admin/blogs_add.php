@@ -201,7 +201,7 @@ body{
     											<label class="col-sm-4 col-lg-2 col-form-label"> Cover Image Url</label>
     											<div class="col-sm-8 col-lg-10">
     												<div class="input-group">
-    													<input type="text" name="cover_url"  value="<?php echo $blog->cover_url; ?>" class="form-control"/>
+    													<input type="text" name="cover_url"  value="" class="form-control"/>
     												</div>
     											</div>
 										    </div>
@@ -212,7 +212,7 @@ body{
     											    
     												<div class="input-group">
     												    
-        												<input type="file"  accept="image/*" name="v_image[]" multiple  value="<?php echo $blog->c_image; ?>" class="form-control"/>
+        												<input type="file"  accept="image/*" name="v_image[]" multiple  class="form-control"/>
         													
         												</div>
         											
@@ -228,7 +228,7 @@ body{
 														
 														<input name="category_list" type="checkbox" id="d2" value="category_list">
 														<label for="d2" class="chk_box" > Keep the page also in category list.</label> 
-														<input name="author_date" type="checkbox" id="d3" <?php if($blog->author_date == 1){ echo 'checked'; } ?>>
+														<input name="author_date" type="checkbox" id="d3">
 													<label for="d2" class="chk_box" > Show Author/Date.</label>
 													</div>
 												</div>
