@@ -5,6 +5,9 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Screenshots dropped in the project root while debugging
+/Screenshot*.png
+
 # Local scratch and old copies that don't belong in the repo
 New folder/
 httpd.private/
