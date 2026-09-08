@@ -64,10 +64,20 @@
  * file that sits one level above this folder and is never committed
  * to git. We read it here with a tiny parser so the rest of the app
  * can just call env('SOME_KEY').
+ *
+ * We look for the file next to this folder first (…/bestefar.no/.env),
+ * then inside the web root (…/httpd.www/.env) as a fallback. Values are
+ * stored in $_ENV / $_SERVER and (when allowed) the process environment,
+ * so env() still works on hosts where putenv() is disabled.
  */
-	$dotenv_file = dirname(__DIR__).DIRECTORY_SEPARATOR.'.env';
-	if (is_file($dotenv_file))
+	$GLOBALS['_dotenv'] = array();
+
+	foreach (array(dirname(__DIR__).DIRECTORY_SEPARATOR.'.env', __DIR__.DIRECTORY_SEPARATOR.'.env') as $dotenv_file)
 	{
+		if ( ! is_file($dotenv_file) || ! is_readable($dotenv_file))
+		{
+			continue;
+		}
 		foreach (file($dotenv_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $dotenv_line)
 		{
 			$dotenv_line = trim($dotenv_line);
@@ -84,30 +94,51 @@
 			{
 				$dotenv_value = substr($dotenv_value, 1, -1);
 			}
-			if (getenv($dotenv_name) === FALSE)
+			if ( ! array_key_exists($dotenv_name, $GLOBALS['_dotenv']))
 			{
-				putenv($dotenv_name.'='.$dotenv_value);
-				$_ENV[$dotenv_name] = $dotenv_value;
+				$GLOBALS['_dotenv'][$dotenv_name] = $dotenv_value;
+				if ( ! isset($_ENV[$dotenv_name]))    $_ENV[$dotenv_name] = $dotenv_value;
+				if ( ! isset($_SERVER[$dotenv_name])) $_SERVER[$dotenv_name] = $dotenv_value;
+				if (function_exists('putenv') && getenv($dotenv_name) === FALSE)
+				{
+					@putenv($dotenv_name.'='.$dotenv_value);
+				}
 			}
 		}
-		unset($dotenv_line, $dotenv_name, $dotenv_value);
+		break; // stop at the first .env we found
 	}
-	unset($dotenv_file);
+	unset($dotenv_file, $dotenv_line, $dotenv_name, $dotenv_value);
 
 	if ( ! function_exists('env'))
 	{
 		/**
 		 * Read a value from the environment, with an optional fallback.
+		 * Checks the parsed .env, then $_ENV / $_SERVER, then getenv().
 		 * "true", "false" and "null" are turned into real PHP values.
 		 */
 		function env($key, $default = NULL)
 		{
-			$value = getenv($key);
-			if ($value === FALSE)
+			if (isset($GLOBALS['_dotenv'][$key]))
 			{
-				return $default;
+				$value = $GLOBALS['_dotenv'][$key];
 			}
-			switch (strtolower($value))
+			elseif (isset($_ENV[$key]))
+			{
+				$value = $_ENV[$key];
+			}
+			elseif (isset($_SERVER[$key]))
+			{
+				$value = $_SERVER[$key];
+			}
+			else
+			{
+				$value = getenv($key);
+				if ($value === FALSE)
+				{
+					return $default;
+				}
+			}
+			switch (strtolower((string) $value))
 			{
 				case 'true':  return TRUE;
 				case 'false': return FALSE;
