@@ -1,7 +1,7 @@
 <style>
 /* Uses the site's own font (agency_fbbold, loaded site-wide via theme/head.php)
    and its actual accent colors (#ffc000 gold, #9dc3e6 blue) instead of guesses. */
-.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; font-family:'agency_fbbold', Arial, sans-serif; }
+.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; font-family:'agency_fbbold', Arial, sans-serif; min-height:60vh; }
 .quiz-catalog h1{ font-size:28px; margin-bottom:20px; }
 .quiz-filter{ margin-bottom:15px; position:relative; display:inline-block; }
 .quiz-filter-btn{ background:#ffc000; border:1px solid #d6a600; padding:8px 16px; cursor:pointer; font-size:16px; }
