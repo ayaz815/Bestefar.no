@@ -1,19 +1,21 @@
 <style>
-.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; font-family:'Agency', Arial, sans-serif; }
-.quiz-catalog h1{ font-size:26px; margin-bottom:20px; }
+/* Uses the site's own font (agency_fbbold, loaded site-wide via theme/head.php)
+   and its actual accent colors (#ffc000 gold, #9dc3e6 blue) instead of guesses. */
+.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; font-family:'agency_fbbold', Arial, sans-serif; }
+.quiz-catalog h1{ font-size:28px; margin-bottom:20px; }
 .quiz-filter{ margin-bottom:15px; position:relative; display:inline-block; }
-.quiz-filter-btn{ background:#e8e8e8; border:1px solid #bbb; padding:8px 16px; cursor:pointer; font-size:15px; }
+.quiz-filter-btn{ background:#ffc000; border:1px solid #d6a600; padding:8px 16px; cursor:pointer; font-size:16px; }
 .quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #bbb; min-width:160px; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,.15); }
 .quiz-filter-menu a{ display:block; padding:8px 14px; color:#222; text-decoration:none; }
-.quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#f6c94c; }
+.quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#9dc3e6; }
 .quiz-filter.open .quiz-filter-menu{ display:block; }
-table.quiz-table{ width:100%; border-collapse:collapse; }
-table.quiz-table th{ background:#f6c94c; text-align:left; padding:10px 12px; border-bottom:2px solid #d6ad1f; }
+table.quiz-table{ width:100%; border-collapse:collapse; font-size:16px; }
+table.quiz-table th{ background:#ffc000; text-align:left; padding:10px 12px; border-bottom:2px solid #d6a600; }
 table.quiz-table th a{ color:#222; text-decoration:none; }
 table.quiz-table td{ padding:10px 12px; border-bottom:1px solid #eee; }
 table.quiz-table tr:nth-child(even) td{ background:#fbfbfb; }
 .quiz-table th.num, .quiz-table td.num{ text-align:right; }
-.quiz-info{ display:inline-block; width:18px; height:18px; border-radius:50%; background:#5b9bd5; color:#fff; text-align:center; line-height:18px; font-size:12px; font-weight:bold; cursor:pointer; position:relative; }
+.quiz-info{ display:inline-block; width:18px; height:18px; border-radius:50%; background:#9dc3e6; color:#000; text-align:center; line-height:18px; font-size:12px; font-weight:bold; cursor:pointer; position:relative; }
 .quiz-info .quiz-info-popup{ display:none; position:absolute; right:0; top:24px; background:#333; color:#fff; padding:8px 12px; border-radius:4px; width:220px; font-size:13px; text-align:left; z-index:5; }
 .quiz-info:hover .quiz-info-popup, .quiz-info:focus .quiz-info-popup{ display:block; }
 .quiz-empty{ padding:30px 0; color:#666; }
