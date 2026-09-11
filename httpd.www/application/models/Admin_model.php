@@ -891,16 +891,26 @@
 			$this->db->update('quizzes', $save_data);
 		}
 
-		// Catalog listing for the public "Spørreleker" page: newest first, optionally
-		// filtered to one quiz_type ('AudioQuiz', 'BildeQuiz', 'TekstQuiz', 'BilderMusikk').
-		function get_quizzes_catalog($quiz_type = ''){
+		// Catalog listing for the public "Spørreleker" page: sortable by date, name,
+		// category or question count, optionally filtered to one quiz_type
+		// ('AudioQuiz', 'BildeQuiz', 'TekstQuiz', 'BilderMusikk').
+		function get_quizzes_catalog($quiz_type = '', $sort = '', $dir = 'desc'){
+			$columns = array(
+				'date'     => 'date',
+				'category' => 'quiz_type',
+				'name'     => 'name',
+				'count'    => 'question_count',
+			);
+			$order_by = isset($columns[$sort]) ? $columns[$sort] : 'date';
+			$dir = (strtolower($dir) == 'asc') ? 'ASC' : 'DESC';
+
 			$this->db->select();
 			$this->db->from('quizzes');
 			$this->db->where('status', 'Active');
 			if($quiz_type){
 				$this->db->where('quiz_type', $quiz_type);
 			}
-			$this->db->order_by('date', 'DESC');
+			$this->db->order_by($order_by, $dir);
 			return $this->db->get()->result_array();
 		}
 
