@@ -860,10 +860,51 @@
 		
 		function blog_paid($id){
 		    $blog = $this->db->where('blogs_id',$id)->get("blogs")->row_array();
-		    $status = $blog['paid'] ==  0 ? 1 : 0;  
+		    $status = $blog['paid'] ==  0 ? 1 : 0;
 		    $this->db->where('blogs_id',$id)->update("blogs",['paid'=>$status]);
 		}
-		
+
+		// --- Quizzes (Spørreleker catalog) ---
+
+		function add_new_quiz(){
+			$save_data['quiz_type'] 		= $this->input->post('quiz_type');
+			$save_data['name'] 			= $this->input->post('name');
+			$save_data['question_count'] 	= (int) $this->input->post('question_count');
+			$save_data['info'] 			= $this->input->post('info');
+			$save_data['content_path'] 	= $this->input->post('content_path');
+			$save_data['status'] 			= $this->input->post('status') ?: 'Active';
+			$save_data['q_order'] 			= (int) $this->input->post('q_order');
+			$save_data['date'] 			= date('Y-m-d H:i:s');
+			$this->db->insert('quizzes', $save_data);
+			return $this->db->insert_id();
+		}
+
+		function quizzes_update(){
+			$save_data['quiz_type'] 		= $this->input->post('quiz_type');
+			$save_data['name'] 			= $this->input->post('name');
+			$save_data['question_count'] 	= (int) $this->input->post('question_count');
+			$save_data['info'] 			= $this->input->post('info');
+			$save_data['content_path'] 	= $this->input->post('content_path');
+			$save_data['status'] 			= $this->input->post('status');
+			$save_data['q_order'] 			= (int) $this->input->post('q_order');
+			$this->db->where('quizzes_id', $this->input->post('quizzes_id'));
+			$this->db->update('quizzes', $save_data);
+		}
+
+		// Catalog listing for the public "Spørreleker" page: newest first, optionally
+		// filtered to one quiz_type ('AudioQuiz', 'BildeQuiz', 'TekstQuiz', 'BilderMusikk').
+		function get_quizzes_catalog($quiz_type = ''){
+			$this->db->select();
+			$this->db->from('quizzes');
+			$this->db->where('status', 'Active');
+			if($quiz_type){
+				$this->db->where('quiz_type', $quiz_type);
+			}
+			$this->db->order_by('date', 'DESC');
+			return $this->db->get()->result_array();
+		}
+
+
 		function get_data_orderwise_unpublished($table,$order){
 		    $this->db->select();
 			$this->db->from($table);
