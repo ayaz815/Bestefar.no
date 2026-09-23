@@ -913,6 +913,7 @@
 			return array_map(function($show){
 				return array(
 					'quiz_type'      => 'AudioQuiz',
+					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
 					'question_count' => isset($show['quizForms']) ? count($show['quizForms']) : 0,
 					'date'           => $this->get_or_record_first_seen($show['id']),
@@ -927,6 +928,7 @@
 			return array_map(function($show){
 				return array(
 					'quiz_type'      => 'BildeQuiz',
+					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
 					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['quizForms']) ? count($show['quizForms']) : 0),
 					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
@@ -941,6 +943,7 @@
 			return array_map(function($show){
 				return array(
 					'quiz_type'      => 'BilderMusikk',
+					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
 					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['screens']) ? count($show['screens']) : 0),
 					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
@@ -956,12 +959,54 @@
 			return array_map(function($item){
 				return array(
 					'quiz_type'      => 'TekstQuiz',
+					'external_id'    => $item['id'],
 					'name'           => isset($item['quizName']) ? $item['quizName'] : '',
 					'question_count' => isset($item['totalWords']) ? (int) $item['totalWords'] : 0,
 					'date'           => isset($item['createdAt']) ? $item['createdAt'] : '',
 					'info'           => '',
 				);
 			}, $items);
+		}
+
+		// The (i) popup text per quiz - not available from any generator or the
+		// live API yet, so it's kept here and looked up by quiz_type+external_id.
+		function get_quiz_info($quiz_type, $external_id){
+			$row = $this->db->get_where('quiz_info', array(
+				'quiz_type'   => $quiz_type,
+				'external_id' => $external_id,
+			))->row();
+			return $row ? $row->info : '';
+		}
+
+		function get_quiz_info_map($quiz_type){
+			$rows = $this->db->select('external_id, info')
+				->where('quiz_type', $quiz_type)
+				->get('quiz_info')
+				->result_array();
+			$map = array();
+			foreach($rows as $row){
+				$map[$row['external_id']] = $row['info'];
+			}
+			return $map;
+		}
+
+		function save_quiz_info($quiz_type, $external_id, $info){
+			$existing = $this->db->get_where('quiz_info', array(
+				'quiz_type'   => $quiz_type,
+				'external_id' => $external_id,
+			))->row();
+			$data = array(
+				'info'       => $info,
+				'updated_at' => date('Y-m-d H:i:s'),
+			);
+			if($existing){
+				$this->db->where('quiz_info_id', $existing->quiz_info_id);
+				$this->db->update('quiz_info', $data);
+			}else{
+				$data['quiz_type']   = $quiz_type;
+				$data['external_id'] = $external_id;
+				$this->db->insert('quiz_info', $data);
+			}
 		}
 
 		// Catalog listing for the public "Spørreleker" page: sortable by date, name,
@@ -979,7 +1024,15 @@
 			$quizzes = array();
 			foreach($types_to_fetch as $type){
 				if(isset($fetchers[$type])){
-					$quizzes = array_merge($quizzes, $this->{$fetchers[$type]}());
+					$type_quizzes = $this->{$fetchers[$type]}();
+					$info_map = $this->get_quiz_info_map($type);
+					foreach($type_quizzes as &$quiz){
+						if(isset($info_map[$quiz['external_id']])){
+							$quiz['info'] = $info_map[$quiz['external_id']];
+						}
+					}
+					unset($quiz);
+					$quizzes = array_merge($quizzes, $type_quizzes);
 				}
 			}
 

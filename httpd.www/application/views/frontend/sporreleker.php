@@ -19,9 +19,41 @@ table.quiz-table th{ background:#9dc3e6; text-align:left; padding:10px 12px; }
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px solid #f0f0f0; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-block; width:18px; height:18px; border-radius:50%; background:#5b9bd5; color:#fff; text-align:center; line-height:18px; font-size:12px; font-weight:bold; cursor:pointer; position:relative; text-decoration:none; }
-.quiz-info .quiz-info-popup{ display:none; position:absolute; right:0; top:24px; background:#333; color:#fff; padding:8px 12px; border-radius:4px; width:220px; font-size:13px; text-align:left; text-decoration:none; z-index:5; }
-.quiz-info:hover .quiz-info-popup, .quiz-info:focus .quiz-info-popup{ display:block; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#5b9bd5; color:#fff; font-size:13px; font-weight:bold; font-family:Georgia, serif; font-style:italic; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-info-popup{
+	display:none;
+	position:absolute;
+	right:0;
+	top:28px;
+	background:#fff;
+	color:#222;
+	padding:10px 14px;
+	border-radius:6px;
+	width:240px;
+	font-family:Arial, sans-serif;
+	font-size:13px;
+	line-height:1.4;
+	text-align:left;
+	font-weight:normal;
+	text-decoration:none;
+	box-shadow:0 4px 14px rgba(0,0,0,.2);
+	border:1px solid #ddd;
+	z-index:20;
+}
+.quiz-info-popup::before{
+	content:"";
+	position:absolute;
+	top:-7px;
+	right:6px;
+	width:12px;
+	height:12px;
+	background:#fff;
+	border-left:1px solid #ddd;
+	border-top:1px solid #ddd;
+	transform:rotate(45deg);
+}
+.quiz-info-popup.empty{ color:#888; font-style:italic; }
+.quiz-info.open .quiz-info-popup{ display:block; }
 .quiz-empty{ padding:30px 0; color:#666; text-decoration:none !important; }
 </style>
 
@@ -65,7 +97,11 @@ table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px so
 				<th><?php echo quiz_sort_link('Kategorier', 'category', $sort, $dir, $quiz_type); ?></th>
 				<th><?php echo quiz_sort_link('Navn', 'name', $sort, $dir, $quiz_type); ?></th>
 				<th class="align-right"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>
-				<th></th>
+				<th class="quiz-info-cell">
+					<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
+						<span class="quiz-info-popup">Klikk på (i) på en quiz for å se en kort beskrivelse av den.</span>
+					</button>
+				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -77,11 +113,11 @@ table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px so
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
 						<td class="align-right"><?php echo (int) $quiz['question_count']; ?></td>
 						<td class="quiz-info-cell">
-							<?php if(!empty($quiz['info'])){ ?>
-							<span class="quiz-info" tabindex="0">i
-								<span class="quiz-info-popup"><?php echo htmlspecialchars($quiz['info']); ?></span>
-							</span>
-							<?php } ?>
+							<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
+								<span class="quiz-info-popup<?php echo empty($quiz['info']) ? ' empty' : ''; ?>">
+									<?php echo !empty($quiz['info']) ? htmlspecialchars($quiz['info']) : 'Ingen info lagt inn for denne quizen ennå.'; ?>
+								</span>
+							</button>
 						</td>
 					</tr>
 				<?php } ?>
@@ -91,3 +127,20 @@ table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px so
 		</tbody>
 	</table>
 </div>
+
+<script>
+function quizInfoToggle(btn){
+	var wasOpen = btn.classList.contains('open');
+	document.querySelectorAll('.quiz-info.open').forEach(function(el){ el.classList.remove('open'); });
+	if(!wasOpen){ btn.classList.add('open'); }
+}
+document.addEventListener('click', function(e){
+	if(!e.target.closest('.quiz-info')){
+		document.querySelectorAll('.quiz-info.open').forEach(function(el){ el.classList.remove('open'); });
+	}
+	if(!e.target.closest('#quizFilter')){
+		var f = document.getElementById('quizFilter');
+		if(f){ f.classList.remove('open'); }
+	}
+});
+</script>
