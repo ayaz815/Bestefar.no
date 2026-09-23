@@ -1,25 +1,26 @@
 <style>
-/* Colors and font match the real site (theme/head.php): agency_fbbold body
-   font, #ffc000 gold and #9dc3e6 blue - which are also the two colors used
-   in the Catalog_Quiz.pdf mockup, so this lines up with both. Column
-   alignment (Dato right, Kategorier left, Navn left, Ant spørsmål right)
-   and the blue header / gold rows follow that mockup exactly. */
-.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; font-family:'agency_fbbold', Arial, sans-serif; min-height:60vh; color:#000; }
+/* Everything on this page uses the site's own body font (agency_fbbold,
+   loaded globally in theme/head.php) at the same scale the rest of the site
+   uses - real h1s on bestefar.no run 30-40px, not a made-up smaller size -
+   plus its real accent colors (#ffc000 gold, #9dc3e6 blue), which also
+   happen to be the two colors used in the Catalog_Quiz.pdf mockup. */
+.quiz-catalog, .quiz-catalog *{ font-family:'agency_fbbold', Arial, sans-serif; }
+.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#000; font-size:18px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
-.quiz-catalog h1{ font-size:28px; margin:0; text-decoration:underline; }
-.quiz-catalog-count{ font-size:16px; }
+.quiz-catalog h1{ font-size:36px; margin:0; text-decoration:underline; }
+.quiz-catalog-count{ font-size:18px; }
 .quiz-filter{ margin-bottom:15px; position:relative; display:inline-block; }
-.quiz-filter-btn{ background:#ffc000; border:1px solid #d6a600; padding:8px 16px; cursor:pointer; font-size:16px; }
+.quiz-filter-btn{ background:#ffc000; border:1px solid #d6a600; padding:8px 16px; cursor:pointer; font-size:18px; }
 .quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #bbb; min-width:160px; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-.quiz-filter-menu a{ display:block; padding:8px 14px; color:#222; text-decoration:none; }
+.quiz-filter-menu a{ display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:18px; }
 .quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#9dc3e6; }
 .quiz-filter.open .quiz-filter-menu{ display:block; }
-table.quiz-table{ width:100%; border-collapse:collapse; font-size:16px; }
+table.quiz-table{ width:100%; border-collapse:collapse; font-size:18px; }
 table.quiz-table th{ background:#9dc3e6; text-align:left; padding:10px 12px; }
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px solid #f0f0f0; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#5b9bd5; color:#fff; font-size:13px; font-weight:bold; font-family:Georgia, serif; font-style:italic; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#5b9bd5; color:#fff; font-size:14px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
@@ -30,8 +31,7 @@ table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px so
 	padding:10px 14px;
 	border-radius:6px;
 	width:240px;
-	font-family:Arial, sans-serif;
-	font-size:13px;
+	font-size:15px;
 	line-height:1.4;
 	text-align:left;
 	font-weight:normal;
