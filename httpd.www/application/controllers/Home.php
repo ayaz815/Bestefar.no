@@ -59,7 +59,7 @@
 		// The "Spørreleker" catalog: every quiz in one sortable, filterable list.
 		public function sporreleker(){
 			$quiz_type = $this->input->get('type');
-			$sort      = $this->input->get('sort');
+			$sort      = $this->input->get('sort') ?: 'date';
 			$dir       = ($this->input->get('dir') == 'asc') ? 'asc' : 'desc';
 
 			$quizzes = $this->Admin_model->get_quizzes_catalog($quiz_type, $sort, $dir);

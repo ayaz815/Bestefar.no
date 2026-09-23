@@ -18,7 +18,6 @@ table.quiz-table{ width:100%; border-collapse:collapse; font-size:16px; }
 table.quiz-table th{ background:#9dc3e6; text-align:left; padding:10px 12px; }
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px solid #f0f0f0; }
-table.quiz-table tbody tr td:not(.quiz-info-cell){ text-decoration:underline; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
 .quiz-info{ display:inline-block; width:18px; height:18px; border-radius:50%; background:#5b9bd5; color:#fff; text-align:center; line-height:18px; font-size:12px; font-weight:bold; cursor:pointer; position:relative; text-decoration:none; }
 .quiz-info .quiz-info-popup{ display:none; position:absolute; right:0; top:24px; background:#333; color:#fff; padding:8px 12px; border-radius:4px; width:220px; font-size:13px; text-align:left; text-decoration:none; z-index:5; }
