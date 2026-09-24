@@ -16,40 +16,44 @@
 	font-weight: normal;
 	font-style: normal;
 }
-.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYR', Arial, sans-serif; font-weight:normal; }
-.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#1f2937; font-size:18px; }
-.quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
+.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYR', Arial, sans-serif; font-weight:normal; box-sizing:border-box; }
+.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px 40px; min-height:60vh; color:#1f2937; font-size:18px; }
+.quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:20px; }
 .quiz-catalog h1{ font-size:36px; margin:0; font-weight:normal; }
-.quiz-catalog-count{ font-size:18px; }
-.quiz-filter{ margin-bottom:15px; position:relative; display:inline-block; }
-.quiz-filter-btn{ background:#ffc200; border:1px solid #e0af00; border-radius:8px; padding:8px 16px; cursor:pointer; font-size:18px; }
-.quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #e5e7eb; border-radius:10px; min-width:160px; z-index:10; box-shadow:0 4px 14px rgba(0,0,0,.12); overflow:hidden; }
-.quiz-filter-menu a{ display:block; padding:8px 14px; color:#1f2937; text-decoration:none; font-size:18px; }
+.quiz-catalog-count{ font-size:15px; padding:4px 12px; border-radius:999px; background:rgba(255,194,0,.2); color:#92710a; }
+.quiz-card{ background:rgba(255,255,255,.85); border-radius:20px; box-shadow:0 8px 24px rgba(0,0,0,.08); padding:24px; }
+.quiz-filter{ margin-bottom:20px; position:relative; display:inline-block; }
+.quiz-filter-btn{ background:#f1f2f4; color:#1f2937; border:none; border-radius:12px; padding:10px 18px; cursor:pointer; font-size:16px; }
+.quiz-filter-menu{ display:none; position:absolute; top:calc(100% + 6px); left:0; background:#fff; border:1px solid #e5e7eb; border-radius:12px; min-width:170px; z-index:10; box-shadow:0 8px 20px rgba(0,0,0,.15); overflow:hidden; }
+.quiz-filter-menu a{ display:block; padding:9px 16px; color:#1f2937; text-decoration:none; font-size:16px; }
 .quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#ffc200; }
 .quiz-filter.open .quiz-filter-menu{ display:block; }
-table.quiz-table{ width:100%; border-collapse:collapse; font-size:18px; border-radius:10px; overflow:hidden; }
-table.quiz-table th{ background:#334155; color:#fff; text-align:left; padding:10px 12px; }
+table.quiz-table{ width:100%; border-collapse:collapse; font-size:17px; border-radius:14px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+table.quiz-table th{ background:#334155; color:#fff; text-align:left; padding:12px 14px; font-size:15px; }
 table.quiz-table th a{ color:#fff; text-decoration:none; }
-table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; border-bottom:1px solid #f0f0f0; }
+table.quiz-table td{ padding:12px 14px; background:#fff; color:#1f2937; border-bottom:1px solid #f0f0f0; }
+table.quiz-table tbody tr:hover td{ background:#fffaf0; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#6EC6E0; color:#fff; font-size:14px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-category-badge{ display:inline-block; padding:4px 12px; border-radius:999px; background:rgba(255,194,0,.18); color:#8a6a08; font-size:14px; border:1px solid rgba(255,194,0,.4); }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#3B82F6; color:#fff; font-size:13px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.quiz-info:hover{ background:#2563eb; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
 	right:0;
-	top:28px;
+	top:30px;
 	background:#fff;
 	color:#222;
 	padding:10px 14px;
-	border-radius:6px;
+	border-radius:8px;
 	width:240px;
 	font-size:15px;
 	line-height:1.4;
 	text-align:left;
 	font-weight:normal;
 	text-decoration:none;
-	box-shadow:0 4px 14px rgba(0,0,0,.2);
-	border:1px solid #ddd;
+	box-shadow:0 8px 20px rgba(0,0,0,.2);
+	border:1px solid #e5e7eb;
 	z-index:20;
 }
 .quiz-info-popup::before{
@@ -60,8 +64,8 @@ table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; borde
 	width:12px;
 	height:12px;
 	background:#fff;
-	border-left:1px solid #ddd;
-	border-top:1px solid #ddd;
+	border-left:1px solid #e5e7eb;
+	border-top:1px solid #e5e7eb;
 	transform:rotate(45deg);
 }
 .quiz-info-popup.empty{ color:#888; font-style:italic; }
@@ -75,6 +79,7 @@ table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; borde
 		<span class="quiz-catalog-count">1 - <?php echo count($quizzes); ?></span>
 	</div>
 
+	<div class="quiz-card">
 	<div class="quiz-filter" id="quizFilter">
 		<div class="quiz-filter-btn" onclick="document.getElementById('quizFilter').classList.toggle('open')">
 			Kategorier <?php echo $quiz_type ? ': '.$quiz_type : ''; ?> ▾
@@ -121,7 +126,7 @@ table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; borde
 				<?php foreach($quizzes as $quiz){ ?>
 					<tr>
 						<td class="align-right"><?php echo $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-'; ?></td>
-						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
+						<td><span class="quiz-category-badge"><?php echo htmlspecialchars($quiz['quiz_type']); ?></span></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
 						<td class="align-right"><?php echo (int) $quiz['question_count']; ?></td>
 						<td class="quiz-info-cell">
@@ -138,6 +143,7 @@ table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; borde
 			<?php } ?>
 		</tbody>
 	</table>
+	</div>
 </div>
 
 <script>
