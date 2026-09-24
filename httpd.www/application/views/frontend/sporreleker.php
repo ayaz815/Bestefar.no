@@ -11,12 +11,12 @@
    #334155 slate used throughout ArchiveShows.jsx and ShowCard.jsx. Using
    those here instead. */
 @font-face {
-	font-family: 'AGENCYB';
-	src: url('<?php echo base_url('assets/font/AGENCYB.TTF'); ?>') format('truetype');
-	font-weight: bold;
+	font-family: 'AGENCYR';
+	src: url('<?php echo base_url('assets/font/AGENCYR.TTF'); ?>') format('truetype');
+	font-weight: normal;
 	font-style: normal;
 }
-.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYB', Arial, sans-serif; }
+.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYR', Arial, sans-serif; font-weight:normal; }
 .quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#1f2937; font-size:18px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:36px; margin:0; font-weight:normal; }
@@ -32,7 +32,7 @@ table.quiz-table th{ background:#334155; color:#fff; text-align:left; padding:10
 table.quiz-table th a{ color:#fff; text-decoration:none; }
 table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; border-bottom:1px solid #f0f0f0; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#334155; color:#fff; font-size:14px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#6EC6E0; color:#fff; font-size:14px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
