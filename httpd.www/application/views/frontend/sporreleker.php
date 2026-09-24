@@ -1,26 +1,38 @@
 <style>
-/* Everything on this page uses the site's own body font (agency_fbbold,
-   loaded globally in theme/head.php) at the same scale the rest of the site
-   uses - real h1s on bestefar.no run 30-40px, not a made-up smaller size -
-   plus its real accent colors (#ffc000 gold, #9dc3e6 blue), which also
-   happen to be the two colors used in the Catalog_Quiz.pdf mockup. */
-.quiz-catalog, .quiz-catalog *{ font-family:'agency_fbbold', Arial, sans-serif; }
-.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#000; font-size:18px; }
+/* This page's font used to chase 'agency_fbbold' - a name the live CI site
+   itself never actually defines an @font-face for (checked theme/head.php:
+   the only font that's really linked there is agency_fbregular, and 'Agency'
+   has a real file but nothing ever uses that font-family name either). So
+   matching it was matching a name that doesn't render as intended even on
+   the real site.
+   The React app at "frontend/" is what actually manages and plays these
+   quizzes day to day, and IS a real, working design system: AGENCYB.TTF
+   (copied into assets/font/ from there) and the accents #ffc200 gold /
+   #334155 slate used throughout ArchiveShows.jsx and ShowCard.jsx. Using
+   those here instead. */
+@font-face {
+	font-family: 'AGENCYB';
+	src: url('<?php echo base_url('assets/font/AGENCYB.TTF'); ?>') format('truetype');
+	font-weight: bold;
+	font-style: normal;
+}
+.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYB', Arial, sans-serif; }
+.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#1f2937; font-size:18px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
-.quiz-catalog h1{ font-size:36px; margin:0; text-decoration:underline; }
+.quiz-catalog h1{ font-size:36px; margin:0; font-weight:normal; }
 .quiz-catalog-count{ font-size:18px; }
 .quiz-filter{ margin-bottom:15px; position:relative; display:inline-block; }
-.quiz-filter-btn{ background:#ffc000; border:1px solid #d6a600; padding:8px 16px; cursor:pointer; font-size:18px; }
-.quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #bbb; min-width:160px; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-.quiz-filter-menu a{ display:block; padding:8px 14px; color:#222; text-decoration:none; font-size:18px; }
-.quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#9dc3e6; }
+.quiz-filter-btn{ background:#ffc200; border:1px solid #e0af00; border-radius:8px; padding:8px 16px; cursor:pointer; font-size:18px; }
+.quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #e5e7eb; border-radius:10px; min-width:160px; z-index:10; box-shadow:0 4px 14px rgba(0,0,0,.12); overflow:hidden; }
+.quiz-filter-menu a{ display:block; padding:8px 14px; color:#1f2937; text-decoration:none; font-size:18px; }
+.quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#ffc200; }
 .quiz-filter.open .quiz-filter-menu{ display:block; }
-table.quiz-table{ width:100%; border-collapse:collapse; font-size:18px; }
-table.quiz-table th{ background:#9dc3e6; text-align:left; padding:10px 12px; }
-table.quiz-table th a{ color:#000; text-decoration:none; }
-table.quiz-table td{ padding:10px 12px; background:#ffc000; border-bottom:1px solid #f0f0f0; }
+table.quiz-table{ width:100%; border-collapse:collapse; font-size:18px; border-radius:10px; overflow:hidden; }
+table.quiz-table th{ background:#334155; color:#fff; text-align:left; padding:10px 12px; }
+table.quiz-table th a{ color:#fff; text-decoration:none; }
+table.quiz-table td{ padding:10px 12px; background:#ffc200; color:#1f2937; border-bottom:1px solid #f0f0f0; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#5b9bd5; color:#fff; font-size:14px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#334155; color:#fff; font-size:14px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
