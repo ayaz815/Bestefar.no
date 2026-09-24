@@ -60,8 +60,8 @@ You need PHP, MySQL and a copy of the database.
    GRANT ALL ON bestefar_no.* TO 'bestefar_no'@'localhost';
    ```
 
-   Copy `.env.example` to `.env` and put the same database name, user and
-   password there.
+   If you use a different database name/user/password locally, update
+   `httpd.www/application/config/database.php` to match.
 
    Then import the dump you were given:
 
@@ -97,27 +97,18 @@ You need PHP, MySQL and a copy of the database.
 
 ## Deploying to the live server (one.com)
 
-The live site runs on one.com. `index.php` reads the `.env` file from **either**:
+Database and mail settings are plain values in
+`httpd.www/application/config/database.php` and
+`httpd.www/application/models/Admin_model.php` – no `.env` file, no extra setup.
+Just upload the code and it runs.
 
-- the folder above the web root – `…/bestefar.no/.env` (preferred, it can't be
-  reached from a browser), **or**
-- inside the web root – `…/bestefar.no/httpd.www/.env` (fallback).
+If the live database user/password ever differ from what's in
+`database.php`, check the current live file *before* overwriting it, and carry
+those values over. Keep a backup of the old file so you can roll back quickly
+if needed.
 
-So when you deploy new code to one.com:
-
-1. Upload a `.env` file to one of those two locations with the **live** database and
-   mail settings. Use `.env.example` as the template. The live database user and
-   password may differ from your local ones – check the current
-   `httpd.www/application/config/database.php` on the server *before* you overwrite
-   it, and copy those values into `.env`.
-2. If you put `.env` inside `httpd.www`, also make sure it is not downloadable
-   (it isn't served by default, but keep an eye on it).
-3. Load the site and test: the home page, admin login, and saving a test article
-   (that also checks outgoing mail).
-
-If `.env` is missing on the server the site cannot connect to the database, so don't
-deploy the code without it. Keep a backup of the old `database.php` so you can roll
-back quickly if needed.
+After deploying, a quick check never hurts: open the home page, log into the
+admin panel, and save a test article (that also exercises outgoing mail).
 
 ## How the site is organised
 

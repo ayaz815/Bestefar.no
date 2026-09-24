@@ -7,10 +7,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => env('DB_HOST', 'localhost'),
-	'username' => env('DB_USER', ''),
-	'password' => env('DB_PASS', ''),
-	'database' => env('DB_NAME', ''),
+	'hostname' => 'localhost',
+	'username' => 'bestefar_no',
+	'password' => 'Bestefar@1234',
+	'database' => 'bestefar_no',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

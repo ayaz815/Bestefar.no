@@ -769,11 +769,11 @@
 				// $email_body = $this->load->view('frontend/registration_email', $save_data, TRUE);
 				$config = array(
                     'protocol'  => 'smtp',
-                    'smtp_host' => env('SMTP_HOST', 'mailout.one.com'),
-                    'smtp_port' => (int) env('SMTP_PORT', 587),  // You can also use 465 for SSL/TLS
-                    'smtp_user' => env('SMTP_USER', ''), // Your email address
-                    'smtp_pass' => env('SMTP_PASS', ''),
-                    'smtp_crypto' => env('SMTP_CRYPTO', 'tls'),  // For port 587 use 'tls', for port 465 use 'ssl'
+                    'smtp_host' => 'mailout.one.com',
+                    'smtp_port' => 587,  // You can also use 465 for SSL/TLS
+                    'smtp_user' => 'support@bestefar.no', // Your email address
+                    'smtp_pass' => '024Kx%#waste',
+                    'smtp_crypto' => 'tls',  // For port 587 use 'tls', for port 465 use 'ssl'
                     'mailtype'  => 'html',   // IMPORTANT: Ensure it's set to HTML
                     'charset'   => 'utf-8',
                     'wordwrap'  => TRUE
@@ -798,7 +798,7 @@
                             <a href="https://bestefar.no/">www.bestefar.no</a>';
                 
                 // Set email parameters
-                $this->email->from(env('SMTP_FROM_EMAIL', 'support@bestefar.no'), env('SMTP_FROM_NAME', 'Bestefar.no'));
+                $this->email->from('support@bestefar.no', 'Bestefar.no');
                 // $this->email->to($user_emails);
                 $this->email->to($this->input->post('email'));
                 $this->email->set_header('Content-Type', 'text/html');
@@ -818,7 +818,7 @@
                     $email_body .= '<strong>Kontaktperson:</strong>  ' . htmlspecialchars($this->input->post('fname')) . ' ' . htmlspecialchars($this->input->post('lname')) . '<br>'; 
                    
                     // Set email parameters
-                    $this->email->from(env('SMTP_FROM_EMAIL', 'support@bestefar.no'), env('SMTP_FROM_NAME', 'Bestefar.no'));
+                    $this->email->from('support@bestefar.no', 'Bestefar.no');
                     $this->email->to($user_emails);
                     $this->email->set_header('Content-Type', 'text/html');
                     $this->email->subject('NY REGISTRERING');
