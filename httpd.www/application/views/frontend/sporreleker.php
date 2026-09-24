@@ -9,7 +9,7 @@
 	font-weight: normal;
 	font-style: normal;
 }
-.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYR', Arial, sans-serif; font-weight:600; box-sizing:border-box; }
+.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYR', Arial, sans-serif; font-weight:normal; box-sizing:border-box; }
 .quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#000; font-size:22px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:34px; margin:0; }
