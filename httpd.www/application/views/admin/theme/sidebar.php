@@ -160,8 +160,15 @@
                                        
                                     </ul>
                                 </li>
-							
-								
+
+								<li class="<?php if($page_name == 'quiz_info'){ echo 'active'; } ?>">
+									<a href="<?php echo base_url(); ?>admin/quiz_info">
+										<span class="pcoded-micon"><i class="feather icon-info"></i></span>
+										<span class="pcoded-mtext">Quiz Info</span>
+									</a>
+								</li>
+
+
 								<li class="<?php if($page_name == 'visitors'){ echo 'active'; } ?>">
 									<a href="<?php echo base_url(); ?>admin/visitors">
 										<span class="pcoded-micon"><i class="fa fa-users"></i></span>

@@ -55,7 +55,25 @@
 			$data['page_name'] = 'registration_msg';
 			$this->load->view('frontend/index',$data);
 		}
-		
+
+		// The "Spørreleker" catalog: every quiz in one sortable, filterable list.
+		public function sporreleker(){
+			$quiz_type = $this->input->get('type');
+			$sort      = $this->input->get('sort') ?: 'date';
+			$dir       = ($this->input->get('dir') == 'asc') ? 'asc' : 'desc';
+
+			$quizzes = $this->Admin_model->get_quizzes_catalog($quiz_type, $sort, $dir);
+
+			$data['system_setting'] = $this->Admin_model->get_row_id('system_setting', 1);
+			$data['quizzes']        = $quizzes;
+			$data['quiz_type']      = $quiz_type;
+			$data['sort']           = $sort;
+			$data['dir']            = $dir;
+			$data['page_title']     = 'Spørreleker';
+			$data['page_name']      = 'sporreleker';
+			$this->load->view('frontend/index', $data);
+		}
+
     	public function blogs($param1 = '', $param2 = '') {
     	    $users_id = isset($_SESSION['users_id']) ? $_SESSION['users_id'] : null;
     	    $blog_ids = null;

@@ -860,10 +860,200 @@
 		
 		function blog_paid($id){
 		    $blog = $this->db->where('blogs_id',$id)->get("blogs")->row_array();
-		    $status = $blog['paid'] ==  0 ? 1 : 0;  
+		    $status = $blog['paid'] ==  0 ? 1 : 0;
 		    $this->db->where('blogs_id',$id)->update("blogs",['paid'=>$status]);
 		}
-		
+
+		// --- Quizzes (Spørreleker catalog) ---
+		//
+		// The real quiz content (AudioQuiz, BildeQuiz, BilderMusikk, and the
+		// crosswords standing in for TekstQuiz) lives on the separate
+		// api.bestefar.no backend, not in this database. These functions call
+		// that API and normalise its responses into one shape the catalog
+		// page can sort and filter, the same way it would a local table.
+
+		private $quiz_api_base = 'https://api.bestefar.no/api';
+
+		private function fetch_json($url){
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 8);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+			$response = curl_exec($ch);
+			$ok = ($response !== false && curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200);
+			curl_close($ch);
+			if(!$ok){ return null; }
+			$data = json_decode($response, true);
+			return is_array($data) ? $data : null;
+		}
+
+		// AudioQuiz has no created/updated date on the API at all. So the
+		// catalog date is "the first time our app noticed this quiz exists" -
+		// stable once recorded, stored locally, never fabricated per request.
+		private function get_or_record_first_seen($external_id){
+			$row = $this->db->get_where('quiz_first_seen', array(
+				'quiz_type'   => 'AudioQuiz',
+				'external_id' => $external_id,
+			))->row();
+			if($row){
+				return $row->first_seen;
+			}
+			$now = date('Y-m-d H:i:s');
+			$this->db->insert('quiz_first_seen', array(
+				'quiz_type'   => 'AudioQuiz',
+				'external_id' => $external_id,
+				'first_seen'  => $now,
+			));
+			return $now;
+		}
+
+		private function fetch_audio_quizzes(){
+			$data = $this->fetch_json($this->quiz_api_base.'/forms/get-all');
+			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
+			return array_map(function($show){
+				return array(
+					'quiz_type'      => 'AudioQuiz',
+					'external_id'    => $show['id'],
+					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
+					'question_count' => isset($show['quizForms']) ? count($show['quizForms']) : 0,
+					'date'           => $this->get_or_record_first_seen($show['id']),
+					'info'           => '',
+				);
+			}, $shows);
+		}
+
+		private function fetch_image_quizzes(){
+			$data = $this->fetch_json($this->quiz_api_base.'/image-quiz/get-all-image-quizzes');
+			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
+			return array_map(function($show){
+				return array(
+					'quiz_type'      => 'BildeQuiz',
+					'external_id'    => $show['id'],
+					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
+					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['quizForms']) ? count($show['quizForms']) : 0),
+					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
+					'info'           => '',
+				);
+			}, $shows);
+		}
+
+		private function fetch_image_music_quizzes(){
+			$data = $this->fetch_json($this->quiz_api_base.'/image-music/get-all-image-music-shows');
+			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
+			return array_map(function($show){
+				return array(
+					'quiz_type'      => 'BilderMusikk',
+					'external_id'    => $show['id'],
+					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
+					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['screens']) ? count($show['screens']) : 0),
+					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
+					'info'           => '',
+				);
+			}, $shows);
+		}
+
+		// Standing in for TekstQuiz until a real text-quiz source exists.
+		private function fetch_text_quizzes(){
+			$data = $this->fetch_json($this->quiz_api_base.'/crossword/all');
+			$items = ($data && isset($data['data'])) ? $data['data'] : array();
+			return array_map(function($item){
+				return array(
+					'quiz_type'      => 'TekstQuiz',
+					'external_id'    => $item['id'],
+					'name'           => isset($item['quizName']) ? $item['quizName'] : '',
+					'question_count' => isset($item['totalWords']) ? (int) $item['totalWords'] : 0,
+					'date'           => isset($item['createdAt']) ? $item['createdAt'] : '',
+					'info'           => '',
+				);
+			}, $items);
+		}
+
+		// The (i) popup text per quiz - not available from any generator or the
+		// live API yet, so it's kept here and looked up by quiz_type+external_id.
+		function get_quiz_info($quiz_type, $external_id){
+			$row = $this->db->get_where('quiz_info', array(
+				'quiz_type'   => $quiz_type,
+				'external_id' => $external_id,
+			))->row();
+			return $row ? $row->info : '';
+		}
+
+		function get_quiz_info_map($quiz_type){
+			$rows = $this->db->select('external_id, info')
+				->where('quiz_type', $quiz_type)
+				->get('quiz_info')
+				->result_array();
+			$map = array();
+			foreach($rows as $row){
+				$map[$row['external_id']] = $row['info'];
+			}
+			return $map;
+		}
+
+		function save_quiz_info($quiz_type, $external_id, $info){
+			$existing = $this->db->get_where('quiz_info', array(
+				'quiz_type'   => $quiz_type,
+				'external_id' => $external_id,
+			))->row();
+			$data = array(
+				'info'       => $info,
+				'updated_at' => date('Y-m-d H:i:s'),
+			);
+			if($existing){
+				$this->db->where('quiz_info_id', $existing->quiz_info_id);
+				$this->db->update('quiz_info', $data);
+			}else{
+				$data['quiz_type']   = $quiz_type;
+				$data['external_id'] = $external_id;
+				$this->db->insert('quiz_info', $data);
+			}
+		}
+
+		// Catalog listing for the public "Spørreleker" page: sortable by date, name,
+		// category or question count, optionally filtered to one quiz_type
+		// ('AudioQuiz', 'BildeQuiz', 'TekstQuiz', 'BilderMusikk').
+		function get_quizzes_catalog($quiz_type = '', $sort = '', $dir = 'desc'){
+			$fetchers = array(
+				'AudioQuiz'    => 'fetch_audio_quizzes',
+				'BildeQuiz'    => 'fetch_image_quizzes',
+				'BilderMusikk' => 'fetch_image_music_quizzes',
+				'TekstQuiz'    => 'fetch_text_quizzes',
+			);
+
+			$types_to_fetch = $quiz_type ? array($quiz_type) : array_keys($fetchers);
+			$quizzes = array();
+			foreach($types_to_fetch as $type){
+				if(isset($fetchers[$type])){
+					$type_quizzes = $this->{$fetchers[$type]}();
+					$info_map = $this->get_quiz_info_map($type);
+					foreach($type_quizzes as &$quiz){
+						if(isset($info_map[$quiz['external_id']])){
+							$quiz['info'] = $info_map[$quiz['external_id']];
+						}
+					}
+					unset($quiz);
+					$quizzes = array_merge($quizzes, $type_quizzes);
+				}
+			}
+
+			$columns = array(
+				'date'     => 'date',
+				'category' => 'quiz_type',
+				'name'     => 'name',
+				'count'    => 'question_count',
+			);
+			$sort_key = isset($columns[$sort]) ? $columns[$sort] : 'date';
+			$sort_dir = (strtolower($dir) == 'asc') ? 1 : -1;
+
+			usort($quizzes, function($a, $b) use ($sort_key, $sort_dir){
+				if($a[$sort_key] == $b[$sort_key]){ return 0; }
+				return ($a[$sort_key] < $b[$sort_key] ? -1 : 1) * $sort_dir;
+			});
+
+			return $quizzes;
+		}
+
+
 		function get_data_orderwise_unpublished($table,$order){
 		    $this->db->select();
 			$this->db->from($table);

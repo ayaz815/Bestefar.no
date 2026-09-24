@@ -524,10 +524,31 @@ class Admin extends CI_Controller {
 	}
 	
 	public function paid_status(){
-	    
+
 	}
-		
-	
-	
-	
+
+	// Lets an admin add or edit the (i) popup text for a quiz shown on the
+	// public Spørreleker catalog. The quiz content itself comes from
+	// api.bestefar.no; this info text is the one thing we store ourselves.
+	public function quiz_info($quiz_type = '', $external_id = ''){
+		if($this->session->userdata('admin_login') != 1){
+			redirect(base_url().'admin', 'refresh');
+		}
+		if($this->input->post('save')){
+			$this->Admin_model->save_quiz_info(
+				$this->input->post('quiz_type'),
+				$this->input->post('external_id'),
+				$this->input->post('info')
+			);
+			$this->session->set_flashdata('msg_success', ' Info saved successfully ');
+			redirect(base_url().'admin/quiz_info', 'refresh');
+		}
+
+		$data['quizzes']     = $this->Admin_model->get_quizzes_catalog();
+		$data['page_title']  = 'Quiz Info';
+		$data['page_sub_title'] = 'Add the short info text shown on the (i) icon in the Spørreleker catalog';
+		$data['page_name']   = 'quiz_info';
+		$this->load->view('admin/index', $data);
+	}
+
 }
