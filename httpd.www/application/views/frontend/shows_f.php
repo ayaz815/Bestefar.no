@@ -181,7 +181,7 @@
 									<div class="col-md-12" id="top_column">
 								 
 										<h2 class="elementor-heading-title elementor-size-default category_title"  style="font-family: agency_fbregular;font-size: 27px;">
-                                    	    <a href="<?php echo base_url(); ?>/home/shows/<?php echo $param1; ?>"  style="text-decoration:none;color:black;">
+                                    	    <a href="<?php echo base_url('home/shows/'.$param1); ?>"  style="text-decoration:none;color:black;">
                                     		    <?php echo $this->Admin_model->get_tc('categories',$param1, 'name'); ?>
                                     		    	<?php if($param2  > 0){ ?>
                                     		    <i class="fa fa-play" style="color: #808080a6;font-size: 16px;"></i>

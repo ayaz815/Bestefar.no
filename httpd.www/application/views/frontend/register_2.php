@@ -400,7 +400,7 @@ class="hfeed site" id="page">
 		<div id="content" class="site-content">
 		
 <div class="wrapper" style="background-color:#d5e7f8;padding:60px;">
-	<form method="POST" action="<?php echo base_url(); ?>/login/register/create"  enctype="multipart/form-data">
+	<form method="POST" action="<?php echo base_url('login/register/create'); ?>"  enctype="multipart/form-data">
 	<div class="container">
 	  <div class="row">
 		<div class="col-md-12">

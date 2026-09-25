@@ -89,7 +89,7 @@
 									<div class="col-md-12">
 										
 <div class="wrapper" style="">
-	<form method="POST" id="register_form" action="<?php echo base_url(); ?>/login/register/create"  enctype="multipart/form-data">
+	<form method="POST" id="register_form" action="<?php echo base_url('login/register/create'); ?>"  enctype="multipart/form-data">
 	  <div class="row">
 		<div class="col-md-12">
 		  <h3  style="font-family: "><b>Registrering</b></h3>

@@ -58,7 +58,7 @@
 			<style>/*! elementor - v3.18.0 - 08-12-2023 */
 .elementor-heading-title{padding:0;margin:0;line-height:1}.elementor-widget-heading .elementor-heading-title[class*=elementor-size-]>a{color:inherit;font-size:inherit;line-height:inherit}.elementor-widget-heading .elementor-heading-title.elementor-size-small{font-size:15px}.elementor-widget-heading .elementor-heading-title.elementor-size-medium{font-size:19px}.elementor-widget-heading .elementor-heading-title.elementor-size-large{font-size:29px}.elementor-widget-heading .elementor-heading-title.elementor-size-xl{font-size:39px}.elementor-widget-heading .elementor-heading-title.elementor-size-xxl{font-size:59px}</style>
 	<h2 class="elementor-heading-title elementor-size-default category_title"  style="margin-left: 2px;font-family: agency_fbregular;font-size: 27px;">
-	    <a href="<?php echo base_url(); ?>/home/shows/<?php echo $show->categories_id; ?>"  style="text-decoration:none;color:black;">
+	    <a href="<?php echo base_url('home/shows/'.$show->categories_id); ?>"  style="text-decoration:none;color:black;">
 		    <?php echo $this->Admin_model->get_tc('categories',$show->categories_id, 'name'); ?> <i class="fa fa-play" style="color: #808080a6;font-size: 16px;"></i>
 		</a>
 		<?php if($show->sub_categories_id > 0){ ?>

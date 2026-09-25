@@ -62,7 +62,7 @@
 									<div class="col-md-12">
 										
 <div class="wrapper" style="">
-<form method="POST" id="register_form" action="<?php echo base_url(); ?>/login/user_login_varify" enctype="multipart/form-data">
+<form method="POST" id="register_form" action="<?php echo base_url('login/user_login_varify'); ?>" enctype="multipart/form-data">
     <div class="row">
         <div class="col-md-12">
             <h3 style="font-family:arial;margin-top:0px"><b>Logg Inn</b></h3>
