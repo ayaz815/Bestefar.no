@@ -4,12 +4,12 @@
    regular-weight file the generator app uses; 'agency_fbbold' turned out to
    be a dead reference with no @font-face anywhere on the live site). */
 @font-face {
-	font-family: 'AGENCYR';
+	font-family: 'Agency FB';
 	src: url('<?php echo base_url('assets/font/AGENCYR.TTF'); ?>') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
-.quiz-catalog, .quiz-catalog *{ font-family:'AGENCYR', Arial, sans-serif; font-weight:normal; box-sizing:border-box; }
+.quiz-catalog, .quiz-catalog *{ font-family:'Agency FB', Arial, sans-serif; font-weight:normal; box-sizing:border-box; }
 .quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#000; font-size:24px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:37px; margin:0; }
