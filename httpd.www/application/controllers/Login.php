@@ -76,7 +76,7 @@
 				$this->session->set_userdata('users_id',$answer->users_id);
 				$this->session->set_userdata('approval_status',$answer->approval_status);
 				//$this->session->set_userdata('role_name','user'); 
-				$this->session->set_userdata('name',$answer->firstname);
+				$this->session->set_userdata('name',$answer->fname);
 				$this->session->set_flashdata('msg_success', ' Wellcome '.$this->session->userdata('name')) ;
 				redirect('home', 'refresh');			
 			}else{ 
