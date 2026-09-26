@@ -1,14 +1,10 @@
 <style>
 /* Flat, literal match to the Catalog_Quiz.pdf / Data.pdf mockups - no cards, no
-   shadows, no rounded pills. Real font 'Agency FB' (the actual font used by the
-   quiz generator app), real colors #9dc3e6 blue / #ffc200 gold. */
-@font-face {
-	font-family: 'Agency FB';
-	src: url('<?php echo base_url('assets/font/Agency.ttf'); ?>') format('truetype');
-	font-weight: normal;
-	font-style: normal;
-}
-.quiz-catalog, .quiz-catalog *{ font-family:'Agency FB', Arial, sans-serif; font-weight:normal; box-sizing:border-box; }
+   shadows, no rounded pills. No custom font here on purpose: the rest of the
+   live site references a font ('agency_fbbold') that has no working @font-face
+   anywhere, so every other page already just falls back to the plain browser
+   default. This page matches that instead of standing out with a real font. */
+.quiz-catalog, .quiz-catalog *{ box-sizing:border-box; }
 .quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#000; font-size:24px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:34px; margin:0; }
