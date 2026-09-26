@@ -4,7 +4,7 @@
    live pages (e.g. the category heading in shows_f.php), backed by a genuinely
    working @font-face already linked site-wide in theme/head.php. This is the
    one Agency font that actually renders on the real site today. */
-.quiz-catalog, .quiz-catalog *{ font-family:'agency_fbregular', Arial, sans-serif; font-weight:500; box-sizing:border-box; }
+.quiz-catalog, .quiz-catalog *{ font-family:'agency_fbregular'; font-weight:500; box-sizing:border-box; }
 .quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:rgb(0,0,0); font-size:27px; line-height:30px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:34px; margin:0; }
