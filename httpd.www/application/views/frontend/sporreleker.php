@@ -20,7 +20,7 @@ table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; padding:8p
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bottom:2px solid #fff; }
 .quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#5B9BD5; color:#fff; font-size:15px; font-weight:bold; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#5B9BD5; color:#fff; font-size:15px; font-weight:500; cursor:pointer; border:none; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
@@ -33,7 +33,7 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 	font-size:17px;
 	line-height:1.4;
 	text-align:left;
-	font-weight:normal;
+	font-weight:500;
 	text-decoration:none;
 	z-index:20;
 }
