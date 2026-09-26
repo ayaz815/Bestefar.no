@@ -1,10 +1,10 @@
 <style>
 /* Flat, literal match to the Catalog_Quiz.pdf / Data.pdf mockups - no cards, no
-   shadows, no rounded pills. No custom font here on purpose: the rest of the
-   live site references a font ('agency_fbbold') that has no working @font-face
-   anywhere, so every other page already just falls back to the plain browser
-   default. This page matches that instead of standing out with a real font. */
-.quiz-catalog, .quiz-catalog *{ box-sizing:border-box; }
+   shadows, no rounded pills. Font: 'agency_fbregular' - found inline on real,
+   live pages (e.g. the category heading in shows_f.php), backed by a genuinely
+   working @font-face already linked site-wide in theme/head.php. This is the
+   one Agency font that actually renders on the real site today. */
+.quiz-catalog, .quiz-catalog *{ font-family:'agency_fbregular', Arial, sans-serif; box-sizing:border-box; }
 .quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; min-height:60vh; color:#000; font-size:24px; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:34px; margin:0; }
