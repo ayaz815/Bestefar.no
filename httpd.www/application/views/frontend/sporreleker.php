@@ -4,8 +4,18 @@
    live pages (e.g. the category heading in shows_f.php), backed by a genuinely
    working @font-face already linked site-wide in theme/head.php. This is the
    one Agency font that actually renders on the real site today. */
+
+/* #page.full-height is a FIXED height:110% in the shared theme/head.php - not
+   min-height - so on a short page like this one, content just stacks at its
+   natural size and the leftover space becomes dead space AFTER the footer,
+   stranding it above the true bottom of the screen. Overriding it here, with
+   the same selector/specificity so it only takes effect on this page (this
+   file loads after head.php's <style> in the page source, so an equally
+   specific rule here wins) - not editing the shared file, so no other page
+   is affected. Turns #page into a real sticky-footer flex column instead. */
+#page.full-height{ height:auto; min-height:100vh; display:flex; flex-direction:column; }
 .quiz-catalog, .quiz-catalog *{ font-family:'agency_fbregular'; font-weight:500; box-sizing:border-box; }
-.quiz-catalog{ max-width:1100px; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:27px; line-height:30px; }
+.quiz-catalog{ max-width:1100px; width:100%; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:27px; line-height:30px; flex:1 0 auto; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:34px; margin:0; }
 .quiz-catalog-count{ font-size:27px; }
