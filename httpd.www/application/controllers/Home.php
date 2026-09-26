@@ -56,6 +56,44 @@
 			$this->load->view('frontend/index',$data);
 		}
 
+		// The "Spørreleker" catalog: UI-only for now, using hardcoded sample rows
+		// straight from the mockup while the real backend is built separately.
+		public function sporreleker(){
+			$quiz_type = $this->input->get('type');
+			$sort      = $this->input->get('sort') ?: 'date';
+			$dir       = ($this->input->get('dir') == 'asc') ? 'asc' : 'desc';
+
+			$quizzes = array(
+				array('quiz_type' => 'AudioQuiz',    'name' => 'Kassisk musikk',  'question_count' => 16, 'date' => '2026-04-12', 'info' => ''),
+				array('quiz_type' => 'BildeQuiz',    'name' => 'Byer i Europa',   'question_count' => 16, 'date' => '2026-04-18', 'info' => ''),
+				array('quiz_type' => 'TekstQuiz',    'name' => 'Sitater',         'question_count' => 32, 'date' => '2026-04-24', 'info' => ''),
+				array('quiz_type' => 'BilderMusikk', 'name' => 'Ansikter',        'question_count' => 56, 'date' => '2026-04-29', 'info' => ''),
+			);
+
+			if($quiz_type){
+				$quizzes = array_values(array_filter($quizzes, function($q) use ($quiz_type){
+					return $q['quiz_type'] == $quiz_type;
+				}));
+			}
+
+			$columns = array('date' => 'date', 'category' => 'quiz_type', 'name' => 'name', 'count' => 'question_count');
+			$sort_key = isset($columns[$sort]) ? $columns[$sort] : 'date';
+			$sort_dir = (strtolower($dir) == 'asc') ? 1 : -1;
+			usort($quizzes, function($a, $b) use ($sort_key, $sort_dir){
+				if($a[$sort_key] == $b[$sort_key]){ return 0; }
+				return ($a[$sort_key] < $b[$sort_key] ? -1 : 1) * $sort_dir;
+			});
+
+			$data['system_setting'] = $this->Admin_model->get_row_id('system_setting', 1);
+			$data['quizzes']        = $quizzes;
+			$data['quiz_type']      = $quiz_type;
+			$data['sort']           = $sort;
+			$data['dir']            = $dir;
+			$data['page_title']     = 'Spørreleker';
+			$data['page_name']      = 'sporreleker';
+			$this->load->view('frontend/index', $data);
+		}
+
     	public function blogs($param1 = '', $param2 = '') {
     	    $users_id = isset($_SESSION['users_id']) ? $_SESSION['users_id'] : null;
     	    $blog_ids = null;

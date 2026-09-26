@@ -156,6 +156,10 @@
 		<?php } ?>
 		<?php } ?>
 
+		<li id="menu-item-sporreleker" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-sporreleker nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
+			<a href="<?php echo base_url().'home/sporreleker'; ?>" class="ekit-menu-nav-link menu-link">Spørreleker</a>
+		</li>
+
 </ul><div class="elementskit-nav-identity-panel">
 				<div class="elementskit-site-title">
 					<a class="elementskit-nav-logo" href="<?php echo base_url(); ?>" target="_self" rel="">
