@@ -4,7 +4,7 @@
    quiz generator app), real colors #9dc3e6 blue / #ffc200 gold. */
 @font-face {
 	font-family: 'Agency FB';
-	src: url('<?php echo base_url('assets/font/AGENCYR.TTF'); ?>') format('truetype');
+	src: url('<?php echo base_url('assets/font/Agency.ttf'); ?>') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
