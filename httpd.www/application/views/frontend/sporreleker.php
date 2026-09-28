@@ -29,8 +29,8 @@ table.quiz-table{ width:100%; border-collapse:collapse; font-size:27px; line-hei
 table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; padding:8px 12px; }
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bottom:2px solid #fff; }
-.quiz-table th.align-right, .quiz-table td.align-right{ text-align:right; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#5B9BD5; color:#fff; font-size:15px; font-weight:500; cursor:pointer; border:none; padding:0; position:relative; }
+.quiz-table th.align-center, .quiz-table td.align-center{ text-align:center; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:#5B9BD5; color:#fff; font-size:20px; font-weight:500; cursor:pointer; border:none; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
@@ -54,8 +54,8 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
    (the generator apps don't produce/store a PDF anywhere - see the backend
    scoping discussion) so this is deliberately inert for now: styled and in
    place, not wired to a real download, and it says so on hover. */
-.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:6px; background:#B30B00; color:#fff; cursor:not-allowed; }
-.quiz-pdf svg{ width:20px; height:20px; fill:#fff; }
+.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; background:#B30B00; color:#fff; cursor:not-allowed; }
+.quiz-pdf svg{ width:15px; height:15px; fill:#fff; }
 </style>
 
 <div class="quiz-catalog">
@@ -94,15 +94,11 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 	<table class="quiz-table">
 		<thead>
 			<tr>
-				<th class="align-right"><?php echo quiz_sort_link('Dato', 'date', $sort, $dir, $quiz_type); ?></th>
+				<th><?php echo quiz_sort_link('Dato', 'date', $sort, $dir, $quiz_type); ?></th>
 				<th><?php echo quiz_sort_link('Kategorier', 'category', $sort, $dir, $quiz_type); ?></th>
 				<th><?php echo quiz_sort_link('Navn', 'name', $sort, $dir, $quiz_type); ?></th>
-				<th class="align-right"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>
-				<th class="quiz-info-cell">
-					<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
-						<span class="quiz-info-popup">Klikk på (i) på en quiz for å se en kort beskrivelse av den.</span>
-					</button>
-				</th>
+				<th class="align-center"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>
+				<th></th>
 				<th></th>
 			</tr>
 		</thead>
@@ -110,18 +106,18 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 			<?php if(!empty($quizzes)){ ?>
 				<?php foreach($quizzes as $quiz){ ?>
 					<tr>
-						<td class="align-right"><?php echo $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-'; ?></td>
+						<td><?php echo $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-'; ?></td>
 						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
-						<td class="align-right"><?php echo (int) $quiz['question_count']; ?></td>
-						<td class="quiz-info-cell">
+						<td class="align-center"><?php echo (int) $quiz['question_count']; ?></td>
+						<td class="align-center quiz-info-cell">
 							<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
 								<span class="quiz-info-popup<?php echo empty($quiz['info']) ? ' empty' : ''; ?>">
 									<?php echo !empty($quiz['info']) ? htmlspecialchars($quiz['info']) : 'Ingen info lagt inn for denne quizen ennå.'; ?>
 								</span>
 							</button>
 						</td>
-						<td class="align-right">
+						<td class="align-center">
 							<span class="quiz-pdf" title="PDF-nedlasting er ikke klar ennå">
 								<svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"/></svg>
 							</span>
