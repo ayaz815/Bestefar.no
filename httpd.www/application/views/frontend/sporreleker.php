@@ -30,6 +30,11 @@ table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; padding:8p
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bottom:2px solid #fff; }
 .quiz-table th.align-center, .quiz-table td.align-center{ text-align:center; }
+/* Fixed-width digits on the date and question-count columns, so numbers line
+   up on a consistent grid instead of shifting with digit shape (e.g. a "1"
+   narrower than an "8" in most fonts) - reinforces the alignment fix from
+   the client's last round of comments, not just a substitute for it. */
+.quiz-date, .quiz-count{ font-variant-numeric: tabular-nums; }
 .quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:#5B9BD5; color:#fff; font-size:20px; font-weight:500; cursor:pointer; border:none; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
@@ -106,10 +111,10 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 			<?php if(!empty($quizzes)){ ?>
 				<?php foreach($quizzes as $quiz){ ?>
 					<tr>
-						<td><?php echo $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-'; ?></td>
+						<td class="quiz-date"><?php echo $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-'; ?></td>
 						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
-						<td class="align-center"><?php echo (int) $quiz['question_count']; ?></td>
+						<td class="align-center quiz-count"><?php echo (int) $quiz['question_count']; ?></td>
 						<td class="align-center quiz-info-cell">
 							<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
 								<span class="quiz-info-popup<?php echo empty($quiz['info']) ? ' empty' : ''; ?>">
