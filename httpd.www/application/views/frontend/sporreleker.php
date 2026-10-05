@@ -15,7 +15,11 @@
    is affected. Turns #page into a real sticky-footer flex column instead. */
 #page.full-height{ height:auto; min-height:100vh; display:flex; flex-direction:column; }
 .quiz-catalog, .quiz-catalog *{ font-family:'agency_fbregular'; font-weight:500; box-sizing:border-box; }
-.quiz-catalog{ max-width:1100px; width:100%; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:27px; line-height:30px; flex:1 0 auto; }
+/* 1140px to match the real header/nav bar's own container
+   (.elementor-section-boxed > .elementor-container{max-width:1140px}, verified
+   in the site's actual CSS) so this page's content lines up with everything
+   above it instead of using a guessed width. */
+.quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:27px; line-height:30px; flex:1 0 auto; }
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
 .quiz-catalog h1{ font-size:34px; margin:0; }
 .quiz-catalog-count{ font-size:27px; }
@@ -30,12 +34,18 @@ table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; padding:8p
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bottom:2px solid #fff; }
 .quiz-table th.align-center, .quiz-table td.align-center{ text-align:center; }
-/* Fixed-width digits on the date and question-count columns, so numbers line
-   up on a consistent grid instead of shifting with digit shape (e.g. a "1"
-   narrower than an "8" in most fonts) - reinforces the alignment fix from
-   the client's last round of comments, not just a substitute for it. */
-.quiz-date, .quiz-count{ font-variant-numeric: tabular-nums; }
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:#5B9BD5; color:#fff; font-size:20px; font-weight:500; cursor:pointer; border:none; padding:0; position:relative; }
+/* agency_fbregular is a decorative display font - it almost certainly has no
+   "tnum" OpenType table at all, which means font-variant-numeric:tabular-nums
+   alone was likely a no-op here (a font has to actually ship tabular figures
+   for that CSS to do anything). Switching these two columns to Arial, which
+   the client's own reference list names as having real tabular figures,
+   guarantees fixed-width digits instead of hoping the display font supports
+   a feature it probably doesn't. */
+.quiz-date, .quiz-count{ font-family:Arial, Helvetica, sans-serif; font-variant-numeric: tabular-nums; }
+.quiz-icons{ display:inline-flex; align-items:center; gap:10px; }
+/* Info icon: blue gradient circle with a bordered ring, matching the
+   reference image (Symbols.png) rather than a flat single color. */
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:linear-gradient(180deg, #a9c6ef, #3f6fb5); border:2px solid #2f5596; color:#fff; font-size:18px; font-weight:700; font-family:Georgia, serif; cursor:pointer; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
@@ -55,12 +65,13 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 .quiz-info-popup.empty{ color:#ccc; font-style:italic; }
 .quiz-info.open .quiz-info-popup{ display:block; }
 .quiz-empty{ padding:30px 0; color:#666; }
-/* PDF download icon, per the client's suggested design. No file to link to yet
-   (the generator apps don't produce/store a PDF anywhere - see the backend
-   scoping discussion) so this is deliberately inert for now: styled and in
-   place, not wired to a real download, and it says so on hover. */
-.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; background:#B30B00; color:#fff; cursor:not-allowed; }
-.quiz-pdf svg{ width:15px; height:15px; fill:#fff; }
+/* PDF download icon, per the client's suggested design (Symbols.png) - a red
+   document badge, not a copy of Adobe's trademarked Acrobat logo. No file to
+   link to yet (the generator apps don't produce/store a PDF anywhere - see
+   the backend scoping discussion) so this is deliberately inert for now:
+   styled and in place, not wired to a real download, says so on hover. */
+.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; background:#D32F2F; color:#fff; cursor:not-allowed; }
+.quiz-pdf svg{ width:18px; height:18px; fill:#fff; }
 </style>
 
 <div class="quiz-catalog">
@@ -104,7 +115,6 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 				<th><?php echo quiz_sort_link('Navn', 'name', $sort, $dir, $quiz_type); ?></th>
 				<th class="align-center"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>
 				<th></th>
-				<th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -116,21 +126,21 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
 						<td class="align-center quiz-count"><?php echo (int) $quiz['question_count']; ?></td>
 						<td class="align-center quiz-info-cell">
-							<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
-								<span class="quiz-info-popup<?php echo empty($quiz['info']) ? ' empty' : ''; ?>">
-									<?php echo !empty($quiz['info']) ? htmlspecialchars($quiz['info']) : 'Ingen info lagt inn for denne quizen ennå.'; ?>
+							<span class="quiz-icons">
+								<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
+									<span class="quiz-info-popup<?php echo empty($quiz['info']) ? ' empty' : ''; ?>">
+										<?php echo !empty($quiz['info']) ? htmlspecialchars($quiz['info']) : 'Ingen info lagt inn for denne quizen ennå.'; ?>
+									</span>
+								</button>
+								<span class="quiz-pdf" title="PDF-nedlasting er ikke klar ennå">
+									<svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"/></svg>
 								</span>
-							</button>
-						</td>
-						<td class="align-center">
-							<span class="quiz-pdf" title="PDF-nedlasting er ikke klar ennå">
-								<svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"/></svg>
 							</span>
 						</td>
 					</tr>
 				<?php } ?>
 			<?php }else{ ?>
-				<tr><td colspan="6" class="quiz-empty">Ingen spørreleker funnet.</td></tr>
+				<tr><td colspan="5" class="quiz-empty">Ingen spørreleker funnet.</td></tr>
 			<?php } ?>
 		</tbody>
 	</table>
