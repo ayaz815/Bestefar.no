@@ -80,45 +80,8 @@
 		
 	</ul>
 </li>
-<li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-27 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="#" class="ekit-menu-nav-link ekit-menu-dropdown-toggle menu-link">
-     <?php echo $this->Admin_model->get_tc('main_categories','2','name'); ?> 
- <!--<i aria-hidden="true" class="fa fa-angle-down  elementskit-submenu-indicator"></i>-->
-</a>
-<ul class="elementskit-dropdown elementskit-submenu-panel">
-	<?php 
-			$cats1 = $this->Admin_model->get_data_conditions_orderwise('categories', 'main_categories_id=2','c_order')->result_array(); 
-			foreach($cats1 as $cat1){
-				$cat1_id = $cat1['categories_id'];
-			
-			$sub_cats = $this->Admin_model->get_data_conditions_orderwise('sub_categories', 'categories_id='.$cat1_id,'s_order')->result_array();
-			if(empty($sub_cats)){
-		?>
-		<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-23 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
-			<a href="<?php echo base_url().'home/shows/'.$cat1['categories_id'].'/'; ?>" class=" dropdown-item menu-link">
-				<?php echo $cat1['name']; ?> 
-			</a>	
-		</li>
-		
-		<?php }else{ ?>
-				<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-42 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="<?php echo base_url().'home/shows/'.$cat1['categories_id'].'/'; ?>" class=" dropdown-item menu-link"><?php echo $cat1['name']; ?>
-				    <!--<i aria-hidden="true" class="fa fa-angle-down  elementskit-submenu-indicator"></i>-->
-				    </a>
-					<ul class="elementskit-dropdown elementskit-submenu-panel">
-					<?php foreach($sub_cats as $sub_cat){ ?>
-						<li id="menu-item-43" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-43 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
-							<a href="<?php echo base_url().'home/shows/'.$cat1['categories_id'].'/'.$sub_cat['sub_categories_id']; ?>" class=" dropdown-item menu-link">
-								<?php echo $sub_cat['name']; ?> 
-							</a>
-						</li>
-					<?php } ?>
-						
-					</ul>
-				</li>
-		<?php } ?>
-		<?php } ?>
-		
-	
-	</ul>
+<li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-27 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
+	<a href="<?php echo base_url().'home/sporreleker'; ?>" class="ekit-menu-nav-link menu-link">Spørreleker</a>
 </li>
 <li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-41 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="#" class="ekit-menu-nav-link ekit-menu-dropdown-toggle menu-link">
      <?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
@@ -155,10 +118,6 @@
 				</li>
 		<?php } ?>
 		<?php } ?>
-
-		<li id="menu-item-sporreleker" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-sporreleker nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
-			<a href="<?php echo base_url().'home/sporreleker'; ?>" class="ekit-menu-nav-link menu-link">Spørreleker</a>
-		</li>
 
 </ul><div class="elementskit-nav-identity-panel">
 				<div class="elementskit-site-title">
@@ -259,46 +218,8 @@
 		
 </ul>
 </li>
-<li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children parent hfe-has-submenu hfe-creative-menu"><div class="hfe-has-submenu-container"><a href="#" class = "hfe-menu-item">
-     <?php echo $this->Admin_model->get_tc('main_categories','2','name'); ?>
-    <!--<span class='hfe-menu-toggle fa fa-angle-down  hfe-menu-child-0'><i class='fa'></i></span>--></a></div>
-<ul class="sub-menu">
-	
-<?php 
-			$cats1 = $this->Admin_model->get_data_conditions_orderwise('categories', 'main_categories_id=2','c_order')->result_array(); 
-			foreach($cats1 as $cat1){
-				$cat1_id = $cat1['categories_id'];
-				
-			$sub_cats = $this->Admin_model->get_data_conditions_orderwise('sub_categories', 'categories_id='.$cat1_id,'s_order')->result_array();
-			if(empty($sub_cats)){
-		?>
-		<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page hfe-creative-menu">
-			<a href="<?php echo base_url().'home/shows/'.$cat1['categories_id'].'/'; ?>" class = "hfe-sub-menu-item">
-				<?php echo $cat1['name']; ?> 
-			</a>	
-		</li>
-		<?php }else{ ?>
-				<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children hfe-has-submenu hfe-creative-menu">
-				<div class="hfe-has-submenu-container">
-					<a href="<?php echo base_url().'home/shows/'.$cat1['categories_id'].'/'; ?>" class = "hfe-sub-menu-item">
-						<?php echo $cat1['name']; ?><!--<span class='hfe-menu-toggle fa fa-angle-down  hfe-menu-child-1'><i class='fa'></i></span>-->
-					</a>
-				</div>
-					<ul class="sub-menu">
-						<?php foreach($sub_cats as $sub_cat){ ?>
-						<li id="menu-item-43" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
-							<a href="<?php echo base_url().'home/shows/'.$cat1['categories_id'].'/'.$sub_cat['sub_categories_id']; ?>" class = "hfe-sub-menu-item">
-								<?php echo $sub_cat['name']; ?> 
-							</a>
-						</li>
-						<?php } ?>
-					</ul>
-				</li>
-				
-		<?php } ?>
-		<?php } ?>
-	
-</ul>
+<li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
+	<a href="<?php echo base_url().'home/sporreleker'; ?>" class="hfe-menu-item">Spørreleker</a>
 </li>
 <li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children parent hfe-has-submenu hfe-creative-menu"><div class="hfe-has-submenu-container"><a href="#" class = "hfe-menu-item">
      <?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
