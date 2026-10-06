@@ -19,20 +19,22 @@
    (.elementor-section-boxed > .elementor-container{max-width:1140px}, verified
    in the site's actual CSS) so this page's content lines up with everything
    above it instead of using a guessed width. */
-.quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:27px; line-height:30px; flex:1 0 auto; }
-.quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; }
-.quiz-catalog h1{ font-size:34px; margin:0; }
-.quiz-catalog-count{ font-size:27px; }
-.quiz-filter{ margin-bottom:15px; position:relative; display:inline-block; }
-.quiz-filter-btn{ background:#ffc200; border:1px solid #d6a600; padding:8px 24px; cursor:pointer; font-size:27px; }
-.quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #999; min-width:160px; z-index:10; }
-.quiz-filter-menu a{ display:block; padding:8px 14px; color:#000; text-decoration:none; font-size:27px; }
+/* Sizes brought down overall per feedback ("all in all it looks too big") -
+   roughly 25% smaller across the board from the previous pass. */
+.quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:20px; line-height:24px; flex:1 0 auto; }
+.quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+.quiz-catalog h1{ font-size:26px; margin:0; }
+.quiz-catalog-count{ font-size:20px; }
+.quiz-filter{ margin-bottom:12px; position:relative; display:inline-block; }
+.quiz-filter-btn{ background:#ffc200; border:1px solid #d6a600; padding:6px 18px; cursor:pointer; font-size:20px; }
+.quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #999; min-width:150px; z-index:10; }
+.quiz-filter-menu a{ display:block; padding:6px 12px; color:#000; text-decoration:none; font-size:20px; }
 .quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#9dc3e6; }
 .quiz-filter.open .quiz-filter-menu{ display:block; }
-table.quiz-table{ width:100%; border-collapse:collapse; font-size:27px; line-height:30px; }
-table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; padding:8px 12px; }
+table.quiz-table{ width:100%; border-collapse:collapse; font-size:20px; line-height:24px; }
+table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; padding:6px 10px; }
 table.quiz-table th a{ color:#000; text-decoration:none; }
-table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bottom:2px solid #fff; }
+table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bottom:2px solid #fff; }
 .quiz-table th.align-center, .quiz-table td.align-center{ text-align:center; }
 /* agency_fbregular is a decorative display font - it almost certainly has no
    "tnum" OpenType table at all, which means font-variant-numeric:tabular-nums
@@ -40,22 +42,24 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
    for that CSS to do anything). Switching these two columns to Arial, which
    the client's own reference list names as having real tabular figures,
    guarantees fixed-width digits instead of hoping the display font supports
-   a feature it probably doesn't. */
-.quiz-date, .quiz-count{ font-family:Arial, Helvetica, sans-serif; font-variant-numeric: tabular-nums; }
-.quiz-icons{ display:inline-flex; align-items:center; gap:10px; }
+   a feature it probably doesn't. Sized a notch smaller than the rest of the
+   row too - Arial reads visually larger than the display font at the same
+   pixel size (taller x-height), which is what made it look oversized. */
+.quiz-date, .quiz-count{ font-family:Arial, Helvetica, sans-serif; font-variant-numeric: tabular-nums; font-size:17px; }
+.quiz-icons{ display:inline-flex; align-items:center; gap:8px; }
 /* Info icon: blue gradient circle with a bordered ring, matching the
    reference image (Symbols.png) rather than a flat single color. */
-.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:linear-gradient(180deg, #a9c6ef, #3f6fb5); border:2px solid #2f5596; color:#fff; font-size:18px; font-weight:700; font-family:Georgia, serif; cursor:pointer; padding:0; position:relative; }
+.quiz-info{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:linear-gradient(180deg, #a9c6ef, #3f6fb5); border:2px solid #2f5596; color:#fff; font-size:14px; font-weight:700; font-family:Georgia, serif; cursor:pointer; padding:0; position:relative; }
 .quiz-info-popup{
 	display:none;
 	position:absolute;
 	right:0;
-	top:26px;
+	top:20px;
 	background:#333;
 	color:#fff;
-	padding:8px 12px;
-	width:240px;
-	font-size:17px;
+	padding:6px 10px;
+	width:220px;
+	font-size:14px;
 	line-height:1.4;
 	text-align:left;
 	font-weight:500;
@@ -64,11 +68,12 @@ table.quiz-table td{ padding:8px 12px; background:#ffc200; color:#000; border-bo
 }
 .quiz-info-popup.empty{ color:#ccc; font-style:italic; }
 .quiz-info.open .quiz-info-popup{ display:block; }
-.quiz-empty{ padding:30px 0; color:#666; }
+.quiz-empty{ padding:24px 0; color:#666; }
 /* PDF download icon, per the client's suggested design (Symbols.png) - a red
-   document badge, not a copy of Adobe's trademarked Acrobat logo. No file to
-   link to yet (the generator apps don't produce/store a PDF anywhere - see
-   the backend scoping discussion) so this is deliberately inert for now:
-   styled and in place, not wired to a real download, says so on hover. */
-.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; background:#D32F2F; color:#fff; cursor:not-allowed; }
-.quiz-pdf svg{ width:18px; height:18px; fill:#fff; }
+   document badge, not a copy of Adobe's trademarked Acrobat logo (that's their
+   real app icon, not a generic PDF symbol - flagged separately, not replicated
+   here). No file to link to yet (the generator apps don't produce/store a PDF
+   anywhere - see the backend scoping discussion) so this is deliberately inert
+   for now: styled and in place, not wired to a real download, says so on hover. */
+.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:5px; background:#D32F2F; color:#fff; cursor:not-allowed; }
+.quiz-pdf svg{ width:13px; height:13px; fill:#fff; }

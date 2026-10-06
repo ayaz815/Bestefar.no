@@ -1,3 +1,11 @@
+<!-- Preloading the site's own Agency font so it's ready before this page paints.
+     Likely cause of the sideways "jump": the font swaps in late (classic FOUT),
+     and since the fallback font has different letter widths, the h1/button/table
+     above the table resize once the real font loads, shifting everything below.
+     Can't fix this at the real root (that needs the <link> moved into the shared
+     theme/head.php's <head>, which affects every page) so preloading from here
+     is the best available fix without touching shared files. -->
+<link rel="preload" href="<?php echo base_url('assets/frontend/agencyfb_font/agencyr-webfont.woff2'); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?php echo base_url('assets/frontend/css/sporreleker.css'); ?>">
 
 <div class="quiz-catalog">
