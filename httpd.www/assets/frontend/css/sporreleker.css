@@ -22,10 +22,14 @@
 /* Sizes brought down overall per feedback ("all in all it looks too big") -
    roughly 25% smaller across the board from the previous pass. */
 .quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0 20px; color:rgb(0,0,0); font-size:20px; line-height:24px; flex:1 0 auto; }
-.quiz-catalog-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+/* Title, count and the category filter all sit on one line together now,
+   per feedback ("All in one line") - title left, count + filter grouped
+   together on the right, same row. */
+.quiz-catalog-head{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
 .quiz-catalog h1{ font-size:26px; margin:0; }
+.quiz-catalog-head-right{ display:flex; align-items:center; gap:14px; }
 .quiz-catalog-count{ font-size:20px; }
-.quiz-filter{ margin-bottom:12px; position:relative; display:inline-block; }
+.quiz-filter{ position:relative; display:inline-block; }
 .quiz-filter-btn{ background:#ffc200; border:1px solid #d6a600; padding:6px 18px; cursor:pointer; font-size:20px; }
 .quiz-filter-menu{ display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #999; min-width:150px; z-index:10; }
 .quiz-filter-menu a{ display:block; padding:6px 12px; color:#000; text-decoration:none; font-size:20px; }
@@ -42,8 +46,10 @@ table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bo
    actually keeps the date column lined up top-to-bottom: the figures stay
    under each other because the column itself can't resize row to row, not
    because of a font swap. vertical-align:middle keeps every cell centered
-   top/bottom too, so nothing sits high or low relative to its row. */
-.quiz-date, .quiz-count{ font-variant-numeric: tabular-nums; }
+   top/bottom too, so nothing sits high or low relative to its row.
+   Font size cut ~14% per the client's side-by-side comparison (20px base
+   down to 17px for these two numeric columns specifically). */
+.quiz-date, .quiz-count{ font-variant-numeric: tabular-nums; font-size:17px; }
 .quiz-icons{ display:inline-flex; align-items:center; gap:8px; }
 /* Info icon: blue gradient circle with a bordered ring, matching the
    reference image (Symbols.png) rather than a flat single color. */

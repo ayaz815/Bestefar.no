@@ -1,29 +1,22 @@
-<!-- Preloading the site's own Agency font so it's ready before this page paints.
-     Likely cause of the sideways "jump": the font swaps in late (classic FOUT),
-     and since the fallback font has different letter widths, the h1/button/table
-     above the table resize once the real font loads, shifting everything below.
-     Can't fix this at the real root (that needs the <link> moved into the shared
-     theme/head.php's <head>, which affects every page) so preloading from here
-     is the best available fix without touching shared files. -->
-<link rel="preload" href="<?php echo base_url('assets/frontend/agencyfb_font/agencyr-webfont.woff2'); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?php echo base_url('assets/frontend/css/sporreleker.css'); ?>">
 
 <div class="quiz-catalog">
 	<div class="quiz-catalog-head">
 		<h1>Velkommen til BestefarQuiz</h1>
-		<span class="quiz-catalog-count">1 - <?php echo count($quizzes); ?></span>
-	</div>
-
-	<div class="quiz-filter" id="quizFilter">
-		<div class="quiz-filter-btn" onclick="document.getElementById('quizFilter').classList.toggle('open')">
-			Kategorier <?php echo $quiz_type ? ': '.$quiz_type : ''; ?> ▾
-		</div>
-		<div class="quiz-filter-menu">
-			<a href="<?php echo base_url('home/sporreleker'); ?>" class="<?php echo $quiz_type=='' ? 'active' : ''; ?>">Alle</a>
-			<a href="<?php echo base_url('home/sporreleker?type=AudioQuiz'); ?>" class="<?php echo $quiz_type=='AudioQuiz' ? 'active' : ''; ?>">AudioQuiz</a>
-			<a href="<?php echo base_url('home/sporreleker?type=BildeQuiz'); ?>" class="<?php echo $quiz_type=='BildeQuiz' ? 'active' : ''; ?>">BildeQuiz</a>
-			<a href="<?php echo base_url('home/sporreleker?type=TekstQuiz'); ?>" class="<?php echo $quiz_type=='TekstQuiz' ? 'active' : ''; ?>">TekstQuiz</a>
-			<a href="<?php echo base_url('home/sporreleker?type=BilderMusikk'); ?>" class="<?php echo $quiz_type=='BilderMusikk' ? 'active' : ''; ?>">BilderMusikk</a>
+		<div class="quiz-catalog-head-right">
+			<span class="quiz-catalog-count">1 - <?php echo count($quizzes); ?></span>
+			<div class="quiz-filter" id="quizFilter">
+				<div class="quiz-filter-btn" onclick="document.getElementById('quizFilter').classList.toggle('open')">
+					Kategorier <?php echo $quiz_type ? ': '.$quiz_type : ''; ?> ▾
+				</div>
+				<div class="quiz-filter-menu">
+					<a href="<?php echo base_url('home/sporreleker'); ?>" class="<?php echo $quiz_type=='' ? 'active' : ''; ?>">Alle</a>
+					<a href="<?php echo base_url('home/sporreleker?type=AudioQuiz'); ?>" class="<?php echo $quiz_type=='AudioQuiz' ? 'active' : ''; ?>">AudioQuiz</a>
+					<a href="<?php echo base_url('home/sporreleker?type=BildeQuiz'); ?>" class="<?php echo $quiz_type=='BildeQuiz' ? 'active' : ''; ?>">BildeQuiz</a>
+					<a href="<?php echo base_url('home/sporreleker?type=TekstQuiz'); ?>" class="<?php echo $quiz_type=='TekstQuiz' ? 'active' : ''; ?>">TekstQuiz</a>
+					<a href="<?php echo base_url('home/sporreleker?type=BilderMusikk'); ?>" class="<?php echo $quiz_type=='BilderMusikk' ? 'active' : ''; ?>">BilderMusikk</a>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -66,8 +59,11 @@
 										<?php echo !empty($quiz['info']) ? htmlspecialchars($quiz['info']) : 'Ingen info lagt inn for denne quizen ennå.'; ?>
 									</span>
 								</button>
+								<!-- The client's own suggested document symbol (Symbol.png) - a plain
+								     document with a folded corner and three text lines, not a copy of
+								     any app's logo. This is the standard "file-lines" glyph shape. -->
 								<span class="quiz-pdf" title="PDF-nedlasting er ikke klar ennå">
-									<svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"/></svg>
+									<svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 32H256V0L384 128zM64 288c0 8.8 7.2 16 16 16H304c8.8 0 16-7.2 16-16s-7.2-16-16-16H80c-8.8 0-16 7.2-16 16zm16 64c-8.8 0-16 7.2-16 16s7.2 16 16 16H304c8.8 0 16-7.2 16-16s-7.2-16-16-16H80z"/></svg>
 								</span>
 							</span>
 						</td>

@@ -1045,8 +1045,15 @@
 			$sort_key = isset($columns[$sort]) ? $columns[$sort] : 'date';
 			$sort_dir = (strtolower($dir) == 'asc') ? 1 : -1;
 
+			// Rows with a tied sort value (e.g. two quizzes on the same date)
+			// used to fall back to whatever order the live API happened to
+			// return them in, which isn't guaranteed stable between requests -
+			// that's what was making rows swap position on reload ("jumping").
+			// Breaking ties on name makes the order fully deterministic.
 			usort($quizzes, function($a, $b) use ($sort_key, $sort_dir){
-				if($a[$sort_key] == $b[$sort_key]){ return 0; }
+				if($a[$sort_key] == $b[$sort_key]){
+					return strcasecmp($a['name'], $b['name']);
+				}
 				return ($a[$sort_key] < $b[$sort_key] ? -1 : 1) * $sort_dir;
 			});
 
