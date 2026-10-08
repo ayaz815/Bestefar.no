@@ -43,37 +43,81 @@
 			<div class="ekit-wid-con ekit_menu_responsive_tablet" data-hamburger-icon="" data-hamburger-icon-type="icon" data-responsive-breakpoint="1024">            <button class="elementskit-menu-hamburger elementskit-menu-toggler"  type="button" aria-label="hamburger-icon">
                                     <span class="elementskit-menu-hamburger-icon"></span><span class="elementskit-menu-hamburger-icon"></span><span class="elementskit-menu-hamburger-icon"></span>
                             </button>
-            <div id="ekit-megamenu-main-menu" class="elementskit-menu-container elementskit-menu-offcanvas-elements elementskit-navbar-nav-default ekit-nav-menu-one-page-no ekit-nav-dropdown-hover"><ul id="menu-main-menu" class="elementskit-navbar-nav elementskit-menu-po-center submenu-click-on-icon"><?php
-	// All sub-category dropdowns removed site-wide per explicit client
-	// direction (email, Oct 8): flat 3-item menu only - Litt om oss,
-	// Spørreleker, Litt å lese på. Each top-level item links straight to
-	// its first real category's blog listing, instead of showing a dropdown.
-	if(!function_exists('nav_first_category_url')){
-		function nav_first_category_url($ci, $main_categories_id){
-			$cat = $ci->db->select('categories_id')
-				->from('categories')
-				->where('main_categories_id', $main_categories_id)
-				->order_by('c_order', 'ASC')
-				->order_by('categories_id', 'ASC')
-				->limit(1)
-				->get()->row();
-			return $cat ? base_url().'home/blogs/'.$cat->categories_id : '#';
-		}
-	}
-?>
-<li id="menu-item-22" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
-	<a href="<?php echo nav_first_category_url($this, 1); ?>" class="ekit-menu-nav-link menu-link">
-		<?php echo $this->Admin_model->get_tc('main_categories','1','name'); ?>
-	</a>
+            <div id="ekit-megamenu-main-menu" class="elementskit-menu-container elementskit-menu-offcanvas-elements elementskit-navbar-nav-default ekit-nav-menu-one-page-no ekit-nav-dropdown-hover"><ul id="menu-main-menu" class="elementskit-navbar-nav elementskit-menu-po-center submenu-click-on-icon"><li id="menu-item-22" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="#" class="ekit-menu-nav-link ekit-menu-dropdown-toggle menu-link">
+                 <?php echo $this->Admin_model->get_tc('main_categories','1','name'); ?>
+                <!--<i aria-hidden="true" class="fa fa-angle-down  elementskit-submenu-indicator"></i>--></a>
+	<ul class="elementskit-dropdown elementskit-submenu-panel">
+		<?php 
+			$cats1 = $this->Admin_model->get_data_conditions_orderwise('categories', 'main_categories_id=1','c_order')->result_array(); 
+			foreach($cats1 as $cat1){
+				$cat1_id = $cat1['categories_id'];
+				
+			
+			$sub_cats = $this->Admin_model->get_data_conditions_orderwise('sub_categories', 'categories_id='.$cat1_id, 's_order')->result_array();
+			if(empty($sub_cats)){
+		?>
+		<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-23 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
+			<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class=" dropdown-item menu-link">
+				<?php echo $cat1['name']; ?> 
+			</a>	
+		</li>
+		
+		<?php }else{ ?>
+				<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-42 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class=" dropdown-item menu-link"><?php echo $cat1['name']; ?><!--<i aria-hidden="true" class="fa fa-angle-down  elementskit-submenu-indicator"></i>--></a>
+					<ul class="elementskit-dropdown elementskit-submenu-panel">
+					<?php foreach($sub_cats as $sub_cat){ ?>
+						<li id="menu-item-43" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-43 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
+							<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id'].'/'.$sub_cat['sub_categories_id']; ?>" class=" dropdown-item menu-link">
+								<?php echo $sub_cat['name']; ?> 
+							</a>
+						</li>
+					<?php } ?>
+						
+					</ul>
+				</li>
+		<?php } ?>
+		<?php } ?>
+		
+	</ul>
 </li>
 <li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-27 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
 	<a href="<?php echo base_url().'home/sporreleker'; ?>" class="ekit-menu-nav-link menu-link">Spørreleker</a>
 </li>
-<li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-41 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
-	<a href="<?php echo nav_first_category_url($this, 3); ?>" class="ekit-menu-nav-link menu-link">
-		<?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
-	</a>
-</li>
+<li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-41 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="#" class="ekit-menu-nav-link ekit-menu-dropdown-toggle menu-link">
+     <?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
+    <!--<i aria-hidden="true" class="fa fa-angle-down  elementskit-submenu-indicator"></i>--></a>
+<ul class="elementskit-dropdown elementskit-submenu-panel">
+<?php 
+			$cats1 = $this->Admin_model->get_data_conditions_orderwise('categories', 'main_categories_id=3','c_order')->result_array(); 
+			foreach($cats1 as $cat1){
+				$cat1_id = $cat1['categories_id'];
+				//$blogsn = $this->Admin_model->get_data_conditions('blogs', ' home_page=1 AND categories_id='.$cat1_id);
+				
+			
+			$sub_cats = $this->Admin_model->get_data_conditions_orderwise('sub_categories', 'categories_id='.$cat1_id,'s_order')->result_array();
+			if(empty($sub_cats)){
+		?>
+		<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-23 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
+			<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class=" dropdown-item menu-link">
+				<?php echo $cat1['name']; ?> 
+			</a>	
+		</li>
+		
+		<?php }else{ ?>
+				<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-42 nav-item elementskit-dropdown-has relative_position elementskit-dropdown-menu-default_width elementskit-mobile-builder-content" data-vertical-menu=750px><a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class=" dropdown-item menu-link"><?php echo $cat1['name']; ?><!--<i aria-hidden="true" class="fa fa-angle-down  elementskit-submenu-indicator"></i>--></a>
+					<ul class="elementskit-dropdown elementskit-submenu-panel">
+					<?php foreach($sub_cats as $sub_cat){ ?>
+						<li id="menu-item-43" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-43 nav-item elementskit-mobile-builder-content" data-vertical-menu=750px>
+							<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id'].'/'.$sub_cat['sub_categories_id']; ?>" class=" dropdown-item menu-link">
+								<?php echo $sub_cat['name']; ?> 
+							</a>
+						</li>
+					<?php } ?>
+						
+					</ul>
+				</li>
+		<?php } ?>
+		<?php } ?>
 
 </ul><div class="elementskit-nav-identity-panel">
 				<div class="elementskit-site-title">
@@ -131,22 +175,93 @@
 				    <ul id="menu-1-1b289fd" class="hfe-nav-menu">
 				
 				
-				<li id="menu-item-22" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
-					<a href="<?php echo nav_first_category_url($this, 1); ?>" class="hfe-menu-item">
-						<?php echo $this->Admin_model->get_tc('main_categories','1','name'); ?>
+				<li id="menu-item-22" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children parent hfe-has-submenu hfe-creative-menu">
+				<div class="hfe-has-submenu-container"><a href="#" class = "hfe-menu-item">
+				    <?php echo $this->Admin_model->get_tc('main_categories','1','name'); ?>
+				   <!-- <span class='hfe-menu-toggle fa fa-angle-down  hfe-menu-child-0'><i class='fa'></i></span>-->
+				</a></div>
+<ul class="sub-menu">
+ 
+<?php 
+			$cats1 = $this->Admin_model->get_data_conditions_orderwise('categories', 'main_categories_id=1','c_order')->result_array(); 
+			foreach($cats1 as $cat1){
+				$cat1_id = $cat1['categories_id'];
+				
+			$sub_cats = $this->Admin_model->get_data_conditions_orderwise('sub_categories', 'categories_id='.$cat1_id,'s_order')->result_array();
+			if(empty($sub_cats)){
+		?>
+		<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page hfe-creative-menu">
+			<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class = "hfe-sub-menu-item">
+				<?php echo $cat1['name']; ?> 
+			</a>	
+		</li>
+		<?php }else{ ?>
+				<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children hfe-has-submenu hfe-creative-menu">
+				<div class="hfe-has-submenu-container">
+					<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class = "hfe-sub-menu-item">
+						<?php echo $cat1['name']; ?> <!--<span class='hfe-menu-toggle fa fa-angle-down  hfe-menu-child-1'><i class='fa'></i></span>-->
 					</a>
+				</div>
+					<ul class="sub-menu">
+						<?php foreach($sub_cats as $sub_cat){ ?>
+						<li id="menu-item-43" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
+							<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id'].'/'.$sub_cat['sub_categories_id']; ?>" class = "hfe-sub-menu-item">
+								<?php echo $sub_cat['name']; ?> 
+							</a>
+						</li>
+						<?php } ?>
+					</ul>
 				</li>
-<li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
-	<a href="<?php echo nav_first_category_url($this, 3); ?>" class="hfe-menu-item">
-		<?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
-	</a>
+				
+		<?php } ?>
+		<?php } ?>
+		
+</ul>
 </li>
-<!-- Mobile only shows AudioQuiz, not the full catalog - per client direction
-     (email, Oct 8): "it will only be the AudioQuiz that should be available
-     on that device", so this links straight to the catalog pre-filtered to
-     AudioQuiz instead of the generic Spørreleker link used on desktop. -->
 <li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
-	<a href="<?php echo base_url().'home/sporreleker?type=AudioQuiz'; ?>" class="hfe-menu-item">AudioQuiz</a>
+	<a href="<?php echo base_url().'home/sporreleker'; ?>" class="hfe-menu-item">Spørreleker</a>
+</li>
+<li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children parent hfe-has-submenu hfe-creative-menu"><div class="hfe-has-submenu-container"><a href="#" class = "hfe-menu-item">
+     <?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
+     <!--<span class='hfe-menu-toggle fa fa-angle-down  hfe-menu-child-0'><i class='fa'></i></span>--></a></div>
+<ul class="sub-menu">
+
+<?php 
+			$cats1 = $this->Admin_model->get_data_conditions_orderwise('categories', 'main_categories_id=3','c_order')->result_array(); 
+			foreach($cats1 as $cat1){
+				$cat1_id = $cat1['categories_id'];
+				
+			
+			$sub_cats = $this->Admin_model->get_data_conditions_orderwise('sub_categories', 'categories_id='.$cat1_id,'s_order')->result_array();
+			if(empty($sub_cats)){
+		?>
+		<li id="menu-item-23" class="menu-item menu-item-type-post_type menu-item-object-page hfe-creative-menu">
+			<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class = "hfe-sub-menu-item">
+				<?php echo $cat1['name']; ?> 
+			</a>	
+		</li>
+		<?php }else{ ?>
+				<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children hfe-has-submenu hfe-creative-menu">
+				<div class="hfe-has-submenu-container">
+					<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id']; ?>" class = "hfe-sub-menu-item">
+						<?php echo $cat1['name']; ?><!--<span class='hfe-menu-toggle fa fa-angle-down  hfe-menu-child-1'><i class='fa'></i></span>-->
+					</a>
+				</div>
+					<ul class="sub-menu">
+						<?php foreach($sub_cats as $sub_cat){ ?>
+						<li id="menu-item-43" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
+							<a href="<?php echo base_url().'home/blogs/'.$cat1['categories_id'].'/'.$sub_cat['sub_categories_id']; ?>" class = "hfe-sub-menu-item">
+								<?php echo $sub_cat['name']; ?> 
+							</a>
+						</li>
+						<?php } ?>
+					</ul>
+				</li>
+				
+		<?php } ?>
+		<?php } ?>
+	
+</ul>
 </li>
 </ul></nav>
 			</div>
