@@ -42,10 +42,20 @@
 .quiz-filter-menu a:hover, .quiz-filter-menu a.active{ background:#9dc3e6; }
 .quiz-filter.open .quiz-filter-menu{ display:block; }
 table.quiz-table{ width:100%; border-collapse:collapse; table-layout:fixed; font-size:20px; line-height:24px; }
-table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; vertical-align:middle; padding:6px 10px; }
+table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; vertical-align:middle; padding:6px 16px; }
 table.quiz-table th a{ color:#000; text-decoration:none; }
-table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bottom:2px solid #fff; vertical-align:middle; }
+table.quiz-table td{ padding:6px 16px; background:#ffc200; color:#000; border-bottom:2px solid #fff; vertical-align:middle; }
 .quiz-table th.align-center, .quiz-table td.align-center{ text-align:center; }
+/* table-layout:fixed splits all 5 columns equally, but the icon column only
+   needs ~56px of real content - left centered (the old default), that wasted
+   width turned into a huge empty gap on the right of the icons before the
+   true table edge, much bigger than the 10px left inset on the Dato column.
+   Giving this column a real width and right-aligning its content instead
+   means the icons sit flush against the same cell padding on the right as
+   Dato has on the left - the two margins are equal (both now 16px, per
+   feedback to make them equal AND a little bigger than the original 10px). */
+.quiz-icons-col{ width:96px; }
+.quiz-info-cell{ text-align:right; }
 /* Same font as the rest of the table, per feedback - kept tabular-nums (costs
    nothing even if the font doesn't support it) and table-layout:fixed above so
    every column keeps one consistent width across all rows, which is what
