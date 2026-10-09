@@ -219,7 +219,7 @@
 </ul>
 </li>
 <li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom hfe-creative-menu">
-	<a href="<?php echo base_url().'home/sporreleker'; ?>" class="hfe-menu-item">Spørreleker</a>
+	<a href="<?php echo base_url().'home/sporreleker?type=AudioQuiz'; ?>" class="hfe-menu-item">AudioQuiz</a>
 </li>
 <li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children parent hfe-has-submenu hfe-creative-menu"><div class="hfe-has-submenu-container"><a href="#" class = "hfe-menu-item">
      <?php echo $this->Admin_model->get_tc('main_categories','3','name'); ?>
