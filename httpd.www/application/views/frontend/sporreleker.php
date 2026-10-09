@@ -7,7 +7,7 @@
 			<span class="quiz-catalog-count">1 - <?php echo count($quizzes); ?></span>
 			<div class="quiz-filter" id="quizFilter">
 				<div class="quiz-filter-btn" onclick="document.getElementById('quizFilter').classList.toggle('open')">
-					Kategorier <?php echo $quiz_type ? ': '.$quiz_type : ''; ?> ▾
+					<span>Kategorier<?php echo $quiz_type ? ': '.$quiz_type : ''; ?></span><span class="quiz-filter-arrow">▾</span>
 				</div>
 				<div class="quiz-filter-menu">
 					<a href="<?php echo base_url('home/sporreleker'); ?>" class="<?php echo $quiz_type=='' ? 'active' : ''; ?>">Alle</a>
