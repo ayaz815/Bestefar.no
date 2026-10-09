@@ -46,14 +46,6 @@ table.quiz-table th{ background:#9dc3e6; color:#000; text-align:left; vertical-a
 table.quiz-table th a{ color:#000; text-decoration:none; }
 table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bottom:2px solid #fff; vertical-align:middle; }
 .quiz-table th.align-center, .quiz-table td.align-center{ text-align:center; }
-/* table-layout:fixed was splitting all 5 columns equally, which squeezed
-   Navn (the longest real content - quiz names) down to the same width as
-   short columns like Dato. Giving the short columns a fixed width each and
-   leaving Navn's own width unset means table-layout:fixed hands Navn all
-   the space that's left over, instead of an even five-way split. */
-.quiz-date-col{ width:110px; }
-.quiz-category-col{ width:150px; }
-.quiz-count-col{ width:150px; }
 /* table-layout:fixed splits all 5 columns equally, but the icon column only
    needs ~56px of real content - left centered (the old default), that wasted
    width turned into a huge empty gap on the right of the icons before the
