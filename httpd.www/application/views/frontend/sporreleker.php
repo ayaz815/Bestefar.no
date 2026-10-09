@@ -37,11 +37,11 @@
 	<table class="quiz-table">
 		<thead>
 			<tr>
-				<th><?php echo quiz_sort_link('Dato', 'date', $sort, $dir, $quiz_type); ?></th>
-				<th><?php echo quiz_sort_link('Kategorier', 'category', $sort, $dir, $quiz_type); ?></th>
+				<th class="quiz-date-col"><?php echo quiz_sort_link('Dato', 'date', $sort, $dir, $quiz_type); ?></th>
+				<th class="quiz-category-col"><?php echo quiz_sort_link('Kategorier', 'category', $sort, $dir, $quiz_type); ?></th>
 				<th><?php echo quiz_sort_link('Navn', 'name', $sort, $dir, $quiz_type); ?></th>
-				<th class="align-center"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>
-				<th></th>
+				<th class="align-center quiz-count-col"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>
+				<th class="quiz-icons-col"></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -52,7 +52,7 @@
 						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
 						<td class="align-center quiz-count"><?php echo (int) $quiz['question_count']; ?></td>
-						<td class="align-center quiz-info-cell">
+						<td class="quiz-info-cell">
 							<span class="quiz-icons">
 								<button type="button" class="quiz-info" onclick="quizInfoToggle(this)">i
 									<span class="quiz-info-popup<?php echo empty($quiz['info']) ? ' empty' : ''; ?>">
