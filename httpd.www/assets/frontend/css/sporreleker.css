@@ -15,16 +15,19 @@
    #page into a real sticky-footer flex column instead. */
 #page.full-height{ height:auto; min-height:100vh; display:flex; flex-direction:column; }
 .quiz-catalog, .quiz-catalog *{ font-family:'agency_fbregular'; font-weight:500; box-sizing:border-box; }
-/* 1140px was wrong - that's the theme's generic .elementor-container default,
-   but the actual nav bar section (id="nav_bar", element 891b9b8, the one
-   holding the Litt om oss/Spørreleker/Litt å lese på buttons) overrides it
-   to max-width:900px specifically (post-241.css), which wins by specificity.
-   That 900px box is what the buttons actually sit inside, with 10px of
-   their own column padding before the button row starts - matching both
-   numbers here is what actually lines this table up with the real buttons. */
+/* Per Olav's direction: the table should start in line with the Bestefar
+   logo and end at the key icon - that's a DIFFERENT row/container than the
+   nav buttons (Litt om oss/Spørreleker/Litt å lese på), which live in their
+   own narrower 900px section. The logo+key row (element f43b260) has no
+   width override of its own in post-241.css, so it falls back to the
+   theme's generic .elementor-container{max-width:1140px}, and its columns
+   (c962d77, 8e0e9b0) both have zero padding - so the logo's left edge and
+   the key icon's right edge sit exactly at that 1140px box's own edges.
+   Matching 1140px with zero outer padding here lines the table up with
+   them exactly, instead of the nav buttons' narrower 900px row. */
 /* Sizes brought down overall per feedback ("all in all it looks too big") -
    roughly 25% smaller across the board from the previous pass. */
-.quiz-catalog{ max-width:900px; width:100%; margin:30px auto; padding:0 10px; color:rgb(0,0,0); font-size:20px; line-height:24px; flex:1 0 auto; }
+.quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0; color:rgb(0,0,0); font-size:20px; line-height:24px; flex:1 0 auto; }
 /* Title, count and the category filter all sit on one line together now,
    per feedback ("All in one line") - title left, count + filter grouped
    together on the right, same row. */
