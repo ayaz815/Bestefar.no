@@ -113,15 +113,4 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	.quiz-catalog-head{ flex-direction:column; align-items:flex-start; gap:6px; }
 	.quiz-catalog-head-right{ flex-direction:column; align-items:flex-start; gap:6px; width:100%; }
 	.quiz-filter-btn{ padding:6px 0; }
-	/* table-layout:fixed splits all 5 columns equally, which is fine at
-	   1140px but crushes Navn/Ant spørsmål into ~70px on a phone, wrapping
-	   names onto 3 lines and overlapping the question count next to them.
-	   Letting the table size its columns naturally and scroll sideways
-	   inside its own wrapper keeps every column readable instead of
-	   squeezing text - the page itself doesn't scroll horizontally, only
-	   this one element does. */
-	.quiz-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-	table.quiz-table{ table-layout:auto; min-width:640px; }
-	table.quiz-table th, table.quiz-table td{ white-space:nowrap; }
-	table.quiz-table td:nth-child(3){ white-space:normal; }
 }

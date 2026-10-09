@@ -34,7 +34,6 @@
 		}
 	?>
 
-	<div class="quiz-table-wrap">
 	<table class="quiz-table">
 		<thead>
 			<tr>
@@ -75,7 +74,6 @@
 			<?php } ?>
 		</tbody>
 	</table>
-	</div>
 </div>
 
 <script src="<?php echo base_url('assets/frontend/js/sporreleker.js'); ?>"></script>
