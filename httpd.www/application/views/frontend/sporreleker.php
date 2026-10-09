@@ -37,7 +37,7 @@
 	<table class="quiz-table">
 		<thead>
 			<tr>
-				<th><?php echo quiz_sort_link('Dato', 'date', $sort, $dir, $quiz_type); ?></th>
+				<th class="quiz-date-col"><?php echo quiz_sort_link('Dato', 'date', $sort, $dir, $quiz_type); ?></th>
 				<th><?php echo quiz_sort_link('Kategorier', 'category', $sort, $dir, $quiz_type); ?></th>
 				<th><?php echo quiz_sort_link('Navn', 'name', $sort, $dir, $quiz_type); ?></th>
 				<th class="align-center"><?php echo quiz_sort_link('Ant spørsmål', 'count', $sort, $dir, $quiz_type); ?></th>

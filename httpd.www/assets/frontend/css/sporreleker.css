@@ -51,12 +51,13 @@ table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bo
    width turned into a huge empty gap on the right of the icons before the
    true table edge. Giving this column a real width and right-aligning its
    content instead means the icons sit flush against this column's own right
-   padding, which is what actually controls the end margin. Per the latest
-   feedback, that end margin should be double the 10px start margin on the
-   Dato column - so this column's own right padding is 20px (its left/top/
-   bottom padding stays the default 6px/10px from the general td rule). */
+   padding, which is what actually controls the end margin. */
 .quiz-icons-col{ width:100px; }
 table.quiz-table td.quiz-info-cell{ text-align:right; padding-right:20px; }
+/* Per the latest feedback, the start margin (before Dato) must match the end
+   margin (after the PDF icon) - both 20px now, scoped to just this column so
+   the gaps between the other columns stay as they were. */
+table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:20px; }
 /* Same font as the rest of the table, per feedback - kept tabular-nums (costs
    nothing even if the font doesn't support it) and table-layout:fixed above so
    every column keeps one consistent width across all rows, which is what
