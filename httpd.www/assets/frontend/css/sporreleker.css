@@ -32,7 +32,10 @@
    per feedback ("All in one line") - title left, count + filter grouped
    together on the right, same row. */
 .quiz-catalog-head{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
-.quiz-catalog h1{ font-size:26px; margin:0; }
+/* The table's Dato column has its own 20px left padding (to match the icon
+   column's 20px end margin - see below), so the title needs the same offset
+   to actually line up with where "Dato" starts, not the table's outer edge. */
+.quiz-catalog h1{ font-size:26px; margin:0 0 0 20px; }
 .quiz-catalog-head-right{ display:flex; align-items:center; gap:14px; }
 .quiz-catalog-count{ font-size:20px; }
 .quiz-filter{ position:relative; display:inline-block; }
@@ -68,6 +71,11 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
    Font size cut ~14% per the client's side-by-side comparison (20px base
    down to 17px for these two numeric columns specifically). */
 .quiz-date, .quiz-count{ font-variant-numeric: tabular-nums; font-size:17px; }
+/* Per feedback, the date column should read as monospace - digits lining up
+   column to column is the actual goal, which a monospace face gives directly
+   (tabular-nums above already did this for fonts that support the feature,
+   this makes it explicit/guaranteed regardless of font support). */
+.quiz-date{ font-family:'Courier New', Courier, monospace; }
 .quiz-icons{ display:inline-flex; align-items:center; gap:8px; }
 /* Info icon: blue gradient circle with a bordered ring, matching the
    reference image (Symbols.png) rather than a flat single color. */
@@ -108,20 +116,59 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
    edge. Giving the catalog its own side margin below the breakpoint where
    the desktop alignment no longer applies anyway, and letting the head row
    stack instead of forcing everything onto one line. */
+/* Tablet (iPad etc): the 1140px desktop alignment target assumes the
+   logo/key header row at that same width, but at tablet widths the theme
+   switches to its own narrower mobile/tablet header section, so matching
+   1140px here just leaves unexplained empty margins on both sides. Giving
+   the catalog its own fixed gutter here instead keeps it visually aligned
+   with itself, independent of what the theme's header row happens to do at
+   this width. Desktop (>1024px) keeps the exact 1140px logo/key match. */
+@media (min-width:768px) and (max-width:1024px){
+	.quiz-catalog{ padding:0 24px; }
+}
+
 @media (max-width:767px){
+	/* Per the client's direction: phones only ever show AudioQuiz (the
+	   mobile nav links straight to ?type=AudioQuiz), so the category filter
+	   has no reason to exist there, and the table only needs to show Dato/
+	   Navn - everything else (Kategorier, Ant spørsmål, info, print) moves
+	   into a tap-to-open popup instead of being crammed into the row. */
 	.quiz-catalog{ padding:0 16px; }
-	.quiz-catalog-head{ flex-direction:column; align-items:flex-start; gap:6px; }
-	.quiz-catalog-head-right{ flex-direction:column; align-items:flex-start; gap:6px; width:100%; }
-	.quiz-filter-btn{ padding:8px 14px; }
-	/* table-layout:fixed splits all 5 columns equally, which is fine at
-	   1140px but crushes Navn/Ant spørsmål into ~70px on a phone, wrapping
-	   names onto 3 lines and overlapping the question count next to them.
-	   Letting the table size its columns naturally and scroll sideways
-	   inside its own wrapper keeps every column readable instead of
-	   squeezing text - the page itself doesn't scroll horizontally, only
-	   this one element does. */
-	.quiz-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-	table.quiz-table{ table-layout:auto; min-width:640px; }
-	table.quiz-table th, table.quiz-table td{ white-space:nowrap; }
+	.quiz-catalog-head{ display:none; }
+	.quiz-mobile-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:22px; margin-bottom:12px; }
+	.quiz-mobile-head span:last-child{ font-size:17px; color:#555; }
+	table.quiz-table th:nth-child(2), table.quiz-table td:nth-child(2),
+	table.quiz-table th:nth-child(4), table.quiz-table td:nth-child(4),
+	table.quiz-table th:nth-child(5), table.quiz-table td:nth-child(5){ display:none; }
 	table.quiz-table td:nth-child(3){ white-space:normal; }
+	.quiz-row{ cursor:pointer; }
+	/* Safety net, not the primary fix now that only Dato+Navn show - a very
+	   long name just wraps via white-space:normal above; this only kicks in
+	   if something still doesn't fit. */
+	.quiz-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+.quiz-mobile-head{ display:none; }
+
+/* Tap-to-open popup for mobile rows - info text and a print button, since
+   the row itself only shows Dato/Navn on a phone. Markup lives once outside
+   the table; sporreleker.js fills it in per row from data-* attributes. */
+.quiz-mobile-modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; align-items:flex-end; justify-content:center; }
+.quiz-mobile-modal.open{ display:flex; }
+.quiz-mobile-modal-inner{ position:relative; background:#fff; width:100%; max-width:480px; padding:24px 20px; border-radius:12px 12px 0 0; }
+.quiz-mobile-modal-close{ position:absolute; top:10px; right:14px; background:none; border:none; font-size:26px; line-height:1; cursor:pointer; }
+.qmm-name{ margin:0 24px 6px 0; font-size:22px; }
+.qmm-meta{ color:#555; margin:0 0 14px; font-size:16px; }
+.qmm-info{ margin:0 0 20px; line-height:1.4; }
+.quiz-mobile-print{ background:#ffc200; border:1px solid #d6a600; padding:8px 20px; cursor:pointer; font-size:18px; }
+
+/* Printing the popup: hide everything else on the page, show just the
+   popup's own content, not its close/print buttons. This prints whatever
+   info text exists today - real question/answer content isn't fetched by
+   this page yet, so that's what actually comes out until that's wired up. */
+@media print{
+	body *{ visibility:hidden; }
+	.quiz-mobile-modal-inner, .quiz-mobile-modal-inner *{ visibility:visible; }
+	.quiz-mobile-modal-inner{ position:absolute; left:0; top:0; width:100%; box-shadow:none; }
+	.quiz-mobile-modal-close, .quiz-mobile-print{ display:none; }
 }
