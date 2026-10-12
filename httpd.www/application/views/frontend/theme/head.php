@@ -196,22 +196,10 @@ img { max-width: 100%; height: auto; }
     }
 }
 
-/* Client asked for the login/register menu to open on the same line as
-   the key icon (like on laptop) instead of dropping down below it on
-   mobile - sits to the left of the icon, vertically centred in the
-   header bar, same colors/text. */
-@media (max-width: 767px) {
-    .dropdown-content {
-        top: 50% !important;
-        right: 100% !important;
-        left: auto !important;
-        transform: translateY(-50%) !important;
-        white-space: nowrap !important;
-    }
-    .dropdown-content a {
-        display: inline-block !important;
-    }
-}
+/* Client wants the login/register menu to open exactly the way it does
+   on laptop - no mobile-specific override at all, just inherit the base
+   .dropdown-content positioning (opens below-right of the key icon) that
+   desktop already uses. */
 </style>
 
 <style id="wp-custom-css">
