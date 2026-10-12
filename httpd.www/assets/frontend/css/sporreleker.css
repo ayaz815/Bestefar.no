@@ -133,7 +133,7 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	   has no reason to exist there, and the table only needs to show Dato/
 	   Navn - everything else (Kategorier, Ant spørsmål, info, print) moves
 	   into a tap-to-open popup instead of being crammed into the row. */
-	.quiz-catalog{ padding:0 16px; }
+	.quiz-catalog{ padding:0 8px; }
 	table.quiz-table{ font-size:18px; line-height:21px; }
 	.quiz-catalog-head{ display:none; }
 	.quiz-mobile-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:22px; margin-bottom:12px; }
