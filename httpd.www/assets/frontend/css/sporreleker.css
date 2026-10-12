@@ -141,7 +141,7 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	   on the right, the same way the desktop table lines up with the
 	   logo/key row. */
 	.quiz-catalog{ padding:0 11px 0 0; }
-	table.quiz-table{ font-size:17px; line-height:20px; }
+	table.quiz-table{ font-size:19px; line-height:22px; }
 	.quiz-catalog-head{ display:none; }
 	.quiz-mobile-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:22px; margin-bottom:12px; }
 	.quiz-mobile-head span:last-child{ font-size:17px; color:#555; }
