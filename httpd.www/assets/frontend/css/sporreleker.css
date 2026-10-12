@@ -130,6 +130,13 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	.quiz-catalog{ padding:0 24px; }
 }
 
+/* Hidden by default (desktop/tablet use the full .quiz-catalog-head
+   instead) - must come BEFORE the mobile media query below, since equal-
+   specificity rules resolve by source order regardless of the media
+   query: putting this after it was silently overriding the mobile
+   display:flex and hiding the "AudioQuiz" title above the table. */
+.quiz-mobile-head{ display:none; }
+
 @media (max-width:767px){
 	/* Per the client's direction: phones only ever show AudioQuiz (the
 	   mobile nav links straight to ?type=AudioQuiz), so the category filter
@@ -155,8 +162,6 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	   if something still doesn't fit. */
 	.quiz-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 }
-
-.quiz-mobile-head{ display:none; }
 
 /* Tap-to-open popup for mobile rows - info text and a print button, since
    the row itself only shows Dato/Navn on a phone. Markup lives once outside
