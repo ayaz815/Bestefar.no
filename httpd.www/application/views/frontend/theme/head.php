@@ -266,13 +266,19 @@ img { max-width: 100%; height: auto; }
 	  z-index: 1;
 	  //width:60%;
 	  right: 0;
+	  white-space: nowrap;
 	}
 
+	/* display:block here used to force "Åpne" and "Registrere" onto
+	   separate lines (each <a> is a block-level box, so it always starts
+	   a new line, regardless of device) - inline-block keeps both on one
+	   line, with the literal "|" text node between them, on every screen
+	   size the same way. */
 	.dropdown-content a {
 	  color: black;
 	  padding: 12px 10px;
 	  text-decoration: none !important;
-	  display: block;
+	  display: inline-block;
 	  font-family: "Calibri", sans-serif;
 	  font-weight: 600;
 	}
