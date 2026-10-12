@@ -102,14 +102,14 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
    tablets, which still show this column - have no hover at all. */
 .quiz-info:hover .quiz-info-popup, .quiz-info.open .quiz-info-popup{ display:block; }
 .quiz-empty{ padding:24px 0; color:#666; }
-/* PDF download icon, per the client's suggested design (Symbols.png) - a red
-   document badge, not a copy of Adobe's trademarked Acrobat logo (that's their
-   real app icon, not a generic PDF symbol - flagged separately, not replicated
-   here). No file to link to yet (the generator apps don't produce/store a PDF
-   anywhere - see the backend scoping discussion) so this is deliberately inert
-   for now: styled and in place, not wired to a real download, says so on hover. */
-.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:5px; background:#D32F2F; color:#fff; cursor:not-allowed; }
-.quiz-pdf svg{ width:13px; height:13px; fill:#fff; }
+/* PDF download icon - the client's own supplied symbol image
+   (quiz-pdf-icon.png, from Symbol.png), already red/self-contained, so no
+   background badge needed around it. No file to link to yet (the generator
+   apps don't produce/store a PDF anywhere - see the backend scoping
+   discussion) so this is deliberately inert for now: in place, not wired to
+   a real download, says so on hover. */
+.quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; cursor:not-allowed; }
+.quiz-pdf img{ width:24px; height:24px; }
 
 /* Mobile: .quiz-catalog has zero side padding on purpose (it has to line up
    with the logo/key row on desktop, which also has zero padding at that

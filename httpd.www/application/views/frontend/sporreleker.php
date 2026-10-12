@@ -71,11 +71,9 @@
 										<?php echo htmlspecialchars($quiz_info_text); ?>
 									</span>
 								</button>
-								<!-- The client's own suggested document symbol (Symbol.png) - a plain
-								     document with a folded corner and three text lines, not a copy of
-								     any app's logo. This is the standard "file-lines" glyph shape. -->
+								<!-- The client's own supplied document symbol (Symbol.png). -->
 								<span class="quiz-pdf" title="PDF-nedlasting er ikke klar ennå">
-									<svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 32H256V0L384 128zM64 288c0 8.8 7.2 16 16 16H304c8.8 0 16-7.2 16-16s-7.2-16-16-16H80c-8.8 0-16 7.2-16 16zm16 64c-8.8 0-16 7.2-16 16s7.2 16 16 16H304c8.8 0 16-7.2 16-16s-7.2-16-16-16H80z"/></svg>
+									<img src="<?php echo base_url('assets/frontend/images/quiz-pdf-icon.png'); ?>" alt="PDF">
 								</span>
 							</span>
 						</td>
