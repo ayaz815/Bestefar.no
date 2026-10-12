@@ -136,15 +136,19 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	   has no reason to exist there, and the table only needs to show Dato/
 	   Navn - everything else (Kategorier, Ant spørsmål, info, print) moves
 	   into a tap-to-open popup instead of being crammed into the row. */
-	.quiz-catalog{ padding:0 12px; }
-	table.quiz-table{ font-size:18px; line-height:21px; }
+	.quiz-catalog{ padding:0 12px; margin:12px auto; }
+	/* table-layout:fixed (set above, for desktop) still reserves a sliver of
+	   width for the hidden columns on some mobile browsers, showing up as a
+	   stray line between Dato and Navn - switching to auto on mobile, where
+	   only 2 columns ever render, removes that gap entirely. */
+	table.quiz-table{ font-size:18px; line-height:21px; table-layout:auto; }
 	.quiz-catalog-head{ display:none; }
 	.quiz-mobile-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:22px; margin-bottom:12px; }
 	.quiz-mobile-head span:last-child{ font-size:17px; color:#555; }
 	table.quiz-table th:nth-child(2), table.quiz-table td:nth-child(2),
 	table.quiz-table th:nth-child(4), table.quiz-table td:nth-child(4),
 	table.quiz-table th:nth-child(5), table.quiz-table td:nth-child(5){ display:none; }
-	table.quiz-table td:nth-child(3){ white-space:normal; }
+	table.quiz-table td:nth-child(3){ white-space:normal; width:auto; }
 	.quiz-row{ cursor:pointer; }
 	/* Safety net, not the primary fix now that only Dato+Navn show - a very
 	   long name just wraps via white-space:normal above; this only kicks in
