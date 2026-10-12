@@ -177,6 +177,24 @@ img { max-width: 100%; height: auto; }
     .elementor-241 .elementor-element.elementor-element-1f440fa { width: 15% !important; }
     .dropdown-content a { font-size: 12px; padding: 10px 6px; }
 }
+
+/* The key icon (login/register) keeps the exact same design on mobile as
+   desktop - same image, same dropdown colors/layout - but post-241.css's
+   percentage width (50% of its column) blows it up to ~100px, nearly the
+   full header height, which looks out of proportion next to the rest of
+   the header. Cap it to a size closer to how it reads on desktop. */
+@media (max-width: 767px) {
+    .elementor-241 .elementor-element.elementor-element-eae3730 img {
+        width: 46px !important;
+        max-width: 46px !important;
+    }
+}
+@media (max-width: 400px) {
+    .elementor-241 .elementor-element.elementor-element-eae3730 img {
+        width: 38px !important;
+        max-width: 38px !important;
+    }
+}
 </style>
 
 <style id="wp-custom-css">
