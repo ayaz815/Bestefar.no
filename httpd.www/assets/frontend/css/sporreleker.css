@@ -71,11 +71,6 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
    Font size cut ~14% per the client's side-by-side comparison (20px base
    down to 17px for these two numeric columns specifically). */
 .quiz-date, .quiz-count{ font-variant-numeric: tabular-nums; font-size:17px; }
-/* Per feedback, the date column should read as monospace - digits lining up
-   column to column is the actual goal, which a monospace face gives directly
-   (tabular-nums above already did this for fonts that support the feature,
-   this makes it explicit/guaranteed regardless of font support). */
-.quiz-date{ font-family:'Courier New', Courier, monospace; }
 .quiz-icons{ display:inline-flex; align-items:center; gap:8px; }
 /* Info icon: blue gradient circle with a bordered ring, matching the
    reference image (Symbols.png) rather than a flat single color. */
