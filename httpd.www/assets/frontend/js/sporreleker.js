@@ -32,6 +32,29 @@ document.querySelectorAll('.quiz-row').forEach(function(row){
 		var musicType = row.dataset.musictype || '';
 		modal.querySelector('.qmm-musictype').textContent = musicType;
 		modal.querySelector('.qmm-musictype-wrap').style.display = musicType ? '' : 'none';
+
+		// Start Quiz: the live player already supports loading any quiz by
+		// ID via ?show=<id> (used by the generator's own Preview button),
+		// so this reuses that instead of needing a new endpoint. Only
+		// wired up for AudioQuiz for now - the other quiz types' player
+		// apps (bestefar-image, bestefar-imagemusic, bestefar-crossword)
+		// haven't been confirmed to support the same ?show=<id> pattern.
+		var startBtn = modal.querySelector('.quiz-mobile-start');
+		if(startBtn){
+			var quizId = row.dataset.id || '';
+			if(row.dataset.category === 'AudioQuiz' && quizId){
+				startBtn.disabled = false;
+				startBtn.removeAttribute('title');
+				startBtn.onclick = function(){
+					window.location.href = 'https://bestefar.no/bestefar-audio/index.html?show=' + encodeURIComponent(quizId);
+				};
+			}else{
+				startBtn.disabled = true;
+				startBtn.title = 'Kommer snart';
+				startBtn.onclick = null;
+			}
+		}
+
 		modal.classList.add('open');
 	});
 });
