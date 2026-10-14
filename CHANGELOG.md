@@ -6,6 +6,8 @@ Short, newest-first log of what's actually shipped in this repo, so a new sessio
 
 Hold these for one combined email once the current batch of fixes is done - don't send piecemeal.
 
+- **Music Type Norwegian labels (raised 14 Oct 2026):** the mobile popup now shows "Musikk" for Music-type quizzes (confirmed from the mockup). "Saying" and "Sound" are guessed as "Talemåte" and "Lyd" (`Admin_model.php`'s `$firm_naming_labels`) - please confirm or correct these.
+
 - **Print output scope (raised 14 Oct 2026):** the mobile popup's "Skriv ut" print currently only outputs the popup's own title/meta/info text (confirmed via Per Olav's screenshot: "Side 1 av 1", no questions). Is that intentional for now, or does the client want the full quiz (questions/answers) included in the printed output eventually? Printing the full quiz isn't built yet - this page doesn't fetch question/answer content at all currently.
 
 ## Changelog
