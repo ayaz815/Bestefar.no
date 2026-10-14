@@ -8,11 +8,11 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 - **Music Type Norwegian labels (raised 14 Oct 2026):** the mobile popup now shows "Musikk" for Music-type quizzes (confirmed from the mockup). "Saying" and "Sound" are guessed as "Talemåte" and "Lyd" (`Admin_model.php`'s `$firm_naming_labels`) - please confirm or correct these.
 
-- **Print output scope (raised 14 Oct 2026):** the mobile popup's "Skriv ut" print currently only outputs the popup's own title/meta/info text (confirmed via Per Olav's screenshot: "Side 1 av 1", no questions). Is that intentional for now, or does the client want the full quiz (questions/answers) included in the printed output eventually? Printing the full quiz isn't built yet - this page doesn't fetch question/answer content at all currently.
-
 ## Changelog
 
-- **2026-10-14** — Mobile quiz-info popup redesigned to match the client's mockup: centered yellow card, "Utgitt: ..." meta line, two-line info area, Skriv ut (green) / Start Quiz (red) buttons. Start Quiz is a placeholder - no quiz-player URL exists in the catalog data yet.
+- **2026-10-15** — "Skriv ut" now opens the real AudioQuiz PDF (title page + participant answer sheet + answer key, 3 pages) instead of just printing the popup card - resolves the client's ask that print search for a nearby printer and output the full quiz, one set per person. Printer search and the copy-count field both come free from the browser's own PDF viewer, nothing custom-built there. Wired in both the table's PDF icon and the mobile popup's Skriv ut button, AudioQuiz only for now.
+- **2026-10-15** — "Start Quiz" now actually launches the quiz on that device for AudioQuiz rows, reusing the player's existing `?show=<id>` loading support (the same mechanism the generator's own Preview button relies on).
+- **2026-10-14** — Mobile quiz-info popup redesigned to match the client's mockup: centered yellow card, "Utgitt: ..." meta line, two-line info area, Skriv ut (green) / Start Quiz (red) buttons.
 - **2026-10-14** — Fixed the "Ant spørsmål" count showing wrong numbers for AudioQuiz rows (root cause: a MongoDB write bug on the backend stored `screens` as an object instead of an array - full writeup in the `backend` repo's changelog). Existing broken documents were migrated after a full DB backup.
 - **2026-10-14** — Fixed generator-entered Info being silently blanked by a leftover empty row in the local `quiz_info` admin-override table - an admin override now only wins when it actually has text.
 - **2026-10-14** — Removed the "Musician" field per the client's correction (duplicate of the existing "Artist Name"). Artist Name is now shown inside the quiz player itself (revealed with the answer, so it doesn't spoil the song) instead of being a separate catalog field.
