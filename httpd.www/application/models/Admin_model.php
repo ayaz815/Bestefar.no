@@ -1033,9 +1033,13 @@
 			foreach($types_to_fetch as $type){
 				if(isset($fetchers[$type])){
 					$type_quizzes = $this->{$fetchers[$type]}();
+					// The local quiz_info table only overrides when an admin has
+					// actually typed something into it - a row that exists but is
+					// blank (left over from before the generator had its own Info
+					// field) must NOT blank out real info coming from the API.
 					$info_map = $this->get_quiz_info_map($type);
 					foreach($type_quizzes as &$quiz){
-						if(isset($info_map[$quiz['external_id']])){
+						if(!empty($info_map[$quiz['external_id']])){
 							$quiz['info'] = $info_map[$quiz['external_id']];
 						}
 					}
