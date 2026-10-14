@@ -407,6 +407,11 @@
         let factDrawer = document.getElementById("factDrawer");
         factDrawer.classList.remove("hidden");
         setTimeout(() => factDrawer.classList.remove("translate-y-full"), 10);
+        // The play button pokes out above the drawer and visually clashes
+        // with its close arrow - hide it while notes are open, keep the
+        // "Spill av melodien" instruction text showing above it.
+        let playBtn = document.getElementById("playBtn1");
+        if (playBtn) playBtn.classList.add("invisible");
       }
 
       document
@@ -415,6 +420,8 @@
           let factDrawer = document.getElementById("factDrawer");
           factDrawer.classList.add("translate-y-full");
           setTimeout(() => factDrawer.classList.add("hidden"), 300);
+          let playBtn = document.getElementById("playBtn1");
+          if (playBtn) playBtn.classList.remove("invisible");
         });
 
       function navigateToScreen(url) {
