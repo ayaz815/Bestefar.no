@@ -55,7 +55,7 @@ table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bo
    true table edge. Giving this column a real width and right-aligning its
    content instead means the icons sit flush against this column's own right
    padding, which is what actually controls the end margin. */
-.quiz-icons-col{ width:100px; }
+.quiz-icons-col{ width:120px; }
 table.quiz-table td.quiz-info-cell{ text-align:right; padding-right:20px; }
 /* Per the latest feedback, the start margin (before Dato) must match the end
    margin (after the PDF icon) - both 20px now, scoped to just this column so
@@ -108,6 +108,10 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
    not-allowed only makes sense for the still-unsupported quiz types. */
 a.quiz-pdf{ cursor:pointer; }
 .quiz-pdf img{ width:24px; height:24px; }
+
+.quiz-start{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; cursor:not-allowed; }
+a.quiz-start{ cursor:pointer; }
+.quiz-start img{ width:20px; height:20px; }
 
 /* Mobile: .quiz-catalog has zero side padding on purpose (it has to line up
    with the logo/key row on desktop, which also has zero padding at that

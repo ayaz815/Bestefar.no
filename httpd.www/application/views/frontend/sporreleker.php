@@ -82,6 +82,17 @@
 									<img src="<?php echo base_url('assets/frontend/images/quiz-pdf-icon.png'); ?>" alt="PDF">
 								</span>
 								<?php } ?>
+								<!-- Start Quiz on desktop/laptop too, not just the mobile popup -
+								     same ?show=<id> player loading, AudioQuiz only for now. -->
+								<?php if($quiz['quiz_type'] === 'AudioQuiz'){ ?>
+								<a class="quiz-start" href="https://bestefar.no/bestefar-audio/index.html?show=<?php echo urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Start quiz">
+									<img src="<?php echo base_url('assets/frontend/images/playbutton.png'); ?>" alt="Start">
+								</a>
+								<?php }else{ ?>
+								<span class="quiz-start" title="Kommer snart">
+									<img src="<?php echo base_url('assets/frontend/images/playbutton.png'); ?>" alt="Start">
+								</span>
+								<?php } ?>
 							</span>
 						</td>
 					</tr>
