@@ -304,6 +304,16 @@ document.addEventListener("DOMContentLoaded", async function () {
           console.warn("⚠️ 'answer-text' element not found.");
         }
 
+        // ---------------------- Update Artist Name -------------------------
+        // Shown alongside the answer (see the answer-toggle logic below,
+        // which reveals it together with the answer text, not before).
+        const artistNameDisplay = document.getElementById("artist-name-display");
+        if (artistNameDisplay) {
+          artistNameDisplay.textContent = screenData.artistName
+            ? "Artist: " + screenData.artistName
+            : "";
+        }
+
         // ---------------------- Update Firm Naming -------------------------
         const firmNamingElement = document.querySelector(
           ".title-section h1:nth-child(2)"
@@ -502,6 +512,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     ? answerDiv.querySelectorAll(".answer-text")
     : [];
 
+  // The artist name reveal (added separately from .answer-text so it
+  // doesn't shift the `answerText[1]` indexing above) fades in/out in sync
+  // with the answer text - same click, same toggle.
+  const artistNameDisplay = document.getElementById("artist-name-display");
+
   // Add the click event listener to the parent for toggling
   if (answerDiv) {
     answerDiv.addEventListener("click", (event) => {
@@ -510,18 +525,26 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (answerText.length > 1) {
         // Toggle between showing and hiding the second paragraph with fade effect
         const secondParagraph = answerText[1];
-        if (secondParagraph.classList.contains("opacity-0")) {
+        const nowHidden = secondParagraph.classList.contains("opacity-0");
+        if (nowHidden) {
           secondParagraph.classList.remove("opacity-0", "pointer-events-none");
         } else {
           secondParagraph.classList.add("opacity-0", "pointer-events-none");
+        }
+        if (artistNameDisplay) {
+          artistNameDisplay.classList.toggle("opacity-0", !nowHidden);
+          artistNameDisplay.classList.toggle("pointer-events-none", !nowHidden);
         }
       }
     });
   }
 
-  // Ensure the second paragraph is hidden initially
+  // Ensure the second paragraph (and the artist name with it) is hidden initially
   if (answerText.length > 1) {
     answerText[1].classList.add("opacity-0", "pointer-events-none");
+  }
+  if (artistNameDisplay) {
+    artistNameDisplay.classList.add("opacity-0", "pointer-events-none");
   }
 
   // ---------------------- Tooltip Logic -------------------------

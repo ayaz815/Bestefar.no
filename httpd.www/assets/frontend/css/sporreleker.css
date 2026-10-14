@@ -158,25 +158,33 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	.quiz-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 }
 
-/* Tap-to-open popup for mobile rows - info text and a print button, since
+/* Tap-to-open popup for mobile rows - info text and action buttons, since
    the row itself only shows Dato/Navn on a phone. Markup lives once outside
-   the table; sporreleker.js fills it in per row from data-* attributes. */
-.quiz-mobile-modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; align-items:flex-end; justify-content:center; }
+   the table; sporreleker.js fills it in per row from data-* attributes.
+   Matches the client's 13 Oct mockup: centered yellow card (not a bottom
+   sheet), Utgitt meta line, two-line info area, Skriv ut (green) + Start
+   Quiz (red) side by side. */
+.quiz-mobile-modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; align-items:center; justify-content:center; padding:20px; }
 .quiz-mobile-modal.open{ display:flex; }
-.quiz-mobile-modal-inner{ position:relative; background:#fff; width:100%; max-width:480px; padding:24px 20px; border-radius:12px 12px 0 0; }
-.quiz-mobile-modal-close{ position:absolute; top:10px; right:14px; background:none; border:none; font-size:26px; line-height:1; cursor:pointer; }
-.qmm-name{ margin:0 24px 6px 0; font-size:22px; }
-.qmm-meta{ color:#555; margin:0 0 14px; font-size:16px; }
-.qmm-info{ margin:0 0 20px; line-height:1.4; }
-.quiz-mobile-print{ background:#ffc200; border:1px solid #d6a600; padding:8px 20px; cursor:pointer; font-size:18px; }
+.quiz-mobile-modal-inner{ position:relative; background:#ffc200; width:100%; max-width:420px; padding:24px 20px; border-radius:18px; box-shadow:0 8px 24px rgba(0,0,0,.3); }
+.quiz-mobile-modal-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:26px; line-height:1; cursor:pointer; color:#000; }
+.qmm-name{ margin:0 24px 8px 0; font-size:26px; }
+.qmm-meta{ color:#000; margin:0 0 14px; font-size:17px; }
+/* min-height reserves room for two lines even when the info is short/empty,
+   so the card doesn't visibly resize once real info text is filled in. */
+.qmm-info{ margin:0 0 20px; line-height:1.4; font-size:17px; min-height:2.8em; }
+.quiz-mobile-actions{ display:flex; gap:12px; }
+.quiz-mobile-actions button{ flex:1; border:none; border-radius:8px; padding:12px 10px; font-size:18px; font-weight:600; cursor:pointer; color:#fff; }
+.quiz-mobile-print{ background:#3cb043; }
+.quiz-mobile-start{ background:#e5342a; }
 
 /* Printing the popup: hide everything else on the page, show just the
-   popup's own content, not its close/print buttons. This prints whatever
+   popup's own content, not its action buttons. This prints whatever
    info text exists today - real question/answer content isn't fetched by
    this page yet, so that's what actually comes out until that's wired up. */
 @media print{
 	body *{ visibility:hidden; }
 	.quiz-mobile-modal-inner, .quiz-mobile-modal-inner *{ visibility:visible; }
 	.quiz-mobile-modal-inner{ position:absolute; left:0; top:0; width:100%; box-shadow:none; }
-	.quiz-mobile-modal-close, .quiz-mobile-print{ display:none; }
+	.quiz-mobile-modal-close, .quiz-mobile-actions{ display:none; }
 }

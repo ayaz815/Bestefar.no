@@ -911,21 +911,22 @@
 			$data = $this->fetch_json($this->quiz_api_base.'/forms/get-all');
 			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
 			return array_map(function($show){
-				// Info/Musician are now editable in the generator app itself
-				// (top-level quizInfo/quizMusician on the quiz, not per-screen) -
-				// combine them into one info string here. The local quiz_info
-				// table lookup in get_quizzes_catalog() still overrides this if
-				// an admin ever fills it in through that separate path.
+				// Info is editable in the generator app itself (top-level
+				// quizInfo on the quiz, not per-screen). There is no separate
+				// Musician field - the client already has "Artist Name" per
+				// question, which is now shown in the quiz player itself
+				// (bestefar-audio/data/screens/show.html's answer section)
+				// instead of being duplicated here. The local quiz_info table
+				// lookup in get_quizzes_catalog() still overrides this below
+				// if an admin ever fills it in through that separate path.
 				$info = isset($show['quizInfo']) ? trim($show['quizInfo']) : '';
-				$musician = isset($show['quizMusician']) ? trim($show['quizMusician']) : '';
-				$combined_info = $musician ? trim('Musiker: '.$musician."\n".$info) : $info;
 				return array(
 					'quiz_type'      => 'AudioQuiz',
 					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
 					'question_count' => isset($show['quizForms']) ? count($show['quizForms']) : 0,
 					'date'           => $this->get_or_record_first_seen($show['id']),
-					'info'           => $combined_info,
+					'info'           => $info,
 				);
 			}, $shows);
 		}

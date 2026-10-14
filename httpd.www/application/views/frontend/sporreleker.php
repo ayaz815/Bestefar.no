@@ -88,14 +88,22 @@
 
 	<!-- Mobile-only: tapping a row opens this with the quiz's info and a print
 	     button, since the table itself only shows Dato/Navn on phones. Filled
-	     in by JS from the row's data-* attributes - see sporreleker.js. -->
+	     in by JS from the row's data-* attributes - see sporreleker.js.
+	     Matches the client's 13 Oct mockup: yellow card, Utgitt meta line,
+	     two-line info area, Skriv ut (green) + Start Quiz (red) side by side. -->
 	<div class="quiz-mobile-modal" id="quizMobileModal">
 		<div class="quiz-mobile-modal-inner">
 			<button type="button" class="quiz-mobile-modal-close" onclick="document.getElementById('quizMobileModal').classList.remove('open')">×</button>
 			<h2 class="qmm-name"></h2>
-			<p class="qmm-meta"><span class="qmm-date"></span> · <span class="qmm-category"></span> · <span class="qmm-count"></span> spørsmål</p>
+			<p class="qmm-meta">Utgitt: <span class="qmm-date"></span> – <span class="qmm-category"></span> – <span class="qmm-count"></span> spørsmål</p>
 			<p class="qmm-info"></p>
-			<button type="button" class="quiz-mobile-print" onclick="window.print()">Skriv ut</button>
+			<div class="quiz-mobile-actions">
+				<button type="button" class="quiz-mobile-print" onclick="window.print()">Skriv ut</button>
+				<!-- Starting the quiz on-device isn't wired up yet - no live
+				     quiz-player URL exists in the catalog data yet. Placeholder
+				     button matches the agreed design; flagged to the client. -->
+				<button type="button" class="quiz-mobile-start" title="Kommer snart">Start Quiz</button>
+			</div>
 		</div>
 	</div>
 </div>
