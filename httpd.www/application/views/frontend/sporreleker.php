@@ -59,7 +59,7 @@
 					$quiz_date_fmt = $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-';
 					$quiz_info_text = !empty($quiz['info']) ? $quiz['info'] : 'Ingen info lagt inn for denne quizen ennå.';
 				?>
-					<tr class="quiz-row" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>">
+					<tr class="quiz-row" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>" data-musictype="<?php echo htmlspecialchars(!empty($quiz['music_type']) ? $quiz['music_type'] : ''); ?>">
 						<td class="quiz-date"><?php echo $quiz_date_fmt; ?></td>
 						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
@@ -95,7 +95,7 @@
 		<div class="quiz-mobile-modal-inner">
 			<button type="button" class="quiz-mobile-modal-close" onclick="document.getElementById('quizMobileModal').classList.remove('open')">×</button>
 			<h2 class="qmm-name"></h2>
-			<p class="qmm-meta">Utgitt: <span class="qmm-date"></span> – <span class="qmm-category"></span> – <span class="qmm-count"></span> spørsmål</p>
+			<p class="qmm-meta">Utgitt: <span class="qmm-date"></span> – <span class="qmm-category"></span><span class="qmm-musictype-wrap"> – <span class="qmm-musictype"></span></span> – <span class="qmm-count"></span> spørsmål</p>
 			<p class="qmm-info"></p>
 			<div class="quiz-mobile-actions">
 				<button type="button" class="quiz-mobile-print" onclick="window.print()">Skriv ut</button>

@@ -920,6 +920,19 @@
 				// lookup in get_quizzes_catalog() still overrides this below
 				// if an admin ever fills it in through that separate path.
 				$info = isset($show['quizInfo']) ? trim($show['quizInfo']) : '';
+				// "Music Type" (firmNaming: Music/Saying/Sound) is set per
+				// question in the generator but kept consistent across a
+				// quiz in practice - page 1's value is used as the quiz's
+				// overall type for the mobile popup's meta line.
+				// Translation of "Saying"/"Sound" to Norwegian is a guess -
+				// flagged for the client to confirm/correct.
+				$firm_naming_labels = array(
+					'Music'  => 'Musikk',
+					'Saying' => 'Talemåte',
+					'Sound'  => 'Lyd',
+				);
+				$raw_music_type = isset($show['quizForms'][0]['firmNaming']) ? trim($show['quizForms'][0]['firmNaming']) : '';
+				$music_type = isset($firm_naming_labels[$raw_music_type]) ? $firm_naming_labels[$raw_music_type] : $raw_music_type;
 				return array(
 					'quiz_type'      => 'AudioQuiz',
 					'external_id'    => $show['id'],
@@ -927,6 +940,7 @@
 					'question_count' => isset($show['quizForms']) ? count($show['quizForms']) : 0,
 					'date'           => $this->get_or_record_first_seen($show['id']),
 					'info'           => $info,
+					'music_type'     => $music_type,
 				);
 			}, $shows);
 		}

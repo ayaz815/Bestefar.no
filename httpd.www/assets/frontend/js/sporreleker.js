@@ -26,6 +26,12 @@ document.querySelectorAll('.quiz-row').forEach(function(row){
 		modal.querySelector('.qmm-category').textContent = row.dataset.category || '';
 		modal.querySelector('.qmm-count').textContent = row.dataset.count || '';
 		modal.querySelector('.qmm-info').textContent = row.dataset.info || '';
+		// Music Type (Musikk/Talemåte/Lyd) only applies to AudioQuiz - the
+		// wrap span is hidden entirely for other categories instead of
+		// showing an empty " – " gap.
+		var musicType = row.dataset.musictype || '';
+		modal.querySelector('.qmm-musictype').textContent = musicType;
+		modal.querySelector('.qmm-musictype-wrap').style.display = musicType ? '' : 'none';
 		modal.classList.add('open');
 	});
 });
