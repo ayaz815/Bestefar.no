@@ -56,6 +56,10 @@ table.quiz-table td{ padding:6px 10px; background:#ffc200; color:#000; border-bo
    content instead means the icons sit flush against this column's own right
    padding, which is what actually controls the end margin. */
 .quiz-icons-col{ width:100px; }
+/* Narrow Kategorier so Navn starts a little earlier and gets the freed-up
+   width - quiz names are often longer than category names and were the
+   ones running out of room. */
+table.quiz-table th:nth-child(2), table.quiz-table td:nth-child(2){ width:130px; }
 table.quiz-table td.quiz-info-cell{ text-align:right; padding-right:20px; }
 /* Per the latest feedback, the start margin (before Dato) must match the end
    margin (after the PDF icon) - both 20px now, scoped to just this column so
