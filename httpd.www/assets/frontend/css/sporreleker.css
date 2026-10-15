@@ -104,9 +104,6 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
    discussion) so this is deliberately inert for now: in place, not wired to
    a real download, says so on hover. */
 .quiz-pdf{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; cursor:not-allowed; }
-/* AudioQuiz rows render this as a real <a> (PDF generation exists there) -
-   not-allowed only makes sense for the still-unsupported quiz types. */
-a.quiz-pdf{ cursor:pointer; }
 .quiz-pdf img{ width:24px; height:24px; }
 
 /* Mobile: .quiz-catalog has zero side padding on purpose (it has to line up

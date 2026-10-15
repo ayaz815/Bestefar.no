@@ -71,17 +71,10 @@
 										<?php echo htmlspecialchars($quiz_info_text); ?>
 									</span>
 								</button>
-								<!-- The client's own supplied document symbol (Symbol.png).
-								     PDF generation only exists for AudioQuiz so far. -->
-								<?php if($quiz['quiz_type'] === 'AudioQuiz'){ ?>
-								<a class="quiz-pdf" href="https://api.bestefar.no/api/forms/pdf/<?php echo urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Skriv ut quiz">
-									<img src="<?php echo base_url('assets/frontend/images/quiz-pdf-icon.png'); ?>" alt="PDF">
-								</a>
-								<?php }else{ ?>
+								<!-- The client's own supplied document symbol (Symbol.png). -->
 								<span class="quiz-pdf" title="PDF-nedlasting er ikke klar ennå">
 									<img src="<?php echo base_url('assets/frontend/images/quiz-pdf-icon.png'); ?>" alt="PDF">
 								</span>
-								<?php } ?>
 							</span>
 						</td>
 					</tr>
@@ -105,7 +98,10 @@
 			<p class="qmm-meta">Utgitt: <span class="qmm-date"></span> – <span class="qmm-category"></span><span class="qmm-musictype-wrap"> – <span class="qmm-musictype"></span></span> – <span class="qmm-count"></span> spørsmål</p>
 			<p class="qmm-info"></p>
 			<div class="quiz-mobile-actions">
-				<button type="button" class="quiz-mobile-print">Skriv ut</button>
+				<button type="button" class="quiz-mobile-print" onclick="window.print()">Skriv ut</button>
+				<!-- Starting the quiz on-device isn't wired up yet - no live
+				     quiz-player URL exists in the catalog data yet. Placeholder
+				     button matches the agreed design; flagged to the client. -->
 				<button type="button" class="quiz-mobile-start" title="Kommer snart">Start Quiz</button>
 			</div>
 		</div>

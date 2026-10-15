@@ -32,24 +32,6 @@ document.querySelectorAll('.quiz-row').forEach(function(row){
 		var musicType = row.dataset.musictype || '';
 		modal.querySelector('.qmm-musictype').textContent = musicType;
 		modal.querySelector('.qmm-musictype-wrap').style.display = musicType ? '' : 'none';
-		var quizId = row.dataset.id || '';
-
-		// Skriv ut: AudioQuiz rows now have a real multi-page PDF (title +
-		// participant sheet + answer key) generated server-side - opening it
-		// lets the browser's own PDF viewer handle printing, which already
-		// searches for nearby AirPrint/Mopria printers and lets the user set
-		// a copy count, same as any other PDF. Other quiz types fall back to
-		// printing just the popup card, as before.
-		var printBtn = modal.querySelector('.quiz-mobile-print');
-		if(printBtn){
-			if(row.dataset.category === 'AudioQuiz' && quizId){
-				printBtn.onclick = function(){
-					window.open('https://api.bestefar.no/api/forms/pdf/' + encodeURIComponent(quizId), '_blank');
-				};
-			}else{
-				printBtn.onclick = function(){ window.print(); };
-			}
-		}
 
 		// Start Quiz: the live player already supports loading any quiz by
 		// ID via ?show=<id> (used by the generator's own Preview button),
@@ -59,6 +41,7 @@ document.querySelectorAll('.quiz-row').forEach(function(row){
 		// haven't been confirmed to support the same ?show=<id> pattern.
 		var startBtn = modal.querySelector('.quiz-mobile-start');
 		if(startBtn){
+			var quizId = row.dataset.id || '';
 			if(row.dataset.category === 'AudioQuiz' && quizId){
 				startBtn.disabled = false;
 				startBtn.removeAttribute('title');
