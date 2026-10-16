@@ -39,7 +39,14 @@ const AQ_API_BASE = "https://api.bestefar.no/api/audio-quiz";
     const cameFromInternalNav =
       sessionStorage.getItem("aq_internal_nav") === "1";
     sessionStorage.removeItem("aq_internal_nav");
-    if (!cameFromInternalNav) {
+    // Trusted entry point: the catalog's own "Start Quiz" link deliberately
+    // deep-links straight to show.html?screen=1 (skipping the title/intro
+    // screens) and tags its URL with autostart=1 so it isn't mistaken for
+    // someone sharing a mid-quiz address bar URL, which should still bounce
+    // to the title screen as before.
+    const isTrustedAutostart =
+      new URLSearchParams(window.location.search).get("autostart") === "1";
+    if (!cameFromInternalNav && !isTrustedAutostart) {
       window.location.replace("../../index.html" + window.location.search);
     }
   } catch {}
