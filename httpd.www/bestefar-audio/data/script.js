@@ -601,7 +601,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (musicContainer) {
       musicContainer.innerHTML = ""; // Clear existing content
 
-      for (let i = 1; i <= 16; i++) {
+      // Only list screens the quiz actually has data for - this used to
+      // always loop 1..16, so a quiz with e.g. 1 real question still
+      // listed 15 more tracks with placeholder "Music Track N" / "Unknown
+      // Artist" text and non-functional play buttons pointing at empty
+      // screens. Content-only change: which rows get built, not how
+      // clicking an existing row navigates.
+      const realScreenNumbers = Object.keys(data)
+        .filter((k) => /^screen\d+$/.test(k))
+        .map((k) => parseInt(k.replace("screen", ""), 10))
+        .sort((a, b) => a - b);
+
+      for (const i of realScreenNumbers) {
         const screenKey = `screen${i}`;
         const screenData = data[screenKey] || {}; // Get screen data (fallback to empty object)
         const musicName = screenData.musicName || `Music Track ${i}`;
