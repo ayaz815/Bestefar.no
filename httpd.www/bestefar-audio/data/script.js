@@ -499,13 +499,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       } else {
         console.warn(`No data found for screen: ${screenId}`);
-        // Both the API fetch and the static content.json fallback failed
-        // (e.g. a restrictive in-app browser blocking the cross-origin
-        // request) — surface that instead of leaving "Loading..." forever
-        // with no indication anything went wrong.
-        const quizNameElement = document.getElementById("quizName");
-        if (quizNameElement) {
-          quizNameElement.textContent = "Could not load quiz — check connection" + (window._aqErr ? " (" + window._aqErr + ")" : "");
+        // Two different reasons land here, and they need different
+        // messages: either the fetch genuinely failed (data has no
+        // screens at all), or the fetch succeeded but this quiz simply
+        // never had this many pages filled in (e.g. a 1-question quiz
+        // still has screen2..screen16 files on disk, each with nothing to
+        // show). Content-only fix, deliberately NOT touching navigation -
+        // a previous attempt at also redirecting past missing screens
+        // caused a cascade of unwanted automatic page changes.
+        const hasAnyScreenData = Object.keys(data).some((k) => /^screen\d+$/.test(k));
+        if (hasAnyScreenData) {
+          const questionTextElement = document.getElementById("question-text");
+          if (questionTextElement) questionTextElement.textContent = "";
+          const answerTextElement = document.getElementById("answer-text");
+          if (answerTextElement) answerTextElement.textContent = "Ingen flere spørsmål.";
+        } else {
+          // Both the API fetch and the static content.json fallback failed
+          // (e.g. a restrictive in-app browser blocking the cross-origin
+          // request) — surface that instead of leaving "Loading..." forever
+          // with no indication anything went wrong.
+          const quizNameElement = document.getElementById("quizName");
+          if (quizNameElement) {
+            quizNameElement.textContent = "Could not load quiz — check connection" + (window._aqErr ? " (" + window._aqErr + ")" : "");
+          }
         }
       }
     })
