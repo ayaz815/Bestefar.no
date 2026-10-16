@@ -85,7 +85,7 @@
 								<!-- Start Quiz on desktop/laptop too, not just the mobile popup -
 								     same ?show=<id> player loading, AudioQuiz only for now. -->
 								<?php if($quiz['quiz_type'] === 'AudioQuiz'){ ?>
-								<a class="quiz-start" href="https://bestefar.no/bestefar-audio/data/screens/show.html?screen=1&show=<?php echo urlencode($quiz['external_id']); ?>&autostart=1" target="_blank" rel="noopener" title="Start quiz">
+								<a class="quiz-start" href="https://bestefar.no/bestefar-audio/data/screens/show.html?screen=1&show=<?php echo urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Start quiz">
 									<img src="<?php echo base_url('assets/frontend/images/playbutton.png'); ?>" alt="Start">
 								</a>
 								<?php }else{ ?>

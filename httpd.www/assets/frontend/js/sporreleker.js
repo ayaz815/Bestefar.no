@@ -63,7 +63,7 @@ document.querySelectorAll('.quiz-row').forEach(function(row){
 				startBtn.disabled = false;
 				startBtn.removeAttribute('title');
 				startBtn.onclick = function(){
-					window.location.href = 'https://bestefar.no/bestefar-audio/data/screens/show.html?screen=1&show=' + encodeURIComponent(quizId) + '&autostart=1';
+					window.location.href = 'https://bestefar.no/bestefar-audio/data/screens/show.html?screen=1&show=' + encodeURIComponent(quizId);
 				};
 			}else{
 				startBtn.disabled = true;
