@@ -508,19 +508,29 @@ document.addEventListener("DOMContentLoaded", async function () {
             "<p>No additional information available.</p>";
         }
       } else {
+        // index.html's <body> also happens to carry id="screen1" (a
+        // coincidence of markup, not a real quiz screen) - the redirect/
+        // clamp logic below only makes sense on the actual per-question
+        // pages, so it's scoped to /data/screens/ only. Without that
+        // guard it used to also fire on index.html and point its relative
+        // "./screen17.html" at the wrong directory (bestefar-audio/
+        // screen17.html, a 404, instead of bestefar-audio/data/screens/
+        // screen17.html).
+        const onDeepScreen = window.location.pathname.includes("/data/screens/");
+        const currentNum = screenIndexFromId(screenId);
+        const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
+          (n) => data[`screen${n}`]
+        );
+
         // A quiz with fewer than 16 pages filled in legitimately has no
         // data for this screen - that's expected, not a connection error.
         // Redirect to the nearest screen that actually has content instead
         // of leaving "Loading..."/empty question-and-answer text stuck on
         // screen forever. A genuine fetch failure (handled below by the
         // quizName fallback text) is a separate case: `data` would be {}
-        // there, so every screenN lookup fails the same way and this find()
-        // simply returns undefined, falling through to the warning path.
-        const currentNum = screenIndexFromId(screenId);
-        const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
-          (n) => data[`screen${n}`]
-        );
-        if (existingScreens.length > 0) {
+        // there, so existingScreens.length is 0 and this is skipped,
+        // falling through to the warning path.
+        if (onDeepScreen && existingScreens.length > 0) {
           const nextExisting = existingScreens.find((n) => n > currentNum);
           const target = nextExisting
             ? `./show.html?screen=${nextExisting}`
@@ -546,8 +556,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       // it has no way to know better) - override those targets here once
       // the real screen list is known, so navigating "next" from the last
       // filled screen goes straight to the end instead of into 15 blank
-      // "Loading..." pages.
-      if (screenData) {
+      // "Loading..." pages. Scoped to /data/screens/ for the same reason
+      // as above - index.html has no leftNavigation/rightNavigation of
+      // this kind anyway, but staying explicit here avoids relying on that.
+      if (screenData && window.location.pathname.includes("/data/screens/")) {
         const currentNum = screenIndexFromId(screenId);
         const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
           (n) => data[`screen${n}`]
