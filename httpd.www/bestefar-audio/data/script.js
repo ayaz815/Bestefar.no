@@ -524,6 +524,31 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
         }
       }
+
+      // ---------------------- Jump to the end from the last real screen -------------------------
+      // Click-only - this only changes where the right-arrow navigates to
+      // from here, it never navigates on its own. Without it, clicking past
+      // the last screen that was actually filled in in the generator just
+      // shows more "Ingen flere spørsmål." screens instead of ending the
+      // quiz, since show.html's own inline updateNavigation() always wires
+      // the arrow to "next screen number" without knowing which screens
+      // have real data (it runs before this fetch even resolves).
+      const filledScreenNumbers = Object.keys(data)
+        .filter((k) => /^screen\d+$/.test(k))
+        .map((k) => parseInt(k.replace("screen", ""), 10));
+      const maxFilledScreen = filledScreenNumbers.length
+        ? Math.max(...filledScreenNumbers)
+        : 0;
+      const currentScreenNum = screenIndexFromId(screenId);
+      if (maxFilledScreen && currentScreenNum === maxFilledScreen) {
+        const rightNav = document.getElementById("rightNavigation");
+        if (rightNav) {
+          const endTarget = window.location.pathname.includes("/data/screens/")
+            ? "./screen17.html"
+            : "./data/screens/screen17.html";
+          rightNav.onclick = () => navigateToScreen(endTarget);
+        }
+      }
     })
     .catch((error) => {
       console.error("Error loading JSON file:", error);
