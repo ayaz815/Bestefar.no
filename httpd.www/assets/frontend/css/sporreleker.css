@@ -188,7 +188,6 @@ a.quiz-start{ cursor:pointer; }
 .quiz-mobile-actions button{ flex:1; border:none; border-radius:8px; padding:12px 10px; font-size:18px; font-weight:600; cursor:pointer; color:#fff; }
 .quiz-mobile-print{ background:#3cb043; }
 .quiz-mobile-start{ background:#e5342a; }
-.quiz-mobile-actions button:disabled{ opacity:.5; cursor:not-allowed; }
 
 /* Printing the popup: hide everything else on the page, show just the
    popup's own content, not its action buttons. This prints whatever
