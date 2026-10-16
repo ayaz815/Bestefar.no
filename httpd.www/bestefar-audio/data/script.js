@@ -477,16 +477,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           console.warn("⚠️ 'answer-text' element not found.");
         }
 
-        // ---------------------- Update Artist Name -------------------------
-        // Shown alongside the answer (see the answer-toggle logic below,
-        // which reveals it together with the answer text, not before).
-        const artistNameDisplay = document.getElementById("artist-name-display");
-        if (artistNameDisplay) {
-          artistNameDisplay.textContent = screenData.artistName
-            ? "Artist: " + screenData.artistName
-            : "";
-        }
-
         // ---------------------- Update Firm Naming -------------------------
         const firmNamingElement = document.querySelector(
           ".title-section h1:nth-child(2)"
@@ -508,37 +498,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             "<p>No additional information available.</p>";
         }
       } else {
-        // index.html's <body> also happens to carry id="screen1" (a
-        // coincidence of markup, not a real quiz screen) - the redirect/
-        // clamp logic below only makes sense on the actual per-question
-        // pages, so it's scoped to /data/screens/ only. Without that
-        // guard it used to also fire on index.html and point its relative
-        // "./screen17.html" at the wrong directory (bestefar-audio/
-        // screen17.html, a 404, instead of bestefar-audio/data/screens/
-        // screen17.html).
-        const onDeepScreen = window.location.pathname.includes("/data/screens/");
-        const currentNum = screenIndexFromId(screenId);
-        const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
-          (n) => data[`screen${n}`]
-        );
-
-        // A quiz with fewer than 16 pages filled in legitimately has no
-        // data for this screen - that's expected, not a connection error.
-        // Redirect to the nearest screen that actually has content instead
-        // of leaving "Loading..."/empty question-and-answer text stuck on
-        // screen forever. A genuine fetch failure (handled below by the
-        // quizName fallback text) is a separate case: `data` would be {}
-        // there, so existingScreens.length is 0 and this is skipped,
-        // falling through to the warning path.
-        if (onDeepScreen && existingScreens.length > 0) {
-          const nextExisting = existingScreens.find((n) => n > currentNum);
-          const target = nextExisting
-            ? `./show.html?screen=${nextExisting}`
-            : "./screen17.html";
-          navigateToScreen(target);
-          return;
-        }
-
         console.warn(`No data found for screen: ${screenId}`);
         // Both the API fetch and the static content.json fallback failed
         // (e.g. a restrictive in-app browser blocking the cross-origin
@@ -547,38 +506,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         const quizNameElement = document.getElementById("quizName");
         if (quizNameElement) {
           quizNameElement.textContent = "Could not load quiz — check connection" + (window._aqErr ? " (" + window._aqErr + ")" : "");
-        }
-      }
-
-      // ---------------------- Clamp Prev/Next to real screens -------------------------
-      // show.html's own inline script computes Previous/Next assuming all
-      // 16 screens exist (it runs before this async data load resolves, so
-      // it has no way to know better) - override those targets here once
-      // the real screen list is known, so navigating "next" from the last
-      // filled screen goes straight to the end instead of into 15 blank
-      // "Loading..." pages. Scoped to /data/screens/ for the same reason
-      // as above - index.html has no leftNavigation/rightNavigation of
-      // this kind anyway, but staying explicit here avoids relying on that.
-      if (screenData && window.location.pathname.includes("/data/screens/")) {
-        const currentNum = screenIndexFromId(screenId);
-        const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
-          (n) => data[`screen${n}`]
-        );
-        const idx = existingScreens.indexOf(currentNum);
-        if (idx !== -1) {
-          const prevExisting = idx > 0 ? existingScreens[idx - 1] : null;
-          const nextExisting =
-            idx < existingScreens.length - 1 ? existingScreens[idx + 1] : null;
-          const prevTarget = prevExisting
-            ? `./show.html?screen=${prevExisting}`
-            : "./screen.html";
-          const nextTarget = nextExisting
-            ? `./show.html?screen=${nextExisting}`
-            : "./screen17.html";
-          const leftNav = document.getElementById("leftNavigation");
-          const rightNav = document.getElementById("rightNavigation");
-          if (leftNav) leftNav.onclick = () => navigateToScreen(prevTarget);
-          if (rightNav) rightNav.onclick = () => navigateToScreen(nextTarget);
         }
       }
     })
@@ -608,12 +535,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       for (let i = 1; i <= 16; i++) {
         const screenKey = `screen${i}`;
-        // Only render tracks that actually exist - a quiz with just 1 page
-        // filled in used to still show all 16 slots as "Music Track N /
-        // Unknown Artist" placeholders, since this loop never checked
-        // whether the screen was real before falling back to defaults.
-        if (!data[screenKey]) continue;
-        const screenData = data[screenKey];
+        const screenData = data[screenKey] || {}; // Get screen data (fallback to empty object)
         const musicName = screenData.musicName || `Music Track ${i}`;
         const artistName = screenData.artistName || `Unknown Artist`;
         const formattedNumber = i.toString().padStart(2) + ".";
@@ -707,15 +629,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function getAudio(index) {
       if (!audioFiles[index]) {
-        // The DOM's button order no longer lines up 1:1 with screen number
-        // once empty screens are skipped above (e.g. only screens 1 and 5
-        // exist → buttons[0]=screen1, buttons[1]=screen5, not screen2) -
-        // each button's own id ("playBtn5") still carries its real screen
-        // number, so read that instead of assuming index+1.
-        const button = playButtons[index];
-        const realPage =
-          button && button.id ? parseInt(button.id.replace("playBtn", ""), 10) : index + 1;
-        const screenKey = `screen${realPage}`;
+        const screenKey = `screen${index + 1}`;
         const screenData = data[screenKey] || {};
         const audio = new Audio(screenData.musicFileUrl);
         const playImage = playImages[index];
@@ -824,11 +738,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     ? answerDiv.querySelectorAll(".answer-text")
     : [];
 
-  // The artist name reveal (added separately from .answer-text so it
-  // doesn't shift the `answerText[1]` indexing above) fades in/out in sync
-  // with the answer text - same click, same toggle.
-  const artistNameDisplay = document.getElementById("artist-name-display");
-
   // Add the click event listener to the parent for toggling
   if (answerDiv) {
     answerDiv.addEventListener("click", (event) => {
@@ -837,26 +746,18 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (answerText.length > 1) {
         // Toggle between showing and hiding the second paragraph with fade effect
         const secondParagraph = answerText[1];
-        const nowHidden = secondParagraph.classList.contains("opacity-0");
-        if (nowHidden) {
+        if (secondParagraph.classList.contains("opacity-0")) {
           secondParagraph.classList.remove("opacity-0", "pointer-events-none");
         } else {
           secondParagraph.classList.add("opacity-0", "pointer-events-none");
-        }
-        if (artistNameDisplay) {
-          artistNameDisplay.classList.toggle("opacity-0", !nowHidden);
-          artistNameDisplay.classList.toggle("pointer-events-none", !nowHidden);
         }
       }
     });
   }
 
-  // Ensure the second paragraph (and the artist name with it) is hidden initially
+  // Ensure the second paragraph is hidden initially
   if (answerText.length > 1) {
     answerText[1].classList.add("opacity-0", "pointer-events-none");
-  }
-  if (artistNameDisplay) {
-    artistNameDisplay.classList.add("opacity-0", "pointer-events-none");
   }
 
   // ---------------------- Tooltip Logic -------------------------
