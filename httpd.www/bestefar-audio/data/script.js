@@ -508,6 +508,27 @@ document.addEventListener("DOMContentLoaded", async function () {
             "<p>No additional information available.</p>";
         }
       } else {
+        // A quiz with fewer than 16 pages filled in legitimately has no
+        // data for this screen - that's expected, not a connection error.
+        // Redirect to the nearest screen that actually has content instead
+        // of leaving "Loading..."/empty question-and-answer text stuck on
+        // screen forever. A genuine fetch failure (handled below by the
+        // quizName fallback text) is a separate case: `data` would be {}
+        // there, so every screenN lookup fails the same way and this find()
+        // simply returns undefined, falling through to the warning path.
+        const currentNum = screenIndexFromId(screenId);
+        const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
+          (n) => data[`screen${n}`]
+        );
+        if (existingScreens.length > 0) {
+          const nextExisting = existingScreens.find((n) => n > currentNum);
+          const target = nextExisting
+            ? `./show.html?screen=${nextExisting}`
+            : "./screen17.html";
+          navigateToScreen(target);
+          return;
+        }
+
         console.warn(`No data found for screen: ${screenId}`);
         // Both the API fetch and the static content.json fallback failed
         // (e.g. a restrictive in-app browser blocking the cross-origin
@@ -516,6 +537,36 @@ document.addEventListener("DOMContentLoaded", async function () {
         const quizNameElement = document.getElementById("quizName");
         if (quizNameElement) {
           quizNameElement.textContent = "Could not load quiz — check connection" + (window._aqErr ? " (" + window._aqErr + ")" : "");
+        }
+      }
+
+      // ---------------------- Clamp Prev/Next to real screens -------------------------
+      // show.html's own inline script computes Previous/Next assuming all
+      // 16 screens exist (it runs before this async data load resolves, so
+      // it has no way to know better) - override those targets here once
+      // the real screen list is known, so navigating "next" from the last
+      // filled screen goes straight to the end instead of into 15 blank
+      // "Loading..." pages.
+      if (screenData) {
+        const currentNum = screenIndexFromId(screenId);
+        const existingScreens = Array.from({ length: 16 }, (_, i) => i + 1).filter(
+          (n) => data[`screen${n}`]
+        );
+        const idx = existingScreens.indexOf(currentNum);
+        if (idx !== -1) {
+          const prevExisting = idx > 0 ? existingScreens[idx - 1] : null;
+          const nextExisting =
+            idx < existingScreens.length - 1 ? existingScreens[idx + 1] : null;
+          const prevTarget = prevExisting
+            ? `./show.html?screen=${prevExisting}`
+            : "./screen.html";
+          const nextTarget = nextExisting
+            ? `./show.html?screen=${nextExisting}`
+            : "./screen17.html";
+          const leftNav = document.getElementById("leftNavigation");
+          const rightNav = document.getElementById("rightNavigation");
+          if (leftNav) leftNav.onclick = () => navigateToScreen(prevTarget);
+          if (rightNav) rightNav.onclick = () => navigateToScreen(nextTarget);
         }
       }
     })
