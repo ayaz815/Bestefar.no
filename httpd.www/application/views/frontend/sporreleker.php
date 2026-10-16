@@ -59,7 +59,7 @@
 					$quiz_date_fmt = $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-';
 					$quiz_info_text = !empty($quiz['info']) ? $quiz['info'] : 'Ingen info lagt inn for denne quizen ennå.';
 				?>
-					<tr class="quiz-row" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>" data-musictype="<?php echo htmlspecialchars(!empty($quiz['music_type']) ? $quiz['music_type'] : ''); ?>">
+					<tr class="quiz-row" data-id="<?php echo htmlspecialchars($quiz['external_id']); ?>" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>" data-musictype="<?php echo htmlspecialchars(!empty($quiz['music_type']) ? $quiz['music_type'] : ''); ?>">
 						<td class="quiz-date"><?php echo $quiz_date_fmt; ?></td>
 						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
