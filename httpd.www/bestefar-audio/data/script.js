@@ -539,11 +539,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       const maxFilledScreen = filledScreenNumbers.length
         ? Math.max(...filledScreenNumbers)
         : 0;
-      // screenId is only ever "screen1".."screen16" on an actual quiz
-      // question page - screen17.html (the "Ferdig!" page) and index.html
-      // have no body id at all, so screenIndexFromId("") would otherwise
-      // default to 1 and misfire this block on them too.
-      const isRealQuizScreen = /^screen\d+$/.test(screenId || "");
+      // Restrict to actual quiz question pages under /data/screens/show.html.
+      // screenId alone isn't enough: index.html's own <body> also carries
+      // id="screen1" (reused for unrelated styling), so a screenId check by
+      // itself matched index.html too and hijacked its right arrow - which
+      // is meant to go to screen.html (the instructions page) - straight to
+      // screen17.html instead whenever the quiz's last filled screen was 1.
+      const isRealQuizScreen =
+        /^screen\d+$/.test(screenId || "") &&
+        window.location.pathname.includes("/data/screens/");
       const currentScreenNum = screenIndexFromId(screenId);
       if (
         isRealQuizScreen &&
