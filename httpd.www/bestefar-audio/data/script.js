@@ -1012,14 +1012,21 @@ function createInteractionZone(left, top, width, height, hoverText) {
 // won — but kept two definitions of the same function in one file, which is
 // exactly the kind of thing that caused the shadowing bug fixed above.)
 function navigateToScreen(url) {
-  // Auto-preserve the current ?show=<id> query string on every
-  // navigation, unless the target URL already specifies its own query.
-  // This means every existing onclick="navigateToScreen('...')" call
-  // across every screen file keeps a shared-link session alive without
-  // each one needing to be edited individually.
-  if (!url.includes("?") && window.location.search) {
-    url += window.location.search;
-  }
+  // Auto-preserve the current ?show=<id> (and any other) query params on
+  // every navigation. Targets like show.html?screen=2 already carry their
+  // own "?screen=N" - a plain "skip entirely if the url already has a '?'"
+  // check (the old behaviour here) silently dropped ?show=<id> on every
+  // such hop, which is what sent the player into the generic content.json
+  // fallback instead of the real quiz. Merge instead: keep whatever the
+  // target already specifies, add anything else from the current URL.
+  const [urlPath, urlQuery] = url.split("?");
+  const targetParams = new URLSearchParams(urlQuery || "");
+  const currentParams = new URLSearchParams(window.location.search);
+  currentParams.forEach((value, key) => {
+    if (!targetParams.has(key)) targetParams.set(key, value);
+  });
+  const mergedQuery = targetParams.toString();
+  url = mergedQuery ? `${urlPath}?${mergedQuery}` : urlPath;
 
   // Mark this as a legitimate in-quiz hop so guardDirectDeepLinkEntry()
   // (top of this file) doesn't bounce the next page back to the title
