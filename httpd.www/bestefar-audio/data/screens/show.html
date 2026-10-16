@@ -425,6 +425,26 @@
         });
 
       function navigateToScreen(url) {
+        // This local definition shadows script.js's global navigateToScreen
+        // for every onclick on this page (both are plain top-level function
+        // declarations in the same global scope, so this one wins) — so it
+        // needs the same two things the global one does: carry ?show=<id>
+        // forward, and mark the hop as internal so guardDirectDeepLinkEntry()
+        // in script.js doesn't bounce the destination back to the title
+        // screen (see that function for why it exists).
+        // Merge in the current query string rather than only appending it
+        // when url has none — prevTarget/nextTarget above already carry
+        // their own "?screen=N", so a plain "skip if url has a '?'" check
+        // would silently drop ?show=<id> on every arrow click here.
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.delete("screen");
+        const extra = currentParams.toString();
+        if (extra) {
+          url += (url.includes("?") ? "&" : "?") + extra;
+        }
+        try {
+          sessionStorage.setItem("aq_internal_nav", "1");
+        } catch {}
         window.location.href = url;
       }
     </script>

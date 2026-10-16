@@ -14,6 +14,37 @@
 const AQ_STORAGE_KEY = "aq_preview_json";
 const AQ_API_BASE = "https://api.bestefar.no/api/audio-quiz";
 
+// ── Always enter through the title screen ──────────────────────────────
+// A shared link is only ever supposed to point at index.html (the title
+// screen) — but someone mid-quiz can end up copying the address bar's
+// CURRENT url instead of using the dedicated Share button (every internal
+// "next" click rewrites the url to that screen's file, e.g.
+// data/screens/show.html?show=<id>). Sharing THAT drops the recipient
+// straight into the middle of the quiz instead of the start.
+//
+// navigateToScreen() (below) marks every internal hop with a one-shot
+// sessionStorage flag right before navigating. If a deep screen file
+// loads WITHOUT that flag present, it wasn't reached by clicking through
+// the quiz — it was a fresh typed/pasted/bookmarked entry — so send it
+// back to the title screen instead. The flag is consumed (removed)
+// immediately so browser back/forward and refresh on a mid-quiz page
+// still behave like a normal page (no flag → would redirect) is the one
+// accepted tradeoff: back/forward on a deep screen also lands on the
+// title screen rather than resuming mid-quiz, which is still correct
+// for how this quiz is meant to be taken (start to finish, not resumed).
+(function guardDirectDeepLinkEntry() {
+  try {
+    const onDeepScreen = window.location.pathname.includes("/data/screens/");
+    if (!onDeepScreen) return;
+    const cameFromInternalNav =
+      sessionStorage.getItem("aq_internal_nav") === "1";
+    sessionStorage.removeItem("aq_internal_nav");
+    if (!cameFromInternalNav) {
+      window.location.replace("../../index.html" + window.location.search);
+    }
+  } catch {}
+})();
+
 let _audioQuizDataPromise = null;
 
 function getAudioQuizJsonPath() {
@@ -32,15 +63,82 @@ function quizFormsArrayToScreenMap(quizForms, quizName) {
   return map;
 }
 
+// True only if `data` actually has at least one screenN entry. A response
+// (or a cached copy of one) that resolves successfully but carries no
+// screens — seen intermittently from the API, cause not yet identified —
+// used to get treated as valid data and cached forever under the show's
+// id, so every later load of that same quiz reused the broken, empty
+// result (matching id ⇒ never treated as stale) instead of ever retrying.
+// That's why the bug came and went unpredictably, including on the same
+// device/browser: whichever load happened to hit it first poisoned every
+// load after it until localStorage was cleared by hand.
+function hasScreenData(data) {
+  return !!data && Object.keys(data).some((k) => /^screen\d+$/.test(k));
+}
+
+// Calling .pause() on an HTMLMediaElement while a previous .play() call is
+// still pending (still buffering/starting up — play() is asynchronous) does
+// NOT reliably stop playback in every browser: the delayed play() can still
+// audibly start even after pause() was already called, leaving the UI
+// showing "stopped" while sound keeps playing. Used everywhere in this file
+// that plays/pauses audio, instead of calling .play()/.pause() directly, so
+// a pause is never issued until any in-flight play() has actually settled.
+function safePlay(audioEl) {
+  const p = audioEl.play();
+  audioEl._pendingPlay = p && p.catch ? p.catch(() => {}) : null;
+  return p;
+}
+
+function safePause(audioEl) {
+  if (audioEl._pendingPlay) {
+    audioEl._pendingPlay.then(() => audioEl.pause());
+  } else {
+    audioEl.pause();
+  }
+}
+
 // Single shared loader — called by every consumer in this file instead of
 // each fetching content.json independently. Resolves to the SAME object
 // shape content.json always provided ({ screen1: {...}, screen2: {...} }),
 // so no other code in this file needs to change.
+// Some mobile networks / carrier proxies silently swallow a cross-origin
+// request instead of erroring it — the connection just never completes,
+// so a bare `fetch()` hangs forever and the page is stuck on "Loading..."
+// with no error ever reaching a .catch(). Race every fetch against a hard
+// timeout so a stalled request fails fast and the static content.json
+// fallback (or the "could not load" message) actually gets a chance to run.
+function fetchWithTimeout(url, ms = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { signal: controller.signal }).finally(() =>
+    clearTimeout(timer)
+  );
+}
+
 function loadAudioQuizData() {
   if (_audioQuizDataPromise) return _audioQuizDataPromise;
 
   _audioQuizDataPromise = (async () => {
-    const expectedId = new URLSearchParams(location.search).get("show");
+    // Primary: standard query-string parsing. Fallback: some in-app
+    // browsers (WhatsApp/Instagram/Messenger link previews) or a stray
+    // copy-paste can mangle location.search (extra whitespace, encoding,
+    // a "show" param that ends up outside the recognized query string) —
+    // in that case fall back to a plain regex over the full URL so a
+    // technically-malformed but still-present ?show=<id> still works.
+    let expectedId = (new URLSearchParams(location.search).get("show") || "").trim();
+    if (!expectedId) {
+      const m = window.location.href.match(/[?&]show=([^&#\s]+)/);
+      if (m) {
+        try {
+          expectedId = decodeURIComponent(m[1]).trim();
+        } catch {
+          expectedId = m[1].trim();
+        }
+      }
+    }
+    if (!expectedId) {
+      window._aqErr = "no show id in URL (" + window.location.href + ")";
+    }
 
     let data = null;
     try {
@@ -53,25 +151,50 @@ function loadAudioQuizData() {
       data = null;
     }
 
+    // Cached data for the RIGHT id but with no actual screens in it —
+    // a previously-poisoned cache (see hasScreenData above). Discard and
+    // force a fresh fetch instead of reusing it.
+    if (data && !hasScreenData(data)) {
+      data = null;
+    }
+
     if (!data && expectedId) {
       try {
-        const r = await fetch(`${AQ_API_BASE}/get-audio-quiz/${expectedId}`);
+        const r = await fetchWithTimeout(
+          `${AQ_API_BASE}/get-audio-quiz/${expectedId}`
+        );
+        if (!r.ok) window._aqErr = "API HTTP " + r.status;
         if (r.ok) {
           const json = await r.json();
-          data = quizFormsArrayToScreenMap(json.quizForms, json.quizName);
-          data.id = json.id || expectedId;
-          try {
-            localStorage.setItem(AQ_STORAGE_KEY, JSON.stringify(data));
-          } catch {}
+          const mapped = quizFormsArrayToScreenMap(json.quizForms, json.quizName);
+          mapped.id = json.id || expectedId;
+          if (hasScreenData(mapped)) {
+            data = mapped;
+            try {
+              localStorage.setItem(AQ_STORAGE_KEY, JSON.stringify(data));
+            } catch {}
+          } else {
+            // Don't cache an empty result — let the next load retry the
+            // API instead of getting stuck on this forever.
+            window._aqErr =
+              "API returned no screens for " + expectedId +
+              " (quizForms: " + JSON.stringify(json.quizForms) + ")";
+          }
         }
-      } catch {}
+      } catch (err) {
+        console.warn("Audio quiz API fetch failed/timed out:", err);
+        window._aqErr = "API " + (err && err.name) + ": " + (err && err.message);
+      }
     }
 
     if (!data) {
       try {
-        const r = await fetch(getAudioQuizJsonPath());
+        const r = await fetchWithTimeout(getAudioQuizJsonPath());
         if (r.ok) data = await r.json();
-      } catch {}
+      } catch (err) {
+        console.warn("Audio quiz static content.json fetch failed:", err);
+        window._aqErr = (window._aqErr || "") + " | static " + (err && err.name) + ": " + (err && err.message);
+      }
     }
 
     return data || {};
@@ -96,6 +219,17 @@ document.addEventListener("DOMContentLoaded", () => {
       a.setAttribute("href", href + search);
     }
   });
+});
+
+// Same reasoning as navigateToScreen()'s markInternalNav — a plain <a>
+// click is also a legitimate in-quiz hop, not a fresh external entry, so
+// it needs to set the same flag before the browser follows the link.
+document.addEventListener("click", (e) => {
+  const a = e.target.closest('a[href$=".html"]');
+  if (!a) return;
+  try {
+    sessionStorage.setItem("aq_internal_nav", "1");
+  } catch {}
 });
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -175,6 +309,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         const seekBar1 = document.getElementById("seekBar1");
         const musicAudio = new Audio(musicUrl);
         let musicPlaying = false;
+        // Set only when the speaker (voice) interrupts music that was
+        // actually playing — so music resumes automatically once the voice
+        // stops, but a music track that was never playing doesn't start
+        // itself just because the voice happened to play.
+        let musicPausedForSpeaker = false;
 
         if (seekBar1) seekBar1.value = 0;
 
@@ -186,25 +325,56 @@ document.addEventListener("DOMContentLoaded", async function () {
         let speakerPlayedOnce = false;
         let speakerMuted = true;
 
+        function playMusic() {
+          safePlay(musicAudio);
+          musicPlaying = true;
+          if (musicImg) musicImg.src = "../assets/play-red2.png";
+        }
+
+        function pauseMusic() {
+          safePause(musicAudio);
+          musicPlaying = false;
+          if (musicImg) musicImg.src = "../assets/play-red1.png";
+        }
+
+        // Music and voice are mutually exclusive and this is enforced via
+        // the audio elements' own play/pause events (not just inside the
+        // click handlers), so it holds regardless of which one triggers
+        // playback. Voice always wins immediately; music resumes on its own
+        // once the voice stops, whether it finished naturally or was paused.
+        musicAudio.addEventListener("play", () => {
+          if (speakerAudio && !speakerAudio.paused) {
+            safePause(speakerAudio);
+          }
+        });
+
+        speakerAudio.addEventListener("play", () => {
+          if (musicPlaying) {
+            musicPausedForSpeaker = true;
+            pauseMusic();
+          }
+        });
+
+        function resumeMusicIfInterruptedBySpeaker() {
+          if (musicPausedForSpeaker) {
+            musicPausedForSpeaker = false;
+            playMusic();
+          }
+        }
+        speakerAudio.addEventListener("pause", resumeMusicIfInterruptedBySpeaker);
+        speakerAudio.addEventListener("ended", resumeMusicIfInterruptedBySpeaker);
+
         // ---------------------- Music Button Event Handler -------------------------
         if (musicBtn && musicImg) {
           musicBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-
-            // FIXED: Pause speaker audio first if needed (similar to how speaker pauses music)
-            if (!speakerMuted && speakerAudio && !speakerAudio.paused) {
-              speakerAudio.pause();
-              if (speakerImg) speakerImg.style.opacity = "0.7";
-              speakerMuted = true;
-            }
-
-            musicPlaying = !musicPlaying;
+            // A deliberate tap on music always means "play this", so don't
+            // let it auto-resume itself again once the voice next stops.
+            musicPausedForSpeaker = false;
             if (musicPlaying) {
-              musicAudio.play().catch(console.error);
-              musicImg.src = "../assets/play-red2.png";
+              pauseMusic();
             } else {
-              musicAudio.pause();
-              musicImg.src = "../assets/play-red1.png";
+              playMusic();
             }
           });
 
@@ -235,26 +405,29 @@ document.addEventListener("DOMContentLoaded", async function () {
           speakerBtn.addEventListener("click", (e) => {
             e.stopPropagation();
 
-            // Pause music first if needed
+            // Pause music immediately and synchronously on the click itself
+            // — don't rely solely on speakerAudio's own 'play' event below.
+            // If audioFileUrl is missing/invalid (e.g. no real quiz loaded),
+            // speakerAudio.play() fails and that event never fires at all,
+            // which used to mean music kept playing right through it.
             if (musicPlaying) {
-              musicAudio.pause();
-              musicPlaying = false;
-              if (musicImg) musicImg.src = "../assets/play-red1.png";
+              musicPausedForSpeaker = true;
+              pauseMusic();
             }
 
             // First play or toggle
             if (!speakerPlayedOnce) {
-              speakerAudio.play().catch(console.error);
+              safePlay(speakerAudio);
               speakerImg.style.opacity = "1";
               speakerPlayedOnce = true;
               speakerMuted = false;
             } else {
               speakerMuted = !speakerMuted;
               if (speakerMuted) {
-                speakerAudio.pause();
+                safePause(speakerAudio);
                 speakerImg.style.opacity = "0.7";
               } else {
-                speakerAudio.play().catch(console.error);
+                safePlay(speakerAudio);
                 speakerImg.style.opacity = "1";
               }
             }
@@ -271,7 +444,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log(quizNameElement);
         if (quizNameElement) {
           quizNameElement.textContent =
-            data.screen1?.quizName || data.quizName || "Default Quiz Name";
+            (data.screen1 && data.screen1.quizName) || data.quizName || "Default Quiz Name";
 
           // Clicking the quiz name advances to the instructions screen
           // ("Start quiz" lives there, which then goes to show.html).
@@ -285,7 +458,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             navigateToScreen(base);
           });
         }
-        console.log(data.screen1?.quizName);
+        console.log(data.screen1 && data.screen1.quizName);
 
         // ---------------------- Update Question Text -------------------------
         const questionTextElement = document.getElementById("question-text");
@@ -336,16 +509,28 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       } else {
         console.warn(`No data found for screen: ${screenId}`);
+        // Both the API fetch and the static content.json fallback failed
+        // (e.g. a restrictive in-app browser blocking the cross-origin
+        // request) — surface that instead of leaving "Loading..." forever
+        // with no indication anything went wrong.
+        const quizNameElement = document.getElementById("quizName");
+        if (quizNameElement) {
+          quizNameElement.textContent = "Could not load quiz — check connection" + (window._aqErr ? " (" + window._aqErr + ")" : "");
+        }
       }
     })
     .catch((error) => {
       console.error("Error loading JSON file:", error);
+      const quizNameElement = document.getElementById("quizName");
+      if (quizNameElement) {
+        quizNameElement.textContent = "Could not load quiz — check connection (" + (error && error.name) + ": " + (error && error.message) + ")";
+      }
     });
 
   // ---------------------- Screen Number Logic -------------------------
   // Fetch the screen number from the URL or assign manually
   const screenNumber = parseInt(
-    window.location.href.match(/screen(\d+)/)?.[1] || 1
+    (window.location.href.match(/screen(\d+)/) || [])[1] || 1
   ); // Defaults to screen1
 
   // ---------------------- Dynamic Music Elements Generation -------------------------
@@ -360,7 +545,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       for (let i = 1; i <= 16; i++) {
         const screenKey = `screen${i}`;
-        const screenData = data[screenKey] || {}; // Get screen data (fallback to empty object)
+        // Only render tracks that actually exist - a quiz with just 1 page
+        // filled in used to still show all 16 slots as "Music Track N /
+        // Unknown Artist" placeholders, since this loop never checked
+        // whether the screen was real before falling back to defaults.
+        if (!data[screenKey]) continue;
+        const screenData = data[screenKey];
         const musicName = screenData.musicName || `Music Track ${i}`;
         const artistName = screenData.artistName || `Unknown Artist`;
         const formattedNumber = i.toString().padStart(2) + ".";
@@ -416,7 +606,20 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log("✅ Music Elements Generated Successfully!");
 
     // ✅ Initialize Music Player Logic AFTER Elements Exist
-    initializeMusicControls(data);
+    // Only when this page actually has the generated track list — this used
+    // to run unconditionally on every screen. The single-track question
+    // screens (show.html/show1.html) have their own dedicated music button
+    // with id="playBtn1", which ALSO carries class="play-btn" — so on those
+    // pages this was matching that same button via .play-btn, attaching a
+    // SECOND, entirely independent click handler and its own separate Audio
+    // object to it. One click then started two unrelated Audio instances
+    // playing the same track; the dedicated player's mutex-with-the-voice
+    // logic only ever knew about its own instance, so pausing it left the
+    // second, invisible instance still audibly playing — the "icon shows
+    // stopped but sound keeps playing" bug.
+    if (musicContainer) {
+      initializeMusicControls(data);
+    }
   } catch (error) {
     console.error("❌ Error loading JSON file:", error);
   }
@@ -427,13 +630,56 @@ document.addEventListener("DOMContentLoaded", async function () {
     const playImages = document.querySelectorAll("[id^=playImg]");
     const seekBars = document.querySelectorAll(".seek-bar");
 
-    const audioFiles = Array.from({ length: 16 }, (_, index) => {
-      const screenKey = `screen${index + 1}`;
-      const screenData = data[screenKey] || {};
-      const url = screenData.musicFileUrl;
-      return new Audio(url);
-    });
+    // iOS Safari enforces a hard cap on how many <audio>/<video> elements a
+    // page may create, and simply refuses to play once it's exceeded — no
+    // error, play() just does nothing. Creating all 16 tracks' Audio objects
+    // up front (as this used to do) hit that cap and silently broke playback
+    // on iPhone, while desktop browsers have no such limit and worked fine.
+    // Fix: create each track's Audio object lazily, the first time it's
+    // actually played, and reuse it after that. Also avoids firing 16
+    // simultaneous mp3 downloads on page load, which is wasteful on mobile
+    // data.
+    const audioFiles = Array(16).fill(null);
     let isPlaying = Array(16).fill(false);
+
+    function getAudio(index) {
+      if (!audioFiles[index]) {
+        // The DOM's button order no longer lines up 1:1 with screen number
+        // once empty screens are skipped above (e.g. only screens 1 and 5
+        // exist → buttons[0]=screen1, buttons[1]=screen5, not screen2) -
+        // each button's own id ("playBtn5") still carries its real screen
+        // number, so read that instead of assuming index+1.
+        const button = playButtons[index];
+        const realPage =
+          button && button.id ? parseInt(button.id.replace("playBtn", ""), 10) : index + 1;
+        const screenKey = `screen${realPage}`;
+        const screenData = data[screenKey] || {};
+        const audio = new Audio(screenData.musicFileUrl);
+        const playImage = playImages[index];
+        const seekBar = seekBars[index];
+
+        audio.addEventListener("timeupdate", () => {
+          if (seekBar && audio.duration) {
+            seekBar.value = (audio.currentTime / audio.duration) * 100;
+          }
+        });
+
+        if (seekBar) {
+          seekBar.addEventListener("input", () => {
+            audio.currentTime = (seekBar.value / 100) * audio.duration;
+          });
+        }
+
+        audio.addEventListener("ended", () => {
+          if (playImage) playImage.src = "../assets/play-red1.png";
+          isPlaying[index] = false;
+          if (seekBar) seekBar.value = 0;
+        });
+
+        audioFiles[index] = audio;
+      }
+      return audioFiles[index];
+    }
 
     // Initialize seek bars
     seekBars.forEach((seekBar) => {
@@ -441,40 +687,26 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     playButtons.forEach((button, index) => {
-      const audio = audioFiles[index];
       const playImage = playImages[index];
-      const seekBar = seekBars[index];
 
       button.addEventListener("click", () => {
+        const audio = getAudio(index);
+
         if (isPlaying[index]) {
-          audio.pause();
+          safePause(audio);
           playImage.src = "../assets/play-red1.png";
         } else {
           audioFiles.forEach((otherAudio, i) => {
-            if (i !== index) {
-              otherAudio.pause();
-              playImages[i].src = "../assets/play-red1.png";
+            if (otherAudio && i !== index) {
+              safePause(otherAudio);
+              if (playImages[i]) playImages[i].src = "../assets/play-red1.png";
               isPlaying[i] = false;
             }
           });
-          audio.play().catch((err) => console.error("Audio play error:", err));
+          safePlay(audio).catch((err) => console.error("Audio play error:", err));
           playImage.src = "../assets/play-red2.png";
         }
         isPlaying[index] = !isPlaying[index];
-      });
-
-      audio.addEventListener("timeupdate", () => {
-        seekBar.value = (audio.currentTime / audio.duration) * 100;
-      });
-
-      seekBar.addEventListener("input", () => {
-        audio.currentTime = (seekBar.value / 100) * audio.duration;
-      });
-
-      audio.addEventListener("ended", () => {
-        playImage.src = "../assets/play-red1.png";
-        isPlaying[index] = false;
-        seekBar.value = 0;
       });
     });
   }
@@ -489,8 +721,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const isValidClick =
         tagName === "p" &&
-        (targetTag.id?.startsWith("music-name-") ||
-          targetTag.id?.startsWith("artist-name-") ||
+        ((targetTag.id || "").startsWith("music-name-") ||
+          (targetTag.id || "").startsWith("artist-name-") ||
           /^[0-9]+\./.test(targetTag.textContent.trim())); // Page number match
 
       if (!isValidClick) {
@@ -498,8 +730,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
       }
 
-      const target = el.getAttribute("data-screen-target");
+      let target = el.getAttribute("data-screen-target");
+      // Carry ?show=<id> forward, same as every other navigation path in
+      // this file. Without this, a shared-link session loses its quiz data
+      // on this specific click (it falls back to localStorage alone, which
+      // in-app browsers like WhatsApp/Instagram/Messenger — and Safari
+      // private mode — often don't persist across this navigation), so the
+      // next screen silently shows placeholder content instead of the real
+      // quiz, including the real music/speaker URLs.
+      if (target && !target.includes("?show=") && !target.includes("&show=") && window.location.search) {
+        target += target.includes("?")
+          ? "&" + window.location.search.slice(1)
+          : window.location.search;
+      }
       console.log("🔗 Navigating to quiz screen:", target);
+      // Same flag as navigateToScreen() / the <a> click handler above —
+      // this is a legitimate in-quiz hop, not a fresh external entry.
+      try {
+        sessionStorage.setItem("aq_internal_nav", "1");
+      } catch {}
       window.location.href = target;
     });
   });
@@ -599,15 +848,16 @@ document.addEventListener("DOMContentLoaded", async function () {
   enableTopNavigation();
 
   // Attach event listeners for navigation clicks
-  document.getElementById("leftTopNav")?.addEventListener("click", function () {
+  var leftTopNavEl = document.getElementById("leftTopNav");
+  if (leftTopNavEl) leftTopNavEl.addEventListener("click", function () {
     const base = window.location.pathname.includes("/data/screens/")
       ? "./screen1.html"
       : "./data/screens/screen1.html";
     navigateToScreen(base);
   });
-  document
-    .getElementById("rightTopNav")
-    ?.addEventListener("click", function () {
+  var rightTopNavEl = document.getElementById("rightTopNav");
+  if (rightTopNavEl)
+    rightTopNavEl.addEventListener("click", function () {
       // Always navigate to the correct path based on screen number logic
       const currentPath = window.location.pathname;
       let nextScreenPath;
@@ -622,10 +872,16 @@ document.addEventListener("DOMContentLoaded", async function () {
       navigateToScreen(nextScreenPath);
     });
 
-  function navigateToScreen(url) {
-    console.log(`📢 Navigating to: ${url}`);
-    window.location.href = url;
-  }
+  // NOTE: navigateToScreen is intentionally NOT (re)declared here. A local
+  // `function navigateToScreen(url) { window.location.href = url; }` used to
+  // live in this exact spot, inside this DOMContentLoaded callback. Because
+  // function declarations are scoped to their enclosing function, that local
+  // definition shadowed the real, global navigateToScreen (declared further
+  // down in this file, the one that preserves ?show=<id> across navigation)
+  // for every call made from within this callback — which is most of them:
+  // the quizName click, the top-nav arrows, etc. That's why a shared-link
+  // session kept losing its ?show=<id> on nearly every internal click. Do
+  // not add a navigateToScreen definition back in this scope.
 
   // ---------------------- Fullscreen Logic with Top 10% Interactive Area -------------------------
   function setupDoubleTapListeners(panelId) {
@@ -771,11 +1027,10 @@ function createInteractionZone(left, top, width, height, hoverText) {
 }
 
 // ---------------------- Navigation Functions -------------------------
-function navigateToScreen(targetScreen) {
-  window.location.href = targetScreen;
-}
-
-// Smooth Navigation with Tailwind
+// (Only one definition now — a duplicate simple version used to sit here
+// too; being declared before this one, it was harmless — this one always
+// won — but kept two definitions of the same function in one file, which is
+// exactly the kind of thing that caused the shadowing bug fixed above.)
 function navigateToScreen(url) {
   // Auto-preserve the current ?show=<id> query string on every
   // navigation, unless the target URL already specifies its own query.
@@ -785,6 +1040,15 @@ function navigateToScreen(url) {
   if (!url.includes("?") && window.location.search) {
     url += window.location.search;
   }
+
+  // Mark this as a legitimate in-quiz hop so guardDirectDeepLinkEntry()
+  // (top of this file) doesn't bounce the next page back to the title
+  // screen — see that function for why this exists.
+  const markInternalNav = () => {
+    try {
+      sessionStorage.setItem("aq_internal_nav", "1");
+    } catch {}
+  };
 
   const mainContainer = document.getElementById("screen2FullScreen");
 
@@ -798,10 +1062,12 @@ function navigateToScreen(url) {
 
     // Redirect after transition completes
     setTimeout(() => {
+      markInternalNav();
       window.location.href = url;
     }, 500); // Matches Tailwind's 500ms duration
   } else {
     // Fallback if container not found
+    markInternalNav();
     window.location.href = url;
   }
 }
