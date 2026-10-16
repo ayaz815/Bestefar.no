@@ -539,14 +539,37 @@ document.addEventListener("DOMContentLoaded", async function () {
       const maxFilledScreen = filledScreenNumbers.length
         ? Math.max(...filledScreenNumbers)
         : 0;
+      // screenId is only ever "screen1".."screen16" on an actual quiz
+      // question page - screen17.html (the "Ferdig!" page) and index.html
+      // have no body id at all, so screenIndexFromId("") would otherwise
+      // default to 1 and misfire this block on them too.
+      const isRealQuizScreen = /^screen\d+$/.test(screenId || "");
       const currentScreenNum = screenIndexFromId(screenId);
-      if (maxFilledScreen && currentScreenNum === maxFilledScreen) {
+      if (
+        isRealQuizScreen &&
+        maxFilledScreen &&
+        currentScreenNum === maxFilledScreen
+      ) {
         const rightNav = document.getElementById("rightNavigation");
         if (rightNav) {
           const endTarget = window.location.pathname.includes("/data/screens/")
             ? "./screen17.html"
             : "./data/screens/screen17.html";
           rightNav.onclick = () => navigateToScreen(endTarget);
+        }
+      }
+
+      // ---------------------- Fix screen17's hardcoded "back to 16" -------------------------
+      // screen17.html's left-arrow is hardcoded to show.html?screen=16 in
+      // its markup, regardless of how many screens the quiz actually has -
+      // for a quiz with fewer than 16 filled pages that lands on an empty
+      // screen. Same click-only approach: point it at the real last filled
+      // screen instead.
+      if (maxFilledScreen && window.location.pathname.endsWith("/screen17.html")) {
+        const leftNav = document.getElementById("leftNavigation");
+        if (leftNav) {
+          const lastRealTarget = `./show.html?screen=${maxFilledScreen}`;
+          leftNav.onclick = () => navigateToScreen(lastRealTarget);
         }
       }
     })
