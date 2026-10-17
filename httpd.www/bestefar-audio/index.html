@@ -109,7 +109,7 @@
       <div
         id="rightNavigation"
         class="absolute top-0 right-0 w-[10%] h-full z-20 cursor-pointer bg-transparent transition-all"
-        onclick="navigateToScreen('./data/screens/screen.html')"
+        onclick="navigateToScreen('./data/screens/show.html?screen=1')"
       ></div>
 
       <!-- TOP YELLOW BAR (responsive safe-area) -->
@@ -120,7 +120,7 @@
         <!-- <img src="data/signals.png" alt="" class="w-20 pt-1" /> -->
       </div>
 
-      <div class="flex flex-col justify-end items-center h-full pb-2">
+      <div class="flex flex-col justify-start items-center w-full pt-[8%]">
         <div class="relative flex justify-center items-center w-full mb-5 mt-0">
           <!-- Main Quiz Image -->
           <img
@@ -161,6 +161,17 @@
         class="flex justify-center items-start h-full w-full pt-2 font-agency text-3xl text-[#FFC000] bg-transparent hover:border-none border-none focus-visible:outline-none focus:outline-none"
       >
         Loading...
+      </button>
+
+      <!-- Start Quiz - goes straight to the first question, skipping the
+           old instructions page (screen.html) per client feedback 17.10. -->
+      <button
+        type="button"
+        id="startQuizBtn"
+        class="flex justify-center items-center w-full pb-[6%]"
+        onclick="navigateToScreen('./data/screens/show.html?screen=1')"
+      >
+        <img src="./data/assets/start-button.png" alt="Start" class="w-2/3" />
       </button>
 
       <!-- DEFAULT = h-10 (2.5rem); OS/Browser rules override when they match -->
