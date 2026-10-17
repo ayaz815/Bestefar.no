@@ -159,16 +159,14 @@
           <span id="screen-number">1</span>.
           <span id="music-type-name">Melodi</span>
         </h1>
-        <img
-          src="../assets/pointer-down-fixed.png"
-          alt=""
-          class="absolute w-[20%] right-3 sm:top-3 top-3 transform-none"
-        />
-        <!-- Right Top Navigation (25%) -->
+        <!-- Right Top Navigation (25%) - opens the full track list -->
         <div
           id="rightTopNav"
-          class="absolute top-0 right-0 w-[25%] h-[50px] cursor-pointer bg-transparent"
-        ></div>
+          class="absolute top-0 right-0 w-[25%] h-[50px] cursor-pointer bg-transparent flex items-center justify-end pr-3"
+          onclick="navigateToScreen('./screen18.html')"
+        >
+          <img src="../assets/list-icon.png" alt="Liste" class="w-7" />
+        </div>
       </div>
 
       <!-- Music Section -->
@@ -219,11 +217,6 @@
         >
           Spørsmålet
         </h1>
-        <img
-          src="../assets/pointer-down-fixed.png"
-          alt=""
-          class="absolute w-[20%] right-3 sm:top-1 top-3 transform-none"
-        />
       </div>
 
       <!-- Mic Section -->
