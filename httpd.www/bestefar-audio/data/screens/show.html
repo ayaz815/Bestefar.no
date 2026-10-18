@@ -254,7 +254,7 @@
       >
         <div class="flex flex-col items-center">
           <p class="text-sm font-bold answer-text font-arial-black">
-            Det korrekt svaret er
+            Det korrekte svaret er
           </p>
           <p
             class="p-4 px-4 text-center answer-text opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal"
@@ -262,12 +262,6 @@
           >
             Loading...
           </p>
-          <!-- Artist name, revealed together with the answer so it never
-               spoils the song before the user has guessed. -->
-          <p
-            class="answer-text px-4 text-center mt-1 mb-4 opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-lg"
-            id="artist-name-display"
-          ></p>
         </div>
       </div>
 
@@ -281,6 +275,14 @@
           <img src="../assets/vite.jpg" alt="" class="w-40 mb-6" />
         </button>
       </div>
+
+      <!-- Artist name, below the "Nyttig å vite" button per the client's
+           mockup (unnamed.jpg) - revealed together with the answer so it
+           never spoils the song before the user has guessed. -->
+      <p
+        class="answer-text px-4 text-center mt-1 mb-4 opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-lg"
+        id="artist-name-display"
+      ></p>
 
       <!-- Fact Info Drawer -->
       <div class="relative">
