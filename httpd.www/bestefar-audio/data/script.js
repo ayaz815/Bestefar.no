@@ -824,10 +824,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   // ---------------------- Answer Toggle Logic -------------------------
   const answerDiv = document.querySelector(".toggle-answer-area");
 
-  // Select all paragraphs inside the answer area
-  const answerText = answerDiv
-    ? answerDiv.querySelectorAll(".answer-text")
-    : [];
+  // Select every .answer-text paragraph on the page, not just the ones
+  // inside the answer area itself - the artist name sits below the
+  // separate "Nyttig å vite" button (per the client's mockup) but still
+  // needs to fade in/out together with the answer when the area is tapped.
+  const answerText = document.querySelectorAll(".answer-text");
 
   // Add the click event listener to the parent for toggling
   if (answerDiv) {
