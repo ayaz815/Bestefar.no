@@ -478,15 +478,21 @@ document.addEventListener("DOMContentLoaded", async function () {
           console.warn("⚠️ 'answer-text' element not found.");
         }
 
-        // ---------------------- Update Artist Name (revealed with the answer) ----
+        // ---------------------- Update Artist Name (always visible, not click-to-reveal) ----
         const artistNameDisplayElement = document.getElementById(
           "artist-name-display"
         );
         if (artistNameDisplayElement) {
           const artistName = screenData.artistName || "";
-          artistNameDisplayElement.textContent = artistName
-            ? `Utøver: ${artistName}`
-            : "";
+          // Two lines ("Utøver:" / name) per client feedback 18.10 -
+          // textContent can't do that, so build it from text nodes instead
+          // of innerHTML (artistName comes from the generator, untrusted).
+          artistNameDisplayElement.textContent = "";
+          if (artistName) {
+            artistNameDisplayElement.appendChild(document.createTextNode("Utøver:"));
+            artistNameDisplayElement.appendChild(document.createElement("br"));
+            artistNameDisplayElement.appendChild(document.createTextNode(artistName));
+          }
         }
 
         // ---------------------- Update Firm Naming -------------------------
@@ -822,13 +828,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // ---------------------- Answer Toggle Logic -------------------------
+  // The artist name (#artist-name-display) is intentionally NOT part of
+  // this - per client feedback 18.10 it's always visible, not click-to-
+  // reveal, so it no longer carries the .answer-text class.
   const answerDiv = document.querySelector(".toggle-answer-area");
-
-  // Select every .answer-text paragraph on the page, not just the ones
-  // inside the answer area itself - the artist name sits below the
-  // separate "Nyttig å vite" button (per the client's mockup) but still
-  // needs to fade in/out together with the answer when the area is tapped.
-  const answerText = document.querySelectorAll(".answer-text");
+  const answerText = answerDiv
+    ? answerDiv.querySelectorAll(".answer-text")
+    : [];
 
   // Add the click event listener to the parent for toggling
   if (answerDiv) {
@@ -836,18 +842,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       event.stopPropagation(); // Prevent conflicts with other elements
 
       if (answerText.length > 1) {
-        // Toggle the answer (and the artist name alongside it, when present)
-        // together with a fade effect - everything after the "Det korrekt
-        // svaret er" label.
-        const revealParagraphs = Array.from(answerText).slice(1);
-        const shouldShow = revealParagraphs[0].classList.contains("opacity-0");
-        revealParagraphs.forEach((p) => {
-          if (shouldShow) {
-            p.classList.remove("opacity-0", "pointer-events-none");
-          } else {
-            p.classList.add("opacity-0", "pointer-events-none");
-          }
-        });
+        // Toggle between showing and hiding the second paragraph with fade effect
+        const secondParagraph = answerText[1];
+        if (secondParagraph.classList.contains("opacity-0")) {
+          secondParagraph.classList.remove("opacity-0", "pointer-events-none");
+        } else {
+          secondParagraph.classList.add("opacity-0", "pointer-events-none");
+        }
       }
     });
   }

@@ -276,13 +276,12 @@
         </button>
       </div>
 
-      <!-- Artist name, below the "Nyttig å vite" button per the client's
-           mockup (unnamed.jpg) - revealed together with the answer so it
-           never spoils the song before the user has guessed. Plain my-6 -
-           no breakpoint-specific override - so the gap above and below the
-           text stays equal on every device size. -->
+      <!-- Artist name - per client feedback 18.10, this is now permanent:
+           always visible as soon as the page loads, not tied to the
+           answer's click-to-reveal. Two lines ("Utøver:" / name), sitting
+           close under the "Nyttig å vite" button. -->
       <p
-        class="answer-text px-4 text-center my-6 opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-lg"
+        class="px-4 text-center mt-2 mb-6 font-arial-black-normal text-lg leading-snug"
         id="artist-name-display"
       ></p>
 
