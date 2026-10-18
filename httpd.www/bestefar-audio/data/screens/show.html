@@ -265,7 +265,7 @@
           <!-- Artist name, revealed together with the answer so it never
                spoils the song before the user has guessed. -->
           <p
-            class="px-4 text-center opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-sm"
+            class="answer-text px-4 text-center opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-sm"
             id="artist-name-display"
           ></p>
         </div>
@@ -349,10 +349,11 @@
 
         // Special handling for screen 1
         if (screenNum === 1) {
-          // Previous: go to screen.html
+          // Previous: back to the title screen (the old instructions page,
+          // screen.html, is dropped per client feedback 17.10).
           const prevTarget = window.location.pathname.includes("/data/screens/")
-            ? "./screen.html"
-            : "./data/screens/screen.html";
+            ? "../../index.html"
+            : "./index.html";
 
           // Next: go to show.html?screen=2
           const nextTarget = window.location.pathname.includes("/data/screens/")

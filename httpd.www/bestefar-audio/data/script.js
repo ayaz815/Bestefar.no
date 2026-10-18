@@ -446,15 +446,16 @@ document.addEventListener("DOMContentLoaded", async function () {
           quizNameElement.textContent =
             (data.screen1 && data.screen1.quizName) || data.quizName || "Default Quiz Name";
 
-          // Clicking the quiz name advances to the instructions screen
-          // ("Start quiz" lives there, which then goes to show.html).
+          // Clicking the quiz name starts the quiz directly (the old
+          // instructions screen is dropped per client feedback 17.10 -
+          // the dedicated START button now leads to the first question).
           // navigateToScreen() automatically preserves ?show=<id> if
           // present, so a shared-link session keeps resolving correctly.
           quizNameElement.addEventListener("click", (e) => {
             e.stopPropagation();
             const base = window.location.pathname.includes("/data/screens/")
-              ? "./screen.html"
-              : "./data/screens/screen.html";
+              ? "./show.html?screen=1"
+              : "./data/screens/show.html?screen=1";
             navigateToScreen(base);
           });
         }
@@ -475,6 +476,17 @@ document.addEventListener("DOMContentLoaded", async function () {
           answerTextElement.textContent = screenData.answer || "Default Answer";
         } else {
           console.warn("⚠️ 'answer-text' element not found.");
+        }
+
+        // ---------------------- Update Artist Name (revealed with the answer) ----
+        const artistNameDisplayElement = document.getElementById(
+          "artist-name-display"
+        );
+        if (artistNameDisplayElement) {
+          const artistName = screenData.artistName || "";
+          artistNameDisplayElement.textContent = artistName
+            ? `Utøver: ${artistName}`
+            : "";
         }
 
         // ---------------------- Update Firm Naming -------------------------
@@ -543,8 +555,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       // screenId alone isn't enough: index.html's own <body> also carries
       // id="screen1" (reused for unrelated styling), so a screenId check by
       // itself matched index.html too and hijacked its right arrow - which
-      // is meant to go to screen.html (the instructions page) - straight to
-      // screen17.html instead whenever the quiz's last filled screen was 1.
+      // is meant to go to the first question - straight to screen17.html
+      // instead whenever the quiz's last filled screen was 1.
       const isRealQuizScreen =
         /^screen\d+$/.test(screenId || "") &&
         window.location.pathname.includes("/data/screens/");
@@ -823,13 +835,18 @@ document.addEventListener("DOMContentLoaded", async function () {
       event.stopPropagation(); // Prevent conflicts with other elements
 
       if (answerText.length > 1) {
-        // Toggle between showing and hiding the second paragraph with fade effect
-        const secondParagraph = answerText[1];
-        if (secondParagraph.classList.contains("opacity-0")) {
-          secondParagraph.classList.remove("opacity-0", "pointer-events-none");
-        } else {
-          secondParagraph.classList.add("opacity-0", "pointer-events-none");
-        }
+        // Toggle the answer (and the artist name alongside it, when present)
+        // together with a fade effect - everything after the "Det korrekt
+        // svaret er" label.
+        const revealParagraphs = Array.from(answerText).slice(1);
+        const shouldShow = revealParagraphs[0].classList.contains("opacity-0");
+        revealParagraphs.forEach((p) => {
+          if (shouldShow) {
+            p.classList.remove("opacity-0", "pointer-events-none");
+          } else {
+            p.classList.add("opacity-0", "pointer-events-none");
+          }
+        });
       }
     });
   }
