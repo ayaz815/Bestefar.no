@@ -72,6 +72,16 @@
 			$data['dir']            = $dir;
 			$data['page_title']     = 'Spørreleker';
 			$data['page_name']      = 'sporreleker';
+
+			// AJAX filter/sort (see sporreleker.js): return just the table
+			// markup, no layout - avoids a full page reload (and the
+			// resulting scroll/flash "jump") every time the category or
+			// sort column changes.
+			if($this->input->is_ajax_request()){
+				$this->load->view('frontend/sporreleker', $data);
+				return;
+			}
+
 			$this->load->view('frontend/index', $data);
 		}
 
