@@ -262,6 +262,12 @@
           >
             Loading...
           </p>
+          <!-- Artist name, revealed together with the answer so it never
+               spoils the song before the user has guessed. -->
+          <p
+            class="answer-text px-4 text-center opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-sm"
+            id="artist-name-display"
+          ></p>
         </div>
       </div>
 
@@ -275,14 +281,6 @@
           <img src="../assets/vite.jpg" alt="" class="w-40 mb-6" />
         </button>
       </div>
-
-      <!-- Artist name, below the "Nyttig å vite" button per the client's
-           mockup (unnamed.jpg) - revealed together with the answer so it
-           never spoils the song before the user has guessed. -->
-      <p
-        class="answer-text px-4 text-center -mt-4 mb-2 opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-sm"
-        id="artist-name-display"
-      ></p>
 
       <!-- Fact Info Drawer -->
       <div class="relative">
