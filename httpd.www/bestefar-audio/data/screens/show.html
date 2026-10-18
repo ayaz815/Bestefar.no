@@ -278,13 +278,11 @@
 
       <!-- Artist name, below the "Nyttig å vite" button per the client's
            mockup (unnamed.jpg) - revealed together with the answer so it
-           never spoils the song before the user has guessed. The big
-           bottom margin (previously on the button above) moved here so it
-           sits below the artist name instead of above it - keeps the same
-           overall bottom spacing on the screen, now with even my-4 margins
-           around the artist name itself. -->
+           never spoils the song before the user has guessed. Plain my-6 -
+           no breakpoint-specific override - so the gap above and below the
+           text stays equal on every device size. -->
       <p
-        class="answer-text px-4 text-center my-4 sm:mb-[0%] mb-[24%] opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-lg"
+        class="answer-text px-4 text-center my-6 opacity-0 pointer-events-none transition-all duration-300 font-arial-black-normal text-lg"
         id="artist-name-display"
       ></p>
 
