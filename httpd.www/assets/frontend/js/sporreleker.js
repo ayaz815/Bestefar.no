@@ -24,6 +24,8 @@ function initQuizCatalogInteractions(){
 	document.querySelectorAll('.quiz-row').forEach(function(row){
 		row.addEventListener('click', function(){
 			if(window.innerWidth > 767){ return; }
+			// Print/Start Quiz only exist for AudioQuiz, so other types get no popup.
+			if(row.dataset.category !== 'AudioQuiz'){ return; }
 			var modal = document.getElementById('quizMobileModal');
 			if(!modal){ return; }
 			modal.querySelector('.qmm-name').textContent = row.dataset.name || '';
@@ -43,16 +45,13 @@ function initQuizCatalogInteractions(){
 			// participant sheet + answer key) generated server-side - opening it
 			// lets the browser's own PDF viewer handle printing, which already
 			// searches for nearby AirPrint/Mopria printers and lets the user set
-			// a copy count, same as any other PDF. Other quiz types fall back to
-			// printing just the popup card, as before.
+			// a copy count, same as any other PDF.
 			var printBtn = modal.querySelector('.quiz-mobile-print');
 			if(printBtn){
 				if(row.dataset.category === 'AudioQuiz' && quizId){
 					printBtn.onclick = function(){
-						window.open('https://api.bestefar.no/api/forms/pdf/' + encodeURIComponent(quizId), '_blank');
+						printQuizPdf(quizId, row.dataset.name);
 					};
-				}else{
-					printBtn.onclick = function(){ window.print(); };
 				}
 			}
 
@@ -150,3 +149,49 @@ bindQuizCatalogLinks();
 window.addEventListener('popstate', function(){
 	loadQuizCatalog(window.location.href, false);
 });
+
+// Opens the system print dialog (printer picker + copies) for a quiz PDF
+// instead of just showing it in a viewer tab. Mobile: share sheet with the
+// PDF file (has "Skriv ut"/Print -> AirPrint/Mopria printer list). Desktop:
+// hidden iframe + print(). Falls back to opening the PDF in a new tab.
+function printQuizPdf(quizId, name){
+	var url = 'https://api.bestefar.no/api/forms/pdf/' + encodeURIComponent(quizId);
+	var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+		(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+	// Open the fallback tab synchronously so popup blockers allow it.
+	var fallback = function(){ window.open(url, '_blank'); };
+	fetch(url).then(function(r){
+		if(!r.ok) throw new Error('pdf ' + r.status);
+		return r.blob();
+	}).then(function(blob){
+		var fileName = ((name || 'quiz').replace(/[^\w\-]+/g, '_')) + '.pdf';
+		var file = new File([blob], fileName, {type: 'application/pdf'});
+		if(isMobile && navigator.canShare && navigator.canShare({files: [file]})){
+			return navigator.share({files: [file], title: name || 'Quiz'}).catch(function(e){
+				if(e && e.name !== 'AbortError') fallback();
+			});
+		}
+		var frame = document.createElement('iframe');
+		frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+		frame.src = URL.createObjectURL(blob);
+		frame.onload = function(){
+			try{
+				frame.contentWindow.focus();
+				frame.contentWindow.print();
+			}catch(e){ fallback(); }
+			setTimeout(function(){ URL.revokeObjectURL(frame.src); frame.remove(); }, 60000);
+		};
+		document.body.appendChild(frame);
+	}).catch(fallback);
+}
+
+// Table PDF icon (desktop): same print flow; href stays as no-JS fallback.
+document.addEventListener('click', function(e){
+	var a = e.target.closest && e.target.closest('a.quiz-pdf');
+	if(!a) return;
+	var row = a.closest('.quiz-row');
+	if(!row || !row.dataset.id) return;
+	e.preventDefault();
+	e.stopPropagation();
+	printQuizPdf(row.dataset.id, row.dataset.name);
+}, true);
