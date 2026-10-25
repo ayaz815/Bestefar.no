@@ -102,3 +102,26 @@ test("a rejected or throwing request never breaks the quiz", async () => {
     assert.strictEqual(calls.length, 2);
   }
 });
+
+// ── "must work on all screens" ───────────────────────────────────────────────
+const audioRoot = path.join(root, "bestefar-audio");
+const screens = ["index.html", ...fs.readdirSync(path.join(audioRoot, "data/screens")).filter((f) => f.endsWith(".html")).map((f) => "data/screens/" + f)];
+
+test("every AudioQuiz screen loads the shared script that contains the fullscreen code", () => {
+  assert.ok(screens.length >= 6, "expected index + all screen pages, got " + screens.join(", "));
+  for (const f of screens) {
+    const html = fs.readFileSync(path.join(audioRoot, f), "utf8");
+    assert.match(html, /<script[^>]+src="[^"]*script\.js"/, f + " does not load script.js");
+  }
+});
+
+test("fullscreen code runs before anything else, so a later error/redirect can't skip it", () => {
+  assert.ok(src.indexOf("// ── AUTO FULLSCREEN") < src.indexOf("AQ_STORAGE_KEY"));
+  // Run the WHOLE script in a bare sandbox where the rest of it blows up:
+  const { doc, calls } = fakeDoc({ grant: true });
+  doc.getElementById = () => { throw new Error("boom"); };
+  doc.querySelectorAll = () => { throw new Error("boom"); };
+  const sb = vm.createContext({ document: doc, console, location: { search: "", pathname: "/" }, window: {}, localStorage: {}, sessionStorage: {} });
+  try { vm.runInContext(src, sb); } catch {}
+  assert.strictEqual(calls.length, 1);
+});
