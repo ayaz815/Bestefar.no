@@ -846,9 +846,21 @@
       // browsers that deferred the request.
       (function () {
         function tryFs() {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          }
+          // Feature-detected + wrapped: iPhone / older Safari have no
+          // requestFullscreen, and calling it unguarded threw at load and
+          // stopped the whole quiz from starting.
+          const el = document.documentElement;
+          const request = el.requestFullscreen || el.webkitRequestFullscreen;
+          if (
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            !request
+          )
+            return;
+          try {
+            const result = request.call(el);
+            if (result && result.catch) result.catch(() => {});
+          } catch {}
         }
         tryFs(); // works when arriving via index.html's gesture
         // one-shot fallback for direct loads
@@ -870,7 +882,12 @@
       ];
       const LETTERS = ["A", "B", "C", "D", "E"];
 
-      const bc = new BroadcastChannel("quiz-display");
+      // BroadcastChannel is missing before Safari 15.4 - without it this line threw
+      // and the quiz never started; the presenter window just won't sync there.
+      const bc =
+        typeof BroadcastChannel === "function"
+          ? new BroadcastChannel("quiz-display")
+          : { postMessage() {} };
       let displayWindow = null;
       let multipleShowingAnswers = false,
         singleState = 0,

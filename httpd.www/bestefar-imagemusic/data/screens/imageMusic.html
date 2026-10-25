@@ -433,9 +433,21 @@
       (function () {
         const overlay = document.getElementById("fs-overlay");
         function requestFs() {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          }
+          // Feature-detected + wrapped: iPhone / older Safari have no
+          // requestFullscreen (only the webkit-prefixed one, or none), and
+          // calling it unguarded threw here and stopped the whole player.
+          const el = document.documentElement;
+          const request = el.requestFullscreen || el.webkitRequestFullscreen;
+          if (
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            !request
+          )
+            return;
+          try {
+            const result = request.call(el);
+            if (result && result.catch) result.catch(() => {});
+          } catch {}
         }
         requestFs();
         overlay.addEventListener(
