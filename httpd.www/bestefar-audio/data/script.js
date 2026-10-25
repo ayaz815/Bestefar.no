@@ -1211,3 +1211,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// ── AUTO FULLSCREEN ─────────────────────────────────────────────────────
+// Same behaviour as the BildeQuiz / BilderMusikk players: the first tap or
+// key press on every screen enters fullscreen. A browser only allows this
+// from a user gesture and drops fullscreen on every page navigation, so it
+// has to be re-requested per screen. The existing double-tap/top-area
+// toggle (setupDoubleTapListeners) is untouched and still exits it.
+// (iPhone Safari has no Fullscreen API for pages - the call is a no-op there.)
+function setupAutoFullscreen(doc) {
+  doc = doc || document;
+  function tryFs() {
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) return;
+    const el = doc.documentElement;
+    const request = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!request) return;
+    try {
+      const result = request.call(el);
+      if (result && result.catch) result.catch(() => {});
+    } catch {}
+  }
+  doc.addEventListener("click", tryFs, { once: true });
+  doc.addEventListener("keydown", tryFs, { once: true });
+  return tryFs;
+}
+setupAutoFullscreen();
+// ── END AUTO FULLSCREEN ─────────────────────────────────────────────────
