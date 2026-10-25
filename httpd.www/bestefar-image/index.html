@@ -214,15 +214,21 @@
         applyTitle(data);
 
         const questions = data.questions || [];
-        const mediaUrls = questions.map((q) => q.image).filter(Boolean);
-        const audioUrls = questions.map((q) => q.audio).filter(Boolean);
-
+        // Only the FIRST question's media is waited on. Preloading every
+        // question blocked the opening screen until the whole quiz had
+        // downloaded (hundreds of MB for video quizzes) - on a phone that
+        // effectively never finished, so the quiz never opened. The rest
+        // load on demand in dynamicQuiz.html. Phones also never fire
+        // canplaythrough for preloaded audio/video, hence the hard cap.
+        const first = questions[0] || {};
         const tasks = [
-          ...mediaUrls.map((url) =>
-            (isVideoUrl(url) ? preloadVideo : preloadImage)(url)
-          ),
-          ...audioUrls.map(preloadAudio),
-        ];
+          first.image
+            ? (isVideoUrl(first.image) ? preloadVideo : preloadImage)(
+                first.image
+              )
+            : null,
+          first.audio ? preloadAudio(first.audio) : null,
+        ].filter(Boolean);
 
         const total = tasks.length;
         let loaded = 0;
@@ -231,14 +237,17 @@
         };
 
         if (total > 0) {
-          await Promise.all(
-            tasks.map((p) =>
-              p.then(() => {
-                loaded += 1;
-                setFill((loaded / total) * 100);
-              })
-            )
-          );
+          await Promise.race([
+            Promise.all(
+              tasks.map((p) =>
+                p.then(() => {
+                  loaded += 1;
+                  setFill((loaded / total) * 100);
+                })
+              )
+            ),
+            new Promise((resolve) => setTimeout(resolve, 5000)),
+          ]);
         } else {
           setFill(100);
         }

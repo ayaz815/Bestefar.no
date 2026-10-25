@@ -1629,6 +1629,40 @@
             );
             if (r.ok) {
               data = await r.json();
+              // The raw API returns { screens: [...] }; the player needs
+              // questions[]. index.html maps + caches this normally, but
+              // when storage is unavailable (private mode, in-app
+              // browsers) or the quiz was opened directly, map it here -
+              // otherwise the player says "No questions found".
+              if (!data.questions && Array.isArray(data.screens)) {
+                data = {
+                  quizName: data.quizName,
+                  id: data.id || expectedId,
+                  questions: data.screens.map((s) => {
+                    const type =
+                      s.imageQuestionType === "multiple-questions"
+                        ? "multiple"
+                        : s.imageQuestionType === "bit-by-bit"
+                        ? "bit"
+                        : "single";
+                    return {
+                      type,
+                      question: s.question || "",
+                      image: s.mediaFileUrl || "",
+                      audio: s.audioFileUrl || "",
+                      bgColor: s.bgColor || "#000000",
+                      answer: s.answer || "",
+                      options:
+                        type === "multiple"
+                          ? [s.optionA, s.optionB, s.optionC].filter(Boolean)
+                          : undefined,
+                      bitSize: s.bitSize,
+                      bitRemovalDuration: s.bitRemovalDuration,
+                      notes: s.additionalNotes || "",
+                    };
+                  }),
+                };
+              }
               try {
                 localStorage.setItem(
                   IQ_STORAGE_KEY,

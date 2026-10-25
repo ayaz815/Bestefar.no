@@ -261,14 +261,21 @@
         };
 
         if (total > 0) {
-          await Promise.all(
-            tasks.map((p) =>
-              p.then(() => {
-                loaded += 1;
-                setFill((loaded / total) * 100);
-              })
-            )
-          );
+          // Preloading stays (a slideshow shouldn't stall mid-show), but is
+          // capped: on phones canplaythrough often never fires for
+          // preloaded audio/video and a big show can be hundreds of MB, so
+          // an uncapped wait left the opening screen stuck on "loading".
+          await Promise.race([
+            Promise.all(
+              tasks.map((p) =>
+                p.then(() => {
+                  loaded += 1;
+                  setFill((loaded / total) * 100);
+                })
+              )
+            ),
+            new Promise((resolve) => setTimeout(resolve, 10000)),
+          ]);
         } else {
           setFill(100);
         }
