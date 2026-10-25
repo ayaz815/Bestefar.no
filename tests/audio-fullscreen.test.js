@@ -10,12 +10,13 @@ const root = process.env.PLAYERS_ROOT || path.join(__dirname, "..", "httpd.www")
 const src = fs.readFileSync(path.join(root, "bestefar-audio/data/script.js"), "utf8");
 const block = src.slice(src.indexOf("// ── AUTO FULLSCREEN"), src.indexOf("// ── END AUTO FULLSCREEN"));
 
-function fakeDoc({ request = "requestFullscreen", rejects = false, throws = false } = {}) {
+function fakeDoc({ request = "requestFullscreen", rejects = false, throws = false, grant = false } = {}) {
   const handlers = {}, calls = [];
   const el = {};
   if (request) el[request] = () => {
     calls.push(request);
     if (throws) throw new Error("denied");
+    if (grant) doc.fullscreenElement = {};
     return rejects ? Promise.reject(new Error("denied")) : Promise.resolve();
   };
   const doc = {
@@ -36,32 +37,40 @@ const load = (doc) => {
 
 test("block is present in the player script", () => assert.ok(block.includes("setupAutoFullscreen")));
 
-test("it is wired up on load of every screen (script runs it once at top level)", () => {
-  const { doc, calls } = fakeDoc();
+test("script runs it once at top level, so every screen requests fullscreen on load", () => {
+  const { doc, calls } = fakeDoc({ grant: true });
   vm.runInContext(block, vm.createContext({ document: doc, console }));
-  doc.fire("click");
-  assert.strictEqual(calls.length, 1);
-});
-
-test("first tap enters fullscreen", () => {
-  const { doc, calls } = fakeDoc();
-  load(doc).setupAutoFullscreen(doc);
-  doc.fire("click");
   assert.deepStrictEqual(calls, ["requestFullscreen"]);
 });
 
-test("first key press enters fullscreen too", () => {
-  const { doc, calls } = fakeDoc();
+test("reached by tapping START (browser grants it): fullscreen at load, later taps don't re-request", () => {
+  const { doc, calls } = fakeDoc({ grant: true });
   load(doc).setupAutoFullscreen(doc);
-  doc.fire("keydown");
+  assert.strictEqual(calls.length, 1);
+  doc.fire("click"); doc.fire("click");
   assert.strictEqual(calls.length, 1);
 });
 
-test("one-shot: later taps do not re-request (so the double-tap exit still works)", () => {
+test("browser refused at load: the first tap enters fullscreen", () => {
+  const { doc, calls } = fakeDoc(); // grant:false = request has no effect
+  load(doc).setupAutoFullscreen(doc);
+  assert.strictEqual(calls.length, 1);
+  doc.fire("click");
+  assert.strictEqual(calls.length, 2);
+});
+
+test("first key press is a fallback too", () => {
+  const { doc, calls } = fakeDoc();
+  load(doc).setupAutoFullscreen(doc);
+  doc.fire("keydown");
+  assert.strictEqual(calls.length, 2);
+});
+
+test("tap fallback is one-shot, so the existing double-tap exit still works", () => {
   const { doc, calls } = fakeDoc();
   load(doc).setupAutoFullscreen(doc);
   doc.fire("click"); doc.fire("click"); doc.fire("click");
-  assert.strictEqual(calls.length, 1);
+  assert.strictEqual(calls.length, 2);
 });
 
 test("does nothing when already fullscreen", () => {
@@ -73,24 +82,23 @@ test("does nothing when already fullscreen", () => {
 });
 
 test("falls back to the webkit-prefixed API (older Safari / iPad)", () => {
-  const { doc, calls } = fakeDoc({ request: "webkitRequestFullscreen" });
+  const { doc, calls } = fakeDoc({ request: "webkitRequestFullscreen", grant: true });
   load(doc).setupAutoFullscreen(doc);
-  doc.fire("click");
   assert.deepStrictEqual(calls, ["webkitRequestFullscreen"]);
 });
 
 test("no Fullscreen API (iPhone Safari): silently does nothing, never throws", () => {
   const { doc } = fakeDoc({ request: null });
-  load(doc).setupAutoFullscreen(doc);
+  assert.doesNotThrow(() => load(doc).setupAutoFullscreen(doc));
   assert.doesNotThrow(() => doc.fire("click"));
 });
 
 test("a rejected or throwing request never breaks the quiz", async () => {
   for (const opts of [{ rejects: true }, { throws: true }]) {
     const { doc, calls } = fakeDoc(opts);
-    load(doc).setupAutoFullscreen(doc);
+    assert.doesNotThrow(() => load(doc).setupAutoFullscreen(doc));
     assert.doesNotThrow(() => doc.fire("click"));
     await new Promise((r) => setImmediate(r)); // no unhandled rejection
-    assert.strictEqual(calls.length, 1);
+    assert.strictEqual(calls.length, 2);
   }
 });
