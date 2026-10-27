@@ -1,3 +1,33 @@
+// ── AUTO FULLSCREEN ─────────────────────────────────────────────────────
+// (Kept at the very TOP of this file on purpose: it must run on every audio
+// screen even if something further down throws or redirects.)
+// Same behaviour as the BildeQuiz / BilderMusikk players. A browser drops
+// fullscreen on every page navigation, so it is re-requested on every screen:
+// immediately on load (allowed when the screen was reached by tapping START /
+// a nav area, exactly how the image players get in on the START click) and,
+// if the browser refused that, on the first tap or key press. The existing double-tap/top-area
+// toggle (setupDoubleTapListeners) is untouched and still exits it.
+// (iPhone Safari has no Fullscreen API for pages - the call is a no-op there.)
+function setupAutoFullscreen(doc) {
+  doc = doc || document;
+  function tryFs() {
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) return;
+    const el = doc.documentElement;
+    const request = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!request) return;
+    try {
+      const result = request.call(el);
+      if (result && result.catch) result.catch(() => {});
+    } catch {}
+  }
+  doc.addEventListener("click", tryFs, { once: true });
+  doc.addEventListener("keydown", tryFs, { once: true });
+  tryFs();
+  return tryFs;
+}
+setupAutoFullscreen();
+// ── END AUTO FULLSCREEN ─────────────────────────────────────────────────
+
 // ── Shareable-link support ──────────────────────────────────────────────
 // Mirrors the same pattern already used for image-music and image-quiz:
 // localStorage is checked FIRST (instant, no network — this is what makes
