@@ -9,6 +9,29 @@
     <title>Music App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      /* Fixed full-viewport screen (no page scroll). dvh tracks the visible
+         area on iOS Safari/Android Chrome as their toolbars show/hide; vh is
+         the fallback for browsers without dvh. */
+      .app-vh {
+        height: 100vh !important;
+        height: 100dvh !important;
+      }
+
+      /* Small phones: smaller play / speaker icons so the two black boxes
+         aren't mostly icon. */
+      @media (max-height: 700px), (max-width: 359px) {
+        #playImg1 {
+          width: 3.5rem;
+        }
+        img.mic-icon {
+          width: 3.25rem !important;
+        }
+        .music-section,
+        .mic-section {
+          min-height: 9rem !important;
+        }
+      }
+
       @font-face {
         font-family: "AgencyFB";
         src: url("../fonts/AGENCYB.TTF") format("truetype");
@@ -130,14 +153,14 @@
   </head>
 
   <body
-    class="min-h-screen bg-[#FFC000] flex justify-center overflow-y-auto overflow-x-hidden"
+    class="app-vh bg-[#FFC000] flex justify-center overflow-hidden"
     id="screen1"
   >
     <div class="sm:w-full sm:block hidden"></div>
 
     <!-- Main Container -->
     <div
-      class="fullscreen-target w-full sm:w-[1900px] lg:w-[70%] min-h-screen bg-[#FFC000] shadow-2xl shadow-black flex flex-col main-container opacity-0 transition-opacity duration-500"
+      class="fullscreen-target w-full sm:w-[1900px] lg:w-[70%] app-vh bg-[#FFC000] shadow-2xl shadow-black flex flex-col main-container opacity-0 transition-opacity duration-500"
       id="screen2FullScreen"
     >
       <!-- Navigation -->
@@ -171,7 +194,7 @@
 
       <!-- Music Section -->
       <div
-        class="bg-black flex flex-col items-center justify-between music-section flex-grow"
+        class="bg-black flex flex-col items-center justify-between music-section flex-1 min-h-[11rem]"
       >
      <p
   id="play-instruction"
@@ -221,11 +244,11 @@
 
       <!-- Mic Section -->
       <div
-        class="bg-black flex flex-col items-center justify-between py-[6%] mic-section toggle-question-area cursor-pointer flex h-full"
+        class="bg-black flex flex-col items-center justify-between mic-section toggle-question-area cursor-pointer flex flex-1 min-h-[11rem]"
       >
         <p
           id="question-text"
-          class="w-full text-center text-[#FFC000] font-arial-normal overflow-y-auto px-[2%] sm:px-[8%] py-[1%] text-lg sm:text-md h-full"
+          class="w-full text-center text-[#FFC000] font-arial-normal overflow-y-auto px-[2%] sm:px-[8%] pt-[6%] pb-[1%] text-lg sm:text-md flex-1 min-h-[3rem]"
           style="scrollbar-width: none; -ms-overflow-style: none"
         ></p>
 
@@ -235,7 +258,7 @@
           }
         </style>
 
-        <div class="flex justify-center">
+        <div class="flex justify-center pb-[6%]">
           <button
             class="speaker-btn relative group mb-0.5 bg-transparent hover:border-none border-none focus-visible:outline-none focus:outline-none"
           >

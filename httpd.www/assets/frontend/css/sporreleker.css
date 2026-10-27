@@ -95,7 +95,6 @@ table.quiz-table th.quiz-date-col, table.quiz-table td.quiz-date{ padding-left:2
 	text-decoration:none;
 	z-index:20;
 }
-.quiz-info-popup.empty{ color:#ccc; font-style:italic; }
 /* Per feedback: show on rollover (hover), not just a click. Keeping the
    existing click-toggle too (via .quiz-info.open) since touch devices -
    tablets, which still show this column - have no hover at all. */

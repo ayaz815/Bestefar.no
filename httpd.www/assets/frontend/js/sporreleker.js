@@ -1,3 +1,9 @@
+// Quiz types that have a PDF, and the api.bestefar.no route segment serving it.
+var QUIZ_PDF_PATH = {AudioQuiz: 'forms', BildeQuiz: 'image-quiz', BilderMusikk: 'image-music', TekstQuiz: 'crossword'};
+function quizPdfUrl(category, id){
+	return 'https://api.bestefar.no/api/' + QUIZ_PDF_PATH[category] + '/pdf/' + encodeURIComponent(id);
+}
+
 function quizInfoToggle(btn){
 	var wasOpen = btn.classList.contains('open');
 	document.querySelectorAll('.quiz-info.open').forEach(function(el){ el.classList.remove('open'); });
@@ -24,8 +30,15 @@ function initQuizCatalogInteractions(){
 	document.querySelectorAll('.quiz-row').forEach(function(row){
 		row.addEventListener('click', function(){
 			if(window.innerWidth > 767){ return; }
-			// Print/Start Quiz only exist for AudioQuiz, so other types get no popup.
-			if(row.dataset.category !== 'AudioQuiz'){ return; }
+			// Only quiz types with a player and/or a PDF get the popup.
+			var playerUrls = {
+				AudioQuiz: 'https://bestefar.no/bestefar-audio/index.html?screen=1&show={id}&autostart=1',
+				BildeQuiz: 'https://bestefar.no/bestefar-image/index.html?show={id}',
+				BilderMusikk: 'https://bestefar.no/bestefar-imagemusic/index.html?show={id}'
+			};
+			var playerUrl = playerUrls[row.dataset.category];
+			var pdfPath = QUIZ_PDF_PATH[row.dataset.category];
+			if(!playerUrl && !pdfPath){ return; }
 			var modal = document.getElementById('quizMobileModal');
 			if(!modal){ return; }
 			modal.querySelector('.qmm-name').textContent = row.dataset.name || '';
@@ -41,39 +54,26 @@ function initQuizCatalogInteractions(){
 			modal.querySelector('.qmm-musictype-wrap').style.display = musicType ? '' : 'none';
 			var quizId = row.dataset.id || '';
 
-			// Skriv ut: AudioQuiz rows now have a real multi-page PDF (title +
-			// participant sheet + answer key) generated server-side - opening it
-			// lets the browser's own PDF viewer handle printing, which already
-			// searches for nearby AirPrint/Mopria printers and lets the user set
-			// a copy count, same as any other PDF.
+			// Skriv ut: types with a server-generated PDF (see QUIZ_PDF_PATH)
+			// hand it to the device's own print flow (printer picker, copies);
+			// the button is hidden for the rest.
 			var printBtn = modal.querySelector('.quiz-mobile-print');
 			if(printBtn){
-				if(row.dataset.category === 'AudioQuiz' && quizId){
-					printBtn.onclick = function(){
-						printQuizPdf(quizId, row.dataset.name);
-					};
-				}
+				printBtn.style.display = pdfPath ? '' : 'none';
+				printBtn.onclick = pdfPath ? function(){
+					printQuizPdf(quizPdfUrl(row.dataset.category, quizId), row.dataset.name);
+				} : null;
 			}
 
 			// Start Quiz: the live player already supports loading any quiz by
-			// ID via ?show=<id> (used by the generator's own Preview button),
-			// so this reuses that instead of needing a new endpoint. Only
-			// wired up for AudioQuiz for now - the other quiz types' player
-			// apps (bestefar-image, bestefar-imagemusic, bestefar-crossword)
-			// haven't been confirmed to support the same ?show=<id> pattern.
+			// ID via ?show=<id> (used by the generator's own Preview and share
+			// buttons), so this reuses that instead of needing a new endpoint.
 			var startBtn = modal.querySelector('.quiz-mobile-start');
 			if(startBtn){
-				if(row.dataset.category === 'AudioQuiz' && quizId){
-					startBtn.disabled = false;
-					startBtn.removeAttribute('title');
-					startBtn.onclick = function(){
-						window.location.href = 'https://bestefar.no/bestefar-audio/index.html?screen=1&show=' + encodeURIComponent(quizId) + '&autostart=1';
-					};
-				}else{
-					startBtn.disabled = true;
-					startBtn.title = 'Kommer snart';
-					startBtn.onclick = null;
-				}
+				startBtn.style.display = playerUrl ? '' : 'none';
+				startBtn.onclick = playerUrl ? function(){
+					window.location.href = playerUrl.replace('{id}', encodeURIComponent(quizId));
+				} : null;
 			}
 
 			modal.classList.add('open');
@@ -154,8 +154,7 @@ window.addEventListener('popstate', function(){
 // instead of just showing it in a viewer tab. Mobile: share sheet with the
 // PDF file (has "Skriv ut"/Print -> AirPrint/Mopria printer list). Desktop:
 // hidden iframe + print(). Falls back to opening the PDF in a new tab.
-function printQuizPdf(quizId, name){
-	var url = 'https://api.bestefar.no/api/forms/pdf/' + encodeURIComponent(quizId);
+function printQuizPdf(url, name){
 	var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
 		(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 	// Open the fallback tab synchronously so popup blockers allow it.
@@ -193,5 +192,5 @@ document.addEventListener('click', function(e){
 	if(!row || !row.dataset.id) return;
 	e.preventDefault();
 	e.stopPropagation();
-	printQuizPdf(row.dataset.id, row.dataset.name);
+	printQuizPdf(a.href, row.dataset.name);
 }, true);

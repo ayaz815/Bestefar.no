@@ -72,9 +72,12 @@
 									</span>
 								</button>
 								<!-- The client's own supplied document symbol (Symbol.png).
-								     PDF generation only exists for AudioQuiz so far. -->
-								<?php if($quiz['quiz_type'] === 'AudioQuiz'){ ?>
-								<a class="quiz-pdf" href="https://api.bestefar.no/api/forms/pdf/<?php echo urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Skriv ut quiz">
+								     PDFs exist for AudioQuiz, BildeQuiz and TekstQuiz (crossword). -->
+								<?php
+									$pdf_paths = array('AudioQuiz' => 'forms', 'BildeQuiz' => 'image-quiz', 'BilderMusikk' => 'image-music', 'TekstQuiz' => 'crossword');
+								?>
+								<?php if(isset($pdf_paths[$quiz['quiz_type']])){ ?>
+								<a class="quiz-pdf" href="https://api.bestefar.no/api/<?php echo $pdf_paths[$quiz['quiz_type']]; ?>/pdf/<?php echo urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Skriv ut quiz">
 									<img src="<?php echo base_url('assets/frontend/images/quiz-pdf-icon.png'); ?>" alt="PDF">
 								</a>
 								<?php }else{ ?>
@@ -83,9 +86,16 @@
 								</span>
 								<?php } ?>
 								<!-- Start Quiz on desktop/laptop too, not just the mobile popup -
-								     same ?show=<id> player loading, AudioQuiz only for now. -->
-								<?php if($quiz['quiz_type'] === 'AudioQuiz'){ ?>
-								<a class="quiz-start" href="https://bestefar.no/bestefar-audio/index.html?screen=1&show=<?php echo urlencode($quiz['external_id']); ?>&autostart=1" target="_blank" rel="noopener" title="Start quiz">
+								     same ?show=<id> player loading. TekstQuiz has no player yet. -->
+								<?php
+									$player_urls = array(
+										'AudioQuiz'    => 'https://bestefar.no/bestefar-audio/index.html?screen=1&show=%s&autostart=1',
+										'BildeQuiz'    => 'https://bestefar.no/bestefar-image/index.html?show=%s',
+										'BilderMusikk' => 'https://bestefar.no/bestefar-imagemusic/index.html?show=%s',
+									);
+								?>
+								<?php if(isset($player_urls[$quiz['quiz_type']])){ ?>
+								<a class="quiz-start" href="<?php echo htmlspecialchars(sprintf($player_urls[$quiz['quiz_type']], urlencode($quiz['external_id']))); ?>" target="_blank"" rel="noopener" title="Start quiz">
 									<img src="<?php echo base_url('assets/frontend/images/playbutton.png'); ?>" alt="Start">
 								</a>
 								<?php }else{ ?>

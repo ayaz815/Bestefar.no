@@ -887,6 +887,15 @@
 			return is_array($data) ? $data : null;
 		}
 
+		// Drafts stay off the public list until the author ticks "publish" in
+		// the generator. Quizzes saved before that flag existed have no
+		// isPublic value and stay visible, hence !== false.
+		private function only_public($items){
+			return array_values(array_filter($items, function($item){
+				return !isset($item['isPublic']) || $item['isPublic'] !== false;
+			}));
+		}
+
 		// AudioQuiz has no created/updated date on the API at all. So the
 		// catalog date is "the first time our app noticed this quiz exists" -
 		// stable once recorded, stored locally, never fabricated per request.
@@ -909,7 +918,7 @@
 
 		private function fetch_audio_quizzes(){
 			$data = $this->fetch_json($this->quiz_api_base.'/forms/get-all');
-			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
+			$shows = ($data && isset($data['shows'])) ? $this->only_public($data['shows']) : array();
 			return array_map(function($show){
 				// Info is editable in the generator app itself (top-level
 				// quizInfo on the quiz, not per-screen). There is no separate
@@ -947,7 +956,7 @@
 
 		private function fetch_image_quizzes(){
 			$data = $this->fetch_json($this->quiz_api_base.'/image-quiz/get-all-image-quizzes');
-			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
+			$shows = ($data && isset($data['shows'])) ? $this->only_public($data['shows']) : array();
 			return array_map(function($show){
 				return array(
 					'quiz_type'      => 'BildeQuiz',
@@ -962,7 +971,7 @@
 
 		private function fetch_image_music_quizzes(){
 			$data = $this->fetch_json($this->quiz_api_base.'/image-music/get-all-image-music-shows');
-			$shows = ($data && isset($data['shows'])) ? $data['shows'] : array();
+			$shows = ($data && isset($data['shows'])) ? $this->only_public($data['shows']) : array();
 			return array_map(function($show){
 				return array(
 					'quiz_type'      => 'BilderMusikk',
@@ -978,7 +987,7 @@
 		// Standing in for TekstQuiz until a real text-quiz source exists.
 		private function fetch_text_quizzes(){
 			$data = $this->fetch_json($this->quiz_api_base.'/crossword/all');
-			$items = ($data && isset($data['data'])) ? $data['data'] : array();
+			$items = ($data && isset($data['data'])) ? $this->only_public($data['data']) : array();
 			return array_map(function($item){
 				return array(
 					'quiz_type'      => 'TekstQuiz',

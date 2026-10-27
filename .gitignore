@@ -36,3 +36,6 @@ httpd.www/ayaz/
 maintenance.jpeg
 "index maintenance.html"
 .env
+
+# Local-only CodeIgniter environment override for `php -S` testing
+httpd.www/application/config/development/
