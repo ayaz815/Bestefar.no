@@ -171,10 +171,19 @@ function loadAudioQuizData() {
     }
 
     let data = null;
+    let cached = null;
     try {
       const stored = JSON.parse(localStorage.getItem(AQ_STORAGE_KEY));
-      if (stored) data = stored;
+      if (stored) cached = data = stored;
     } catch {}
+
+    // Entering a show by id (title screen, shared link, catalog): always
+    // fetch fresh. The cache used to be trusted forever for a matching id,
+    // so a phone that had opened a show once never saw later edits (extra
+    // tunes, text changes). Deep screens still use the cache the title
+    // screen just refreshed; the cache stays as the offline fallback.
+    const onDeepScreen = window.location.pathname.includes("/data/screens/");
+    if (expectedId && !onDeepScreen) data = null;
 
     // Stale cache from a different show/link — discard, force a fresh fetch.
     if (expectedId && data && data.id && data.id !== expectedId) {
@@ -215,6 +224,12 @@ function loadAudioQuizData() {
         console.warn("Audio quiz API fetch failed/timed out:", err);
         window._aqErr = "API " + (err && err.name) + ": " + (err && err.message);
       }
+    }
+
+    // Fresh fetch failed (offline / timeout): fall back to the cached copy
+    // of the SAME show rather than the static file.
+    if (!data && cached && hasScreenData(cached) && (!expectedId || !cached.id || cached.id === expectedId)) {
+      data = cached;
     }
 
     if (!data) {
