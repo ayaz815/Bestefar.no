@@ -12,6 +12,17 @@
       content="black-translucent"
     />
     <title>Music App</title>
+    <script>
+      // Opened directly (shared link, catalog, generator Preview): hand over
+      // to the single-page shell, which loads this same page in an iframe so
+      // fullscreen survives screen changes. Inside the shell this is a no-op.
+      if (window.top === window.self) {
+        document.documentElement.style.visibility = "hidden";
+        window.location.replace(
+          "player.html" + window.location.search + window.location.hash
+        );
+      }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>

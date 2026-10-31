@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Music App</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #ffc000;
+        overflow: hidden;
+      }
+      #aqFrame {
+        display: block;
+        border: 0;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Single-page shell. Every quiz screen (title, questions, melody list,
+         end) loads INSIDE this iframe, so this top-level document never
+         navigates. Browsers drop fullscreen on every top-level page change,
+         which is why the old one-page-per-screen player flickered in and
+         straight back out; fullscreen is now requested on THIS document
+         (see getFullscreenDoc in data/script.js) and survives every screen. -->
+    <iframe
+      id="aqFrame"
+      title="Music App"
+      allow="autoplay; fullscreen"
+      allowfullscreen
+    ></iframe>
+    <script>
+      // Shared link / catalog / Preview all point at index.html?...; the
+      // query (?show=<id>, ?screen=...) is forwarded to the title screen.
+      document.getElementById("aqFrame").src =
+        "index.html" + window.location.search + window.location.hash;
+    </script>
+  </body>
+</html>

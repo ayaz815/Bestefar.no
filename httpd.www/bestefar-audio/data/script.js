@@ -8,11 +8,27 @@
 // if the browser refused that, on the first tap or key press. The existing double-tap/top-area
 // toggle (setupDoubleTapListeners) is untouched and still exits it.
 // (iPhone Safari has no Fullscreen API for pages - the call is a no-op there.)
+// The quiz runs inside player.html's iframe (single-page shell), so
+// fullscreen has to be requested on the TOP document: that one never
+// navigates, which is what keeps fullscreen alive across screens. Falls
+// back to the current document when not framed or the top is unreachable.
+function getFullscreenDoc(doc) {
+  doc = doc || document;
+  try {
+    if (doc.defaultView && doc.defaultView.top && doc.defaultView.top !== doc.defaultView) {
+      const topDoc = doc.defaultView.top.document;
+      if (topDoc) return topDoc;
+    }
+  } catch {}
+  return doc;
+}
+
 function setupAutoFullscreen(doc) {
   doc = doc || document;
   function tryFs() {
-    if (doc.fullscreenElement || doc.webkitFullscreenElement) return;
-    const el = doc.documentElement;
+    const target = getFullscreenDoc(doc);
+    if (target.fullscreenElement || target.webkitFullscreenElement) return;
+    const el = target.documentElement;
     const request = el.requestFullscreen || el.webkitRequestFullscreen;
     if (!request) return;
     try {
@@ -69,7 +85,10 @@ const AQ_API_BASE = "https://api.bestefar.no/api/audio-quiz";
     const cameFromInternalNav =
       sessionStorage.getItem("aq_internal_nav") === "1";
     sessionStorage.removeItem("aq_internal_nav");
-    if (!cameFromInternalNav) {
+    // Also bounce a deep screen opened at top level (outside the
+    // player.html shell, e.g. a stale cached link): index.html re-enters
+    // through the shell so fullscreen and navigation work as designed.
+    if (!cameFromInternalNav || window.top === window.self) {
       window.location.replace("../../index.html" + window.location.search);
     }
   } catch {}
@@ -1038,12 +1057,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Function to toggle fullscreen mode
   function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((err) => {
+    const target = getFullscreenDoc(document);
+    if (!target.fullscreenElement) {
+      target.documentElement.requestFullscreen().catch((err) => {
         console.error("Error entering fullscreen:", err);
       });
     } else {
-      document.exitFullscreen();
+      target.exitFullscreen();
     }
   }
 
@@ -1234,7 +1254,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ---------------------- Fullscreen Button Logic -------------------------
 function enterFullscreen() {
-  const elem = document.documentElement; // Use full document (recommended)
+  const elem = getFullscreenDoc(document).documentElement; // top doc (shell)
 
   if (elem.requestFullscreen) {
     elem.requestFullscreen();

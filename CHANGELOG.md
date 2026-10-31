@@ -10,6 +10,8 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
+- 2026-10-31 - AudioQuiz single-page shell: new bestefar-audio/player.html hosts every screen in an iframe so the top document never navigates and fullscreen survives screen changes (was entering and instantly exiting on every START/arrow tap). index.html redirects to the shell when opened directly (links/catalog/Preview unchanged). Fullscreen now targets the top document. Files: bestefar-audio/player.html (NEW), bestefar-audio/index.html, bestefar-audio/data/script.js. Tests: tests/audio-single-page.test.js, local harness tests/support/dev-server.js.
+
 - 2026-10-31 - AudioQuiz melody list + all deep screens now fetch fresh show data (was cache-only, so edits didn't show); no-store fetch; reload on back/forward restore. File: httpd.www/bestefar-audio/data/script.js. Tests: tests/audio-loader-complete.test.js. Commit d4281fd.
 
 - 2026-10-27 - AudioQuiz player: title screen / shared link with ?show=<id> now always fetches the latest show (cache only offline fallback). Fixed phones showing old tune count/text. File: httpd.www/bestefar-audio/data/script.js. Test: tests/audio-fresh-data.test.js.
