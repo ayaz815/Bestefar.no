@@ -10,6 +10,8 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
+- 2026-10-31 - AudioQuiz melody list + all deep screens now fetch fresh show data (was cache-only, so edits didn't show); no-store fetch; reload on back/forward restore. File: httpd.www/bestefar-audio/data/script.js. Tests: tests/audio-loader-complete.test.js. Commit d4281fd.
+
 - 2026-10-27 - AudioQuiz player: title screen / shared link with ?show=<id> now always fetches the latest show (cache only offline fallback). Fixed phones showing old tune count/text. File: httpd.www/bestefar-audio/data/script.js. Test: tests/audio-fresh-data.test.js.
 
 - **2026-10-25** — BildeQuiz/BilderMusikk not working in Safari (Preview, share link, catalog). `dynamicQuiz.html` and `imageMusic.html` called `document.documentElement.requestFullscreen()` unguarded at page load - iPhone/older Safari don't have it, so it threw and the rest of the page script never ran; `dynamicQuiz.html` also needed `BroadcastChannel` (Safari < 15.4). Both are now feature-detected/wrapped (webkit-prefixed fallback kept). Tests: `tests/players-safari.test.js`. **Upload needed**: `bestefar-image/data/screens/dynamicQuiz.html`, `bestefar-imagemusic/data/screens/imageMusic.html`.
