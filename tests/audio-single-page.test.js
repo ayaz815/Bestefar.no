@@ -157,7 +157,11 @@ function runGuard({ framed, flag, path: p = "/bestefar-audio/data/screens/show.h
 test("guard: framed + internal nav flag stays on the screen", () => assert.strictEqual(runGuard({ framed: true, flag: true }), null));
 test("guard: framed without flag (pasted/refresh) goes back to the title screen with ?show=", () => assert.strictEqual(runGuard({ framed: true, flag: false }), "../../index.html?show=abc"));
 test("guard: deep screen opened at top level is sent through index.html -> shell, even with the flag", () => assert.strictEqual(runGuard({ framed: false, flag: true }), "../../index.html?show=abc"));
-test("guard: title screen (not a deep screen) is never redirected", () => assert.strictEqual(runGuard({ framed: false, flag: false, path: "/bestefar-audio/index.html" }), null));
+test("guard: title screen inside the shell is never redirected", () => assert.strictEqual(runGuard({ framed: true, flag: false, path: "/bestefar-audio/index.html" }), null));
+test("guard: title screen at top level (OLD cached index.html + new script) goes to the shell, keeping ?show=", () => {
+  assert.strictEqual(runGuard({ framed: false, flag: false, path: "/bestefar-audio/index.html" }), "player.html?show=abc");
+  assert.strictEqual(runGuard({ framed: false, flag: false, path: "/bestefar-audio/" }), "player.html?show=abc");
+});
 
 // ── link integrity: every screen target exists, every screen loads script.js ─
 const screens = fs.readdirSync(path.join(audio, "data/screens")).filter((f) => f.endsWith(".html"));
@@ -199,4 +203,21 @@ test("nothing external still links to a screen file directly (entry is index.htm
   const cat = fs.readFileSync(path.join(root, "assets/frontend/js/sporreleker.js"), "utf8");
   assert.match(cat, /bestefar-audio\/index\.html\?/);
   assert.doesNotMatch(cat, /bestefar-audio\/data\/screens/);
+});
+
+// ── cache safety (one.com sends no cache headers: stale pages were served) ─
+test(".htaccess makes browsers revalidate the player's html and js", () => {
+  const h = read(".htaccess");
+  assert.match(h, /FilesMatch "\\\.\(html\|js\)\$"/);
+  assert.match(h, /Header set Cache-Control "no-cache, must-revalidate"/);
+  assert.match(h, /<IfModule mod_headers\.c>/);
+});
+test("every page loads script.js with the same ?v= cache-buster", () => {
+  const vs = new Set();
+  for (const f of ["index.html", "data/screens/show.html", "data/screens/screen17.html", "data/screens/screen18.html"]) {
+    const m = read(f).match(/<script src="[^"]*script\.js\?v=(\d+)"/);
+    assert.ok(m, f + " has no versioned script tag");
+    vs.add(m[1]);
+  }
+  assert.strictEqual(vs.size, 1, "versions differ: " + [...vs]);
 });

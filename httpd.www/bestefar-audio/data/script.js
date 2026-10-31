@@ -81,7 +81,18 @@ const AQ_API_BASE = "https://api.bestefar.no/api/audio-quiz";
 (function guardDirectDeepLinkEntry() {
   try {
     const onDeepScreen = window.location.pathname.includes("/data/screens/");
-    if (!onDeepScreen) return;
+    if (!onDeepScreen) {
+      // Title screen opened at top level, outside the player.html shell. Its
+      // own inline redirect normally handles this, but a browser can serve an
+      // OLD cached index.html (no redirect) with this fresh script: send it
+      // through the shell here too, or fullscreen drops on every screen.
+      if (window.top === window.self) {
+        window.location.replace(
+          "player.html" + window.location.search + (window.location.hash || "")
+        );
+      }
+      return;
+    }
     const cameFromInternalNav =
       sessionStorage.getItem("aq_internal_nav") === "1";
     sessionStorage.removeItem("aq_internal_nav");
