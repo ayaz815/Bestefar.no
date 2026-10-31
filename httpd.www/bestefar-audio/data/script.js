@@ -140,10 +140,16 @@ function safePause(audioEl) {
 function fetchWithTimeout(url, ms = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
-  return fetch(url, { signal: controller.signal }).finally(() =>
+  return fetch(url, { signal: controller.signal, cache: "no-store" }).finally(() =>
     clearTimeout(timer)
   );
 }
+
+// Back/forward cache restores a page with its old in-memory data; reload so
+// the melody list and tunes reflect the latest saved show.
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted && /[?&]show=/.test(location.search)) location.reload();
+});
 
 function loadAudioQuizData() {
   if (_audioQuizDataPromise) return _audioQuizDataPromise;
@@ -177,13 +183,12 @@ function loadAudioQuizData() {
       if (stored) cached = data = stored;
     } catch {}
 
-    // Entering a show by id (title screen, shared link, catalog): always
-    // fetch fresh. The cache used to be trusted forever for a matching id,
-    // so a phone that had opened a show once never saw later edits (extra
-    // tunes, text changes). Deep screens still use the cache the title
-    // screen just refreshed; the cache stays as the offline fallback.
-    const onDeepScreen = window.location.pathname.includes("/data/screens/");
-    if (expectedId && !onDeepScreen) data = null;
+    // Any page with a show id (title screen, melody list, question screens,
+    // shared link, catalog) fetches fresh. The cache used to be trusted for
+    // a matching id - and deep screens such as the melody list never
+    // refreshed it - so edits made in the generator (new/changed tunes,
+    // audio, text) didn't show up. The cache is only the offline fallback.
+    if (expectedId) data = null;
 
     // Stale cache from a different show/link — discard, force a fresh fetch.
     if (expectedId && data && data.id && data.id !== expectedId) {

@@ -20,7 +20,7 @@ function run({ path: p = "/bestefar-audio/index.html", search = "?show=abc", cac
   let fetched = 0;
   const sb = {
     console, URLSearchParams, setTimeout, clearTimeout, AbortController,
-    window: { location: { pathname: p, search, href: "https://x" + p + search } },
+    window: { location: { pathname: p, search, href: "https://x" + p + search }, addEventListener() {} },
     location: { search },
     localStorage: { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v) },
     fetch: async (url) => {
@@ -45,10 +45,20 @@ test("title screen with ?show= fetches fresh data even when a cache exists (4 tu
   assert.strictEqual(r.fetched(), 1);
   assert.ok(JSON.parse(r.store.aq_preview_json).screen4, "cache is refreshed");
 });
-test("deep screens still use the cache (no extra fetch, no mid-quiz change)", async () => {
+test("melody list / deep screens also fetch fresh (4 tunes, not 3)", async () => {
   const r = await run({ path: "/bestefar-audio/data/screens/show.html", cache: stale, api: fresh });
+  assert.strictEqual(Object.keys(r.d).filter((k) => /^screen\d+$/.test(k)).length, 4);
+  assert.strictEqual(r.fetched(), 1);
+  assert.ok(JSON.parse(r.store.aq_preview_json).screen4, "cache is refreshed");
+});
+test("deep screen without ?show= (generator Preview) still uses the cache, no fetch", async () => {
+  const r = await run({ path: "/bestefar-audio/data/screens/screen.html", search: "", cache: stale, api: fresh });
   assert.strictEqual(Object.keys(r.d).filter((k) => /^screen\d+$/.test(k)).length, 3);
   assert.strictEqual(r.fetched(), 0);
+});
+test("deep screen offline falls back to cache", async () => {
+  const r = await run({ path: "/bestefar-audio/data/screens/show.html", cache: stale, apiFails: true });
+  assert.strictEqual(r.d.screen3 !== undefined, true);
 });
 test("offline: falls back to cached copy of the same show", async () => {
   const r = await run({ cache: stale, apiFails: true });
