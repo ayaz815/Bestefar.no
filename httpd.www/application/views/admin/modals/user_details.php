@@ -82,7 +82,7 @@ foreach($user_shows as $us){
 							</div>
 							<div class="row" style="margin-top:20px;">
 								<div class="col-md-4"> <b> Password : </b></div>
-								<div class="col-md-8"><?= $user->password; ?> </div>
+								<div class="col-md-8"><?= (strlen($user->password) >= 60 && strpos($user->password, '$2y$') === 0) ? '<i>Stored securely (hidden)</i>' : htmlspecialchars($user->password); ?> </div>
 							</div>
 						</div>
 						

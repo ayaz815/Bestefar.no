@@ -30,13 +30,15 @@
 			$username= $this->input->post('email');
 			$password= $this->input->post('password');
 			
-		    $this->db->select();
-			$this->db->from('users');
-			$this->db->where('email',$username);
-			$this->db->where('password',$password);
-			$query = $this->db->get(); 
-			if($query->num_rows()== 1){
-			  return $query->row();
+			$this->load->helper('user_password');
+			$rows = $this->db->get_where('users', array('email'=>$username))->result();
+			$picked = user_password_pick_login($rows, $password);
+			if($picked['row']){
+			  if($picked['new_hash']){
+			    // Old plain-text password: store a hash now that we know it is right.
+			    $this->db->where('users_id', $picked['row']->users_id)->update('users', array('password'=>$picked['new_hash']));
+			  }
+			  return $picked['row'];
 			}else{ 
 			  return false;
 			}	
@@ -750,7 +752,8 @@
 				$save_data['mobile'] = $this->input->post('mobile');
 				//$save_data['position'] = $this->input->post('position');
 				$save_data['email'] = $this->input->post('email');
-				$save_data['password'] = $this->input->post('password');
+				$this->load->helper('user_password');
+				$save_data['password'] = user_password_hash($this->input->post('password'));
 				$save_data['status'] = 'Inactive';
 				$save_data['date'] = date('Y-m-d H:i:s');
 				$this->db->insert('users' , $save_data); 
@@ -838,18 +841,18 @@
 		
 		function register_user(){
 			$exist = $this->db->get_where('users', array('email'=>$this->input->post('email')))->num_rows();
+			// An email that is already registered is never touched (it used to be overwritten).
+			if($exist > 0){
+				return 'already_exist';
+			}
+			$this->load->helper('user_password');
 		    $save_data['firstname'] = $this->input->post('name');
 		    $save_data['email'] = $this->input->post('email');
-		    $save_data['password'] = $this->input->post('password');
+		    $save_data['password'] = user_password_hash($this->input->post('password'));
 		    $save_data['status'] = 'Active';
 		    $save_data['date'] = date('Y-m-d H:i:s');
-			
-			if($exist == 0){
-				$this->db->insert('users' , $save_data); 
-			}else{
-				$this->db->where('email' , $this->input->post('email'));
-				$this->db->update('users' , $save_data); 
-			}
+			$this->db->insert('users' , $save_data); 
+			return 'success';
 		}
 		
 		function blog_publish_unpublish($id){

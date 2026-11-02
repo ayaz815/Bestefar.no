@@ -86,7 +86,11 @@
 		}
 		
 		public function register_user(){
-			$this->Admin_model->register_user();
+			$result = $this->Admin_model->register_user();
+			if($result == 'already_exist'){
+				$this->session->set_flashdata('msg_error', 'This email is already registered. Please log in instead.');
+				redirect('home', 'refresh');
+			}
 			$this->session->set_flashdata('msg_success', ' You can register successfully '.$this->session->userdata('name')) ;
 			redirect('home', 'refresh');
 		}
