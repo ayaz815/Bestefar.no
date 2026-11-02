@@ -25,12 +25,14 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 
 ## Modules
 
-### [~] Module 0. Security first (started 2 Nov 2026)
-- [ ] Back up the `bestefar_no` database
-- [ ] Hash passwords with `password_hash`, converting each customer on their next login (no resets)
-- [ ] Stop `register_user()` overwriting the password of an existing email
-- [ ] Tests: old and converted passwords both log in; registering an existing email changes nothing
-- [ ] PR, upload list, CHANGELOG
+### [~] Module 0. Security first (started 2 Nov 2026) - code done, waiting on backup, upload and PR
+- [ ] Back up the live `bestefar_no` database (must be done by the user in one.com phpMyAdmin BEFORE uploading)
+- [x] Hash passwords with `password_hash`, converting each customer on their next login (no resets) (2 Nov, `bedfe09`)
+- [x] Stop `register_user()` overwriting the password of an existing email (2 Nov, `bedfe09`)
+- [x] Tests: old and converted passwords both log in; registering an existing email changes nothing (`tests/password-hashing.test.js`, 12 tests)
+- [x] CHANGELOG
+- [ ] PR opened (branch `feature/password-hashing`), files uploaded, live login checked
+- [ ] Follow-ups: admin table passwords still plain text (column is varchar(55), needs widening); SMTP password is hard-coded in `Admin_model.php`
 
 ### [ ] Module 1. Data model (additive, old columns stay)
 - [ ] `users`: `client_type`, `plan`, `access_start`, `access_end`
