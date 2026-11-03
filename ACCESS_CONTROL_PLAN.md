@@ -71,15 +71,18 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - The 3 days start at the customer's first open, but only if payment is registered. Needs: a "payment registered" flag per customer/grant, and `access_end` set on first open (first-open time + 3 days). Affects Modules 1 and 2.
 - Remaining answers promised later the same day.
 
-## Waiting on the client
-1. Still open: confirm the three tick types are AudioQuiz, ImageQuiz and ImageMusic, and where the simple paper quiz fits (crossword is out for now).
-2. ~~When do the 3 days start?~~ Answered: first open, only if payment is registered.
-3. What does a customer see when access has expired?
-4. Payment: registered by hand in the admin for now, online later?
-5. Can a test user see demo shows before approval?
-6. How do current customers (Demo, Extended, Extra, Paused) map to the new types?
-7. What should happen to the generator's Share links?
+- 3 Nov 2026, remaining answers:
+  - Expired access message (Norwegian): "Ditt abonnement har utgått. Vil du fornye det?" (Module 3, lock screen).
+  - Payment: registered by hand in the admin for now. Client wants an "in-between" payment provider soon (customers pay online, provider keeps a share, about 10%). Keep payment status behind one admin action so a provider can be plugged in later. Provider choice is a later module.
+  - Some shows must be open to every registered customer (even unapproved test users). Needs a per-show "open to all registered" tag next to the demo tag (Module 1, Mongo flag + generator switch; Module 2 rule).
+  - Existing customers (very few): client asks for a suggestion; the new system rules. Proposal to send, list them in admin and decide per person (no automatic bulk change; permission per row).
+  - Share links: client unsure what this means and says change everything as needed. Decision: links only work for allowed, logged-in customers. Generator Preview for the author stays working (Module 4).
+
+## Still open
+1. Confirm the three tick types are AudioQuiz, ImageQuiz and ImageMusic, and where the simple paper quiz fits.
+2. Approve the proposal for mapping the existing customers.
 
 ## Log
 - 2 Nov 2026: plan written, Module 0 started.
 - 2 Nov 2026: client answered Q1 (crossword postponed) and Q2 (3 days start at first open, payment must be registered). Q3 to Q7 pending.
+- 3 Nov 2026: client answered Q3 to Q7. Next: reply with the mapping proposal, then Module 1 (waits only on tick types).
