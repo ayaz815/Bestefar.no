@@ -8,7 +8,8 @@ $app = $argv[1];
 $action = $argv[2];
 $in = json_decode(file_get_contents('php://stdin'), true);
 
-function base_url($path = '') { return 'https://bestefar.no/' . $path; }
+$site = isset($in['base_url']) ? $in['base_url'] : 'https://bestefar.no/';
+function base_url($path = '') { global $site; return $site . $path; }
 
 class FakeQuery {
 	private $rows;

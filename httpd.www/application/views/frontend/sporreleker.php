@@ -104,9 +104,9 @@
 								     same ?show=<id> player loading. TekstQuiz has no player yet. -->
 								<?php
 									$player_urls = array(
-										'AudioQuiz'    => 'https://bestefar.no/bestefar-audio/index.html?screen=1&show=%s&autostart=1',
-										'BildeQuiz'    => 'https://bestefar.no/bestefar-image/index.html?show=%s',
-										'BilderMusikk' => 'https://bestefar.no/bestefar-imagemusic/index.html?show=%s',
+										'AudioQuiz'    => base_url().'bestefar-audio/index.html?screen=1&show=%s&autostart=1',
+										'BildeQuiz'    => base_url().'bestefar-image/index.html?show=%s',
+										'BilderMusikk' => base_url().'bestefar-imagemusic/index.html?show=%s',
 									);
 								?>
 								<?php if(isset($player_urls[$quiz['quiz_type']])){ ?>

@@ -123,6 +123,15 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [ ] Registration form redesign: NOT built. The plan says the client's version comes first and we have not received it.
 - [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
+### [ ] Module 6. Online test site `staging.bestefar.no` (asked by the user 4 Nov 2026)
+Same website and look, its own address and its own copy of the database, access control switched ON. Live customers and the live database are not touched.
+- [ ] Site picks its settings by address: on `staging.*` it runs as `testing` (`index.php`), elsewhere exactly as today.
+- [ ] `config/testing/`: own `base_url`, switch ON, own database (`database.php` kept out of git, example file committed).
+- [ ] Player links follow the site address (`base_url()`), so the test site opens its own players. Live output stays identical.
+- [ ] Upload package with the test `.htaccess` (pictures under `uploads/` are fetched from the live site instead of copying 1 GB).
+- [ ] You: create subdomain `staging` and a second database on one.com, import a copy of the live database, run the Module 1 SQL on it, upload the package.
+- Limits: shares the live backend (switched off there), so play keys, generator login and private media are not enforced on the test site. Emails sent from the test site (registration) are real emails.
+
 ## Deployment status (5 Nov 2026)
 - All code for Modules 0-5 is built and tested (registration form excepted, waiting for the client).
 - Upload package: `~/Per Olav Projects/_upload_2026-11-05_access_control/` with `DEPLOY.md` (order, checks, rollback, how to switch on).

@@ -42,3 +42,6 @@ httpd.www/application/config/development/
 
 # Play-key secret (access control Module 4). Upload by hand, never commit.
 httpd.www/application/config/access_secret.php
+
+# Online test site database credentials (Module 6). Upload by hand, never commit.
+httpd.www/application/config/testing/database.php

@@ -53,7 +53,9 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+	// The online test site (staging.bestefar.no) runs as 'testing' with config/testing/.
+	$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : (strpos($host, 'staging.') === 0 ? 'testing' : 'development'));
 
 /*
  *---------------------------------------------------------------

@@ -1,0 +1,11 @@
+# .htaccess for the online test site staging.bestefar.no (ACCESS_CONTROL_PLAN.md Module 6).
+# Same as the live one, plus: pictures under uploads/ that the test copy does not have
+# are loaded from the live site, so the 1 GB uploads folder does not need copying.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^uploads/(.*)$ https://bestefar.no/uploads/$1 [R=302,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+</IfModule>

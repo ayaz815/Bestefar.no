@@ -14,10 +14,11 @@ class Access_model extends CI_Model {
 		'BilderMusikk' => 'imagemusic',
 	);
 
+	// Player paths, relative to the site address (base_url), so a test site opens its own players.
 	const PLAYER_URLS = array(
-		'audio'      => 'https://bestefar.no/bestefar-audio/index.html?screen=1&show=%s&autostart=1',
-		'image'      => 'https://bestefar.no/bestefar-image/index.html?show=%s',
-		'imagemusic' => 'https://bestefar.no/bestefar-imagemusic/index.html?show=%s',
+		'audio'      => 'bestefar-audio/index.html?screen=1&show=%s&autostart=1',
+		'image'      => 'bestefar-image/index.html?show=%s',
+		'imagemusic' => 'bestefar-imagemusic/index.html?show=%s',
 	);
 
 	// Key-checked PDF route on the backend (see backend routes/playRoutes.js).
@@ -84,7 +85,7 @@ class Access_model extends CI_Model {
 	private function target_url($type, $quiz_id, $target, $user) {
 		$url = $target === 'pdf'
 			? sprintf(self::PDF_URL, $type, rawurlencode($quiz_id))
-			: sprintf(self::PLAYER_URLS[$type], rawurlencode($quiz_id));
+			: base_url() . sprintf(self::PLAYER_URLS[$type], rawurlencode($quiz_id));
 		$secret = $this->config->item('access_token_secret', 'access_secret');
 		if (!$this->enabled() || !$user) {
 			return $url;
