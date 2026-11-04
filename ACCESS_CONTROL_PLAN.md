@@ -123,13 +123,15 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [ ] Registration form redesign: NOT built. The plan says the client's version comes first and we have not received it.
 - [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
-### [ ] Module 6. Online test site `staging.bestefar.no` (asked by the user 4 Nov 2026)
+### [~] Module 6. Online test site `staging.bestefar.no` (asked by the user 4 Nov 2026)
 Same website and look, its own address and its own copy of the database, access control switched ON. Live customers and the live database are not touched.
-- [ ] Site picks its settings by address: on `staging.*` it runs as `testing` (`index.php`), elsewhere exactly as today.
-- [ ] `config/testing/`: own `base_url`, switch ON, own database (`database.php` kept out of git, example file committed).
-- [ ] Player links follow the site address (`base_url()`), so the test site opens its own players. Live output stays identical.
-- [ ] Upload package with the test `.htaccess` (pictures under `uploads/` are fetched from the live site instead of copying 1 GB).
+- [x] Site picks its settings by address: on `staging.*` it runs as `testing` (`index.php`), elsewhere exactly as today.
+- [x] `config/testing/`: own `base_url`, switch ON, own database (`database.php` kept out of git, example file committed).
+- [x] Player links follow the site address (`base_url()`), so the test site opens its own players. Live output stays identical.
+- [x] Upload package with the test `.htaccess` (pictures under `uploads/` are fetched from the live site instead of copying 1 GB).
 - [ ] You: create subdomain `staging` and a second database on one.com, import a copy of the live database, run the Module 1 SQL on it, upload the package.
+- [x] Tests: `tests/staging-site.test.js` (7; 4 fail on old code, the 2 regression ones pass). Whole suite 168/168. Checked on the local server with host `staging.bestefar.no`: login required, all links on staging, stops with a message when `database.php` is missing. Not checkable locally: the uploads rule (needs Apache) and one.com itself.
+- [x] Package: `~/Per Olav Projects/_staging_site_2026-11-04/` (`staging.bestefar.no/` + `HOW_TO.md`), built from committed files only.
 - Limits: shares the live backend (switched off there), so play keys, generator login and private media are not enforced on the test site. Emails sent from the test site (registration) are real emails.
 
 ## Deployment status (5 Nov 2026)
@@ -173,3 +175,4 @@ Same website and look, its own address and its own copy of the database, access 
 - 5 Nov 2026: Module 5 admin part done and tested. Registration form waits for the client's version.
 - 5 Nov 2026: all modules built and tested; deploy package prepared; backend deploy blocked by the permission check, waiting for the user.
 - 4 Nov 2026: backend `feature/private-media` deployed to EC2 and checked live (switches off). Next: website upload.
+- 4 Nov 2026: Module 6 test site built and tested (branch `feature/staging-site`); waiting for subdomain + test database on one.com.
