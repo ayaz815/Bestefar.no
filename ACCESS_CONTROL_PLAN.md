@@ -123,7 +123,7 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [ ] Registration form redesign: NOT built. The plan says the client's version comes first and we have not received it.
 - [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
-### [~] Module 6. Online test site `staging.bestefar.no` (asked by the user 4 Nov 2026)
+### [-] Module 6. (PARKED 4 Nov 2026: user chose not to set up the test site; code stays on branch `feature/staging-site`, not merged) Online test site `staging.bestefar.no` (asked by the user 4 Nov 2026)
 Same website and look, its own address and its own copy of the database, access control switched ON. Live customers and the live database are not touched.
 - [x] Site picks its settings by address: on `staging.*` it runs as `testing` (`index.php`), elsewhere exactly as today.
 - [x] `config/testing/`: own `base_url`, switch ON, own database (`database.php` kept out of git, example file committed).
@@ -176,3 +176,4 @@ Same website and look, its own address and its own copy of the database, access 
 - 5 Nov 2026: all modules built and tested; deploy package prepared; backend deploy blocked by the permission check, waiting for the user.
 - 4 Nov 2026: backend `feature/private-media` deployed to EC2 and checked live (switches off). Next: website upload.
 - 4 Nov 2026: Module 6 test site built and tested (branch `feature/staging-site`); waiting for subdomain + test database on one.com.
+- 4 Nov 2026: Module 6 parked at the user's request; testing stays on the Mac (localhost:8888).
