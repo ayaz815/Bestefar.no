@@ -34,13 +34,14 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - [ ] PR opened (branch `feature/password-hashing`), files uploaded, live login checked
 - [ ] Follow-ups: admin table passwords still plain text (column is varchar(55), needs widening); SMTP password is hard-coded in `Admin_model.php`
 
-### [~] Module 1. Data model (additive, old columns stay) - website SQL half done 4 Nov, backend half next
+### [~] Module 1. Data model (additive, old columns stay) - SQL and backend done 4 Nov, generator switch left
 - [x] `users`: `client_type`, `plan`, `payment_registered`, `access_start`, `access_end` (4 Nov)
 - [x] `users`: `allow_audio`, `allow_image`, `allow_imagemusic`, `allow_demo` (4 Nov)
 - [x] New table `user_show_grants` (user, quiz type, quiz id, days_valid, first_opened_at, expires_at) (4 Nov)
 - [x] SQL up + down scripts in `database/migrations/`, tested on a scratch DB (`tests/access-data-model.test.js`)
 - [ ] Run the up script on live (user, after backup)
-- [ ] Mongo: one `accessTier` field (restricted / registered / demo) on the four quiz models + endpoint + "Demo show" / "Open to all registered" switch in the generator (client Q5)
+- [x] Mongo: one `accessTier` field (restricted / registered / demo) on audio, image, image-music + `GET/PUT /api/access-tier/:type/:id` (4 Nov, backend branch `feature/access-tier`, 12 tests)
+- [ ] Generator switch "Demo show" / "Open to all registered" (frontend, not started)
 - [ ] PR
 
 ### [ ] Module 2. One rule in one place: `can_open(user, quiz)`
