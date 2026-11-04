@@ -44,12 +44,13 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - [ ] Generator switch "Demo show" / "Open to all registered" (frontend, not started)
 - [ ] PR
 
-### [ ] Module 2. One rule in one place: `can_open(user, quiz)`
-- [ ] Demo quiz needs `allow_demo`; Full opens everything; paid all-shows opens everything within dates
-- [ ] Paid AudioQuiz + simple opens those types only; per-show opens granted ids within the window
-- [ ] Test users open allowed types plus explicit grants; expired or unapproved are denied
-- [ ] Table-driven test of the whole matrix
-- [ ] Feature flag in `system_setting`, off by default
+### [x] Module 2. One rule in one place: `can_open(user, quiz)` (done 4 Nov, branch `feature/access-can-open`)
+- [x] `application/helpers/access_helper.php`: `access_can_open()` plus `access_grant_expiry()`. Pure functions, no database.
+- [x] Rules: registered-tier shows open to any logged-in customer (approved or not); demo needs `allow_demo`; full opens everything; paid needs payment registered and dates in range; audio+simple = AudioQuiz only; per-show = picked shows, 3 days counted from first open; test and old customers = ticked types or picked shows; unapproved or inactive denied.
+- [x] 33-case table test + switch-off regression + first-open and 3-day tests (`tests/access-can-open.test.js`)
+- [x] Switch: `application/config/access.php`, `access_control_enabled = FALSE` (changed from `system_setting`, which is a single row of Stripe keys, not key/value)
+- [ ] Reading grants from MySQL and saving `first_opened_at` / `expires_at` on first open: built in Module 3 where the rule is first used
+- Assumptions to confirm with the client: an unapproved customer can still open "open to all registered" shows; old customers with no type behave like test users with no ticks; a paid plan with no end date never expires.
 
 ### [ ] Module 3. Catalog
 - [ ] `/home/sporreleker` requires login
@@ -90,3 +91,4 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - 2 Nov 2026: client answered Q1 (crossword postponed) and Q2 (3 days start at first open, payment must be registered). Q3 to Q7 pending.
 - 3 Nov 2026: client answered Q3 to Q7. Next: reply with the mapping proposal, then Module 1 (waits only on tick types).
 - 4 Nov 2026: Module 1 SQL half done on branch `feature/access-data-model`.
+- 4 Nov 2026: Module 2 done (rule + tests, switch off).
