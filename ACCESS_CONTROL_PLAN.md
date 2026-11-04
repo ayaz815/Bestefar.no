@@ -68,12 +68,21 @@ Everything below only takes effect when `access_control_enabled` is TRUE. With i
 - [ ] Upload, then switch stays OFF until Module 4 and the customer mapping are done
 - Found: on the local server old session messages ("Wellcome ...") never clear. Pre-existing, not fixed (not in the plan); the catalog banner avoids session messages for that reason.
 
-### [ ] Module 4. Real enforcement (play tokens)
-- [ ] Website issues a short-lived signed token (user, quiz, expiry)
-- [ ] Backend checks it on quiz-read and PDF endpoints
-- [ ] Players pass the token on
-- [ ] Decide what happens to Share links and generator Preview
-- [ ] Backend token tests, deploy order (backend first, flag on last)
+### [~] Module 4. Real enforcement (play keys) - investigated 5 Nov 2026, waiting for a scope decision
+Decided: a key lasts 12 hours after pressing Start.
+
+Findings (checked against the live API, read-only):
+1. The ImageQuiz and ImageMusic players read shows through the same endpoints the generator uses to edit them (`image-quiz/get-image-quiz`, `image-music/get-image-music-show`). The generator has no login, so requiring a key there would break the generator.
+2. The generator also reads AudioQuiz shows through `forms/get-show`, which is open to anyone with an id.
+3. The public show lists (`forms/get-all` etc.) return every show's full content, including answers and the music/audio file links.
+4. Music, audio and image files are on S3 and open directly by link (no login).
+
+So keys on the player endpoints alone would NOT make shows exclusive. Proposed split:
+- [ ] 4a. Player keys: the website issues a signed 12-hour key in `open_quiz`; new player-only read endpoints check it; the three players use them. Generator endpoints untouched.
+- [ ] 4b. Public lists trimmed to what the catalog needs (name, count, info, date, tag); the generator gets its own full list behind 4c.
+- [ ] 4c. Generator login: the generator's read/save/delete endpoints require an admin login.
+- [ ] 4d. Media files: S3 files private, players get short-lived links through the play endpoint.
+- Each part ships behind a backend switch (`ACCESS_ENFORCE`, off by default) and is deployed + tested separately.
 
 ### [ ] Module 5. Admin Customers + registration form
 - [ ] Customers list and detail: type, plan, "Allow to open…" ticks, dates, grants
@@ -104,3 +113,5 @@ Everything below only takes effect when `access_control_enabled` is TRUE. With i
 - 4 Nov 2026: Module 2 done (rule + tests, switch off).
 - 4 Nov 2026: Module 3 started; sub-items written down before coding.
 - 4 Nov 2026: Module 3 built and tested (65/65, browser checked at phone width). Waiting on backend deploy OK and upload.
+
+- 5 Nov 2026: Module 4 investigated; key length 12 h agreed; found generator shares player endpoints, lists leak full content, media is public. Waiting for scope decision before coding.
