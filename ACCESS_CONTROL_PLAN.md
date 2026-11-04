@@ -103,7 +103,12 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
   - Tests: backend 48/48 (new route tests fail 3/13 on old code); generator 4/4; generator production build OK.
   - Browser: generator against a local stand-in backend: login box appears, wrong password shows an error, right one closes it, requests then carry the login and the show list loads.
   - Note: the generator folder's git remote points at the backend repo and it holds a lot of older uncommitted work, so these generator changes are left uncommitted (logged in the generator's CHANGELOG). They go live by building and uploading the generator.
-- [ ] 4d. Media files: S3 files private, players get short-lived links through the play endpoint.
+- [x] 4d. Private media (code built and tested 5 Nov; backend branch `feature/private-media`; not deployed)
+  - With `ACCESS_ENFORCE=true`, every link to `musicFiles/`, `audioFiles/`, `imageFiles/` in the S3 bucket goes out as a 12-hour signed link (players, generator reads, full lists). Saving strips the signature, so shows never store an expiring link.
+  - Players checked: video detection looks for `.mp4` etc. anywhere in the link, so signed links still work.
+  - PDFs only use logos stored on the server, not affected.
+  - Tests: backend 57/57 (real AWS signing with dummy keys, no network; wiring tests fail 2/9 on old code).
+  - [ ] Last step, by hand in AWS, only after the switch is on and players are checked: remove public read for those three folders in the bucket policy. Needs the current bucket policy to write the exact change (an explicit Deny would also block signed links, so it must be done by narrowing the public Allow).
 - Each part ships behind a backend switch (`ACCESS_ENFORCE`, off by default) and is deployed + tested separately.
 
 ### [ ] Module 5. Admin Customers + registration form
@@ -140,3 +145,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 5 Nov 2026: client chose the full Module 4 (4a-4d). 4a done and tested, not deployed.
 - 5 Nov 2026: 4b done and tested, not deployed. Next: 4c generator login.
 - 5 Nov 2026: 4c done and tested, not deployed. Next: 4d private media.
+- 5 Nov 2026: 4d code done and tested, not deployed. Next: Module 5.
