@@ -69,6 +69,7 @@
 											<th class="print_hide">Status</th>
 											<th class="print_hide">Action</th>
 											<th class="print_hide">Approved</th>
+											<?php if ($access_ready) { ?><th class="print_hide">Access</th><?php } ?>
 										</tr>
 										</thead>
 										<tbody>
@@ -113,6 +114,7 @@
 												        <option <?php if($data['approval_status'] == 1){?> selected <?php }?> value="1">Yes</option>
 												    </select>
 												</td>
+												<?php if ($access_ready) { ?><td><?= htmlspecialchars(Access_model::summary($data)) ?></td><?php } ?>
 											</tr>
 											<?php endforeach; ?>
 										</tbody>

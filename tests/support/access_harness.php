@@ -25,8 +25,14 @@ class FakeDb {
 			return true;
 		}));
 	}
+	public $inserts = array(), $deletes = array(), $ready = true;
 	function where($k, $v = null, $escape = true) { $this->where[] = $v === null ? $k : array($k => $v); return $this; }
+	function where_in($k, $values) { $this->where[] = array($k . ' IN' => array_values($values)); return $this; }
 	function update($table, $data) { $this->updates[] = array('table' => $table, 'where' => $this->where, 'data' => $data); $this->where = array(); return true; }
+	function delete($table) { $this->deletes[] = array('table' => $table, 'where' => $this->where); $this->where = array(); return true; }
+	function insert($table, $data) { $this->inserts[] = array('table' => $table, 'data' => $data); return true; }
+	function field_exists($field, $table) { return $this->ready; }
+	function table_exists($table) { return $this->ready; }
 }
 class FakeLoader {
 	function database() {}
@@ -69,11 +75,22 @@ if ($action === 'annotate') {
 } elseif ($action === 'open') {
 	$d = $model->open($in['type'], $in['id'], isset($in['target']) ? $in['target'] : 'player');
 	echo json_encode(array('decision' => $d, 'updates' => $db->updates));
+} elseif ($action === 'save_customer') {
+	$db->ready = !isset($in['ready']) || $in['ready'];
+	$ok = $model->save_customer_access($in['users_id'], $in['fields'], $in['remove'], $in['add_show'], $in['add_days']);
+	echo json_encode(array('ok' => $ok, 'updates' => $db->updates, 'deletes' => $db->deletes, 'inserts' => $db->inserts));
+} elseif ($action === 'fn') {
+	// Calls one access_helper / Access_model static function with JSON args.
+	require_once $app . '/helpers/access_helper.php';
+	$fn = $in['fn'];
+	echo json_encode(strpos($fn, '::') ? call_user_func_array(array('Access_model', substr($fn, 14)), $in['args']) : call_user_func_array($fn, $in['args']));
 } elseif ($action === 'refused') {
 	echo json_encode(array('message' => $model->refused_message($in['reason'])));
 } elseif ($action === 'render') {
 	// Renders the view the way CodeIgniter would ($this = controller with session).
 	$view = new class($session) { public $session; function __construct($s) { $this->session = $s; }
 		function render($file, $vars) { extract($vars); ob_start(); include $file; return ob_get_clean(); } };
-	echo json_encode(array('html' => $view->render(!empty($in['view']) ? $in['view'] : $app . '/views/frontend/sporreleker.php', $in['vars'])));
+	$vars = $in['vars'];
+	if (isset($vars['user'])) $vars['user'] = (object) $vars['user']; // admin views get the row as an object
+	echo json_encode(array('html' => $view->render(!empty($in['view']) ? (is_file($in['view']) ? $in['view'] : $app . '/' . $in['view']) : $app . '/views/frontend/sporreleker.php', $vars)));
 }

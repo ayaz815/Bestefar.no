@@ -180,6 +180,25 @@ foreach($user_shows as $us){
 								<div class="col-md-8"><?= date('d-m-Y', strtotime('+1 year', strtotime($user->membership_start_data)) ); ?> </div> 
 							</div>
 							<?php }?>
+							<?php
+								// Access control (Module 5): only once the Module 1 SQL has been run.
+								// Inside a view $this is the loader, so reach the model through the controller.
+								$CI =& get_instance();
+								$CI->load->model('Access_model');
+								if ($CI->Access_model->columns_ready()) {
+									$show_choices = array();
+									foreach ($this->Admin_model->get_quizzes_catalog() as $q) {
+										if (isset(Access_model::QUIZ_TYPES[$q['quiz_type']])) {
+											$show_choices[] = array('value' => Access_model::QUIZ_TYPES[$q['quiz_type']] . ':' . $q['external_id'], 'label' => $q['quiz_type'] . ' - ' . $q['name']);
+										}
+									}
+									$this->load->view('admin/modals/customer_access', array(
+										'user' => $user,
+										'grants' => $CI->Access_model->grants_for_customer($user->users_id),
+										'show_choices' => $show_choices,
+									));
+								}
+							?>
 							<div class="row row_div">
 								<div class="col-md-12"> <textarea name="notes"class="form-control" placeholder="Notes..."><?php echo $user->notes; ?></textarea></div> 
 							</div>

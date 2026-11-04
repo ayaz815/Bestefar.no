@@ -146,3 +146,50 @@ if (!function_exists('access_play_key')) {
 		return $part . '.' . $b64url(hash_hmac('sha256', $part, $secret, true));
 	}
 }
+
+// ── Admin "Customer access" form (Module 5) ───────────────────────────────────
+// Turns the posted access[...] fields into safe column values for `users`.
+// Anything unexpected becomes NULL / 0, never stored as typed.
+if (!function_exists('access_customer_fields')) {
+	function access_customer_fields($post) {
+		$post = is_array($post) ? $post : array();
+		$pick = function ($key, $allowed) use ($post) {
+			return (isset($post[$key]) && in_array($post[$key], $allowed, true)) ? $post[$key] : null;
+		};
+		$flag = function ($key) use ($post) {
+			return !empty($post[$key]) ? 1 : 0;
+		};
+		$date = function ($key, $time) use ($post) {
+			$d = isset($post[$key]) ? DateTime::createFromFormat('!Y-m-d', (string) $post[$key]) : false;
+			return ($d && $d->format('Y-m-d') === $post[$key]) ? $post[$key] . ' ' . $time : null;
+		};
+		return array(
+			'client_type'        => $pick('client_type', array('test', 'full', 'paid')),
+			'plan'               => $pick('plan', array('per_show', 'audio_simple', 'all_shows')),
+			'payment_registered' => $flag('payment_registered'),
+			'access_start'       => $date('access_start', '00:00:00'),
+			'access_end'         => $date('access_end', '23:59:59'),
+			'allow_audio'        => $flag('allow_audio'),
+			'allow_image'        => $flag('allow_image'),
+			'allow_imagemusic'   => $flag('allow_imagemusic'),
+			'allow_demo'         => $flag('allow_demo'),
+		);
+	}
+}
+
+// A show picked for one customer: "type:id" from the form, plus optional days
+// (birthday plan = 3, counted from first open; empty = no time limit).
+// Returns the user_show_grants row, or null if the input is not valid.
+if (!function_exists('access_new_grant')) {
+	function access_new_grant($users_id, $show, $days) {
+		$parts = explode(':', (string) $show, 2);
+		if (count($parts) !== 2 || !in_array($parts[0], array('audio', 'image', 'imagemusic'), true) || !preg_match('/^[a-f0-9]{24}$/i', $parts[1])) {
+			return null;
+		}
+		$days = (string) $days === '' ? null : (int) $days;
+		if ($days !== null && ($days < 1 || $days > 366)) {
+			return null;
+		}
+		return array('users_id' => (int) $users_id, 'quiz_type' => $parts[0], 'quiz_id' => $parts[1], 'days_valid' => $days);
+	}
+}

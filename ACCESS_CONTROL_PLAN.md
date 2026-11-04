@@ -111,10 +111,17 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
   - [ ] Last step, by hand in AWS, only after the switch is on and players are checked: remove public read for those three folders in the bucket policy. Needs the current bucket policy to write the exact change (an explicit Deny would also block signed links, so it must be done by narrowing the public Allow).
 - Each part ships behind a backend switch (`ACCESS_ENFORCE`, off by default) and is deployed + tested separately.
 
-### [ ] Module 5. Admin Customers + registration form
-- [ ] Customers list and detail: type, plan, "Allow to open…" ticks, dates, grants
-- [ ] Registration form redesign (client's version first)
-- [ ] Phone-width check, tests, PR
+### [~] Module 5. Admin Customers + registration form (admin part done 5 Nov 2026, branch `feature/access-admin-customers`)
+- [x] Customer details window: new "Customer access" section (`views/admin/modals/customer_access.php`): client type, plan, payment registered, access from/to, "Allow to open" ticks (AudioQuiz, BildeQuiz, BilderMusikk, Demo), picked shows with time left, add/remove picked shows. Saved by the existing Update button (`Admin::users('update_access')` -> `Access_model::save_customer_access`).
+- [x] Only appears once the Module 1 SQL has been run (`Access_model::columns_ready()`), so nothing breaks before that.
+- [x] Customer list: "Access" column ("Paid · All shows", "Paid · Per show · not paid", "... · Utgått", "Not set").
+- [x] Input is cleaned before saving (unknown values become empty); saving only touches that customer and that customer's picked shows.
+- [x] Tests: `tests/access-admin-customers.test.js` (13; fail 12/12 on old code). Whole suite 162/162.
+- [x] Checked on the local copy of the database: admin list shows the Access column; details window shows the section with 13 shows to pick; a save changed only that customer; the customer then saw only the picked show open; opening it started the 3-day clock (72 h).
+- Found and fixed while checking: the details window crashed (a model can't be loaded through `$this` inside a CodeIgniter view). Unit tests could not see this; the browser check did.
+- [ ] Not checked visually (screenshot) and not on one.com.
+- [ ] Registration form redesign: NOT built. The plan says the client's version comes first and we have not received it.
+- [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
 ## Client answers (2 Nov 2026)
 - Crosswords are postponed until the generator is fully working. No crossword access control for now.
@@ -146,3 +153,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 5 Nov 2026: 4b done and tested, not deployed. Next: 4c generator login.
 - 5 Nov 2026: 4c done and tested, not deployed. Next: 4d private media.
 - 5 Nov 2026: 4d code done and tested, not deployed. Next: Module 5.
+- 5 Nov 2026: Module 5 admin part done and tested. Registration form waits for the client's version.

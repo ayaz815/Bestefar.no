@@ -84,6 +84,14 @@ class Admin extends CI_Controller {
 		}
 		if($param1 == 'update_access'){
 			$response = $this->Admin_model->update_user_access();
+			$this->load->model('Access_model');
+			$this->Access_model->save_customer_access(
+				$this->input->post('users_id'),
+				$this->input->post('access'),
+				$this->input->post('grant_remove'),
+				$this->input->post('grant_add_show'),
+				$this->input->post('grant_add_days')
+			);
 			$this->session->set_flashdata('msg_success', ' Data Updated successfully ') ;
 			redirect(base_url().'admin/users', 'refresh');
 		}if($param1 == 'delete'){
@@ -97,6 +105,8 @@ class Admin extends CI_Controller {
 		}
 		
 		$data['users'] 	= $this->Admin_model->get_data_desc('users');
+		$this->load->model('Access_model');
+		$data['access_ready'] = $this->Access_model->columns_ready();
 		$data['page_title'] 	= 'Manage Users';
 		$data['page_sub_title'] = 'Update, Delete, And View All Users';
 		$data['page_name'] = 'users';

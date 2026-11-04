@@ -97,6 +97,57 @@ class Access_model extends CI_Model {
 		return $url . (strpos($url, '?') === false ? '?' : '&') . 'key=' . rawurlencode($key);
 	}
 
+	// ── Admin "Customer access" (Module 5) ───────────────────────────────────
+
+	// False until the Module 1 SQL has been run on this database.
+	public function columns_ready() {
+		return $this->db->field_exists('client_type', 'users') && $this->db->table_exists('user_show_grants');
+	}
+
+	public function grants_for_customer($users_id) {
+		return $this->grants_for((int) $users_id);
+	}
+
+	// Saves the access[...] fields and the picked-show changes for one customer.
+	// Only touches that customer's row and that customer's grants.
+	public function save_customer_access($users_id, $fields, $remove_grant_ids, $add_show, $add_days) {
+		$users_id = (int) $users_id;
+		if ($users_id < 1 || !$this->columns_ready()) {
+			return false;
+		}
+		$this->db->where('users_id', $users_id)->update('users', access_customer_fields($fields));
+
+		$remove = array_filter(array_map('intval', (array) $remove_grant_ids));
+		if ($remove) {
+			$this->db->where('users_id', $users_id)->where_in('grant_id', $remove)->delete('user_show_grants');
+		}
+
+		$grant = $add_show ? access_new_grant($users_id, $add_show, $add_days) : null;
+		if ($grant && !$this->db->get_where('user_show_grants', array('users_id' => $users_id, 'quiz_type' => $grant['quiz_type'], 'quiz_id' => $grant['quiz_id']))->row_array()) {
+			$this->db->insert('user_show_grants', $grant);
+		}
+		return true;
+	}
+
+	// One line for the customer list, e.g. "Paid · All shows" or "Paid · Utgått".
+	public static function summary($user) {
+		$types = array('test' => 'Test', 'full' => 'Full', 'paid' => 'Paid');
+		$plans = array('per_show' => 'Per show', 'audio_simple' => 'AudioQuiz + simple', 'all_shows' => 'All shows');
+		if (empty($user['client_type']) || !isset($types[$user['client_type']])) {
+			return 'Not set';
+		}
+		$text = $types[$user['client_type']];
+		if ($user['client_type'] === 'paid') {
+			$text .= ' · ' . (isset($plans[$user['plan']]) ? $plans[$user['plan']] : 'no plan');
+			if (empty($user['payment_registered'])) {
+				$text .= ' · not paid';
+			} elseif (!empty($user['access_end']) && strtotime($user['access_end']) < time()) {
+				$text .= ' · Utgått';
+			}
+		}
+		return $text;
+	}
+
 	// Text shown on a locked row / after a refused open.
 	public static function message_for($reason) {
 		switch ($reason) {
