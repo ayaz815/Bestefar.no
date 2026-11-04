@@ -123,6 +123,14 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [ ] Registration form redesign: NOT built. The plan says the client's version comes first and we have not received it.
 - [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
+## Deployment status (5 Nov 2026)
+- All code for Modules 0-5 is built and tested (registration form excepted, waiting for the client).
+- Upload package: `~/Per Olav Projects/_upload_2026-11-05_access_control/` with `DEPLOY.md` (order, checks, rollback, how to switch on).
+- [ ] Backend deploy to EC2: blocked by the permission check when I tried; run the command in `DEPLOY.md` step 1.
+- [ ] Website upload (24 files): AFTER the backend deploy (new players need the new backend).
+- [ ] Generator upload: see warning in `DEPLOY.md` step 4.
+- [ ] Switches on: `DEPLOY.md` step 6, after existing customers are given a type.
+
 ## Client answers (2 Nov 2026)
 - Crosswords are postponed until the generator is fully working. No crossword access control for now.
 - The 3 days start at the customer's first open, but only if payment is registered. Needs: a "payment registered" flag per customer/grant, and `access_end` set on first open (first-open time + 3 days). Affects Modules 1 and 2.
@@ -154,3 +162,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 5 Nov 2026: 4c done and tested, not deployed. Next: 4d private media.
 - 5 Nov 2026: 4d code done and tested, not deployed. Next: Module 5.
 - 5 Nov 2026: Module 5 admin part done and tested. Registration form waits for the client's version.
+- 5 Nov 2026: all modules built and tested; deploy package prepared; backend deploy blocked by the permission check, waiting for the user.
