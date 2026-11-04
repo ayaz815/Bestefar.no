@@ -111,7 +111,7 @@ test("every AudioQuiz screen loads the shared script that contains the fullscree
   assert.ok(screens.length >= 6, "expected index + all screen pages, got " + screens.join(", "));
   for (const f of screens) {
     const html = fs.readFileSync(path.join(audioRoot, f), "utf8");
-    assert.match(html, /<script[^>]+src="[^"]*script\.js"/, f + " does not load script.js");
+    assert.match(html, /<script[^>]+src="[^"]*script\.js(\?v=\d+)?"/, f + " does not load script.js");
   }
 });
 

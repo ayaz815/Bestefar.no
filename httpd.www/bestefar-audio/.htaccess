@@ -1,0 +1,8 @@
+# AudioQuiz player: always revalidate the pages and script with the server
+# (cheap 304 when unchanged). Without this the host sends no cache headers, so
+# browsers kept serving an OLD index.html/script.js for hours after an upload.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
