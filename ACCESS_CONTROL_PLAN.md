@@ -96,7 +96,13 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
   - Tests: backend 35/35 (no answers/links leak with the switch on, full content with it off; new tests fail 5/9 on old code); website 149/149 (new tests fail 4/4 on old code).
   - Checked: local catalog against the live API shows the same question counts and Music Types as bestefar.no today.
   - Not verified: the trimmed lists against the real backend (not deployed).
-- [ ] 4c. Generator login: the generator's read/save/delete endpoints require an admin login.
+- [x] 4c. Generator login (built and tested 5 Nov; backend branch `feature/generator-login` commit `520b036`; generator changes NOT committed, see note; nothing deployed)
+  - Decision: a separate generator login stored in the backend `.env` on EC2 (`ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` made with `node scripts/hash-admin-password.js`). The backend can't reach the website's MySQL (one.com only allows local connections), so it can't use the website admin login.
+  - Backend: `POST /api/admin/login` (7-day session, 5 wrong tries = 15 min lock), `GET /api/admin/preview-key/...`. With `ACCESS_ENFORCE=true` every create/edit/delete/upload/full-read route needs the login (29 routes, listed in `test/admin-login.test.js`); the catalog/player routes stay without login; public lists stay trimmed unless logged in.
+  - Generator: login box opens only when the backend answers 401 (so nothing changes while the switch is off); all calls send the login; uploads too; Share link gets a 12-hour key. Previews use the browser's local storage and need no key.
+  - Tests: backend 48/48 (new route tests fail 3/13 on old code); generator 4/4; generator production build OK.
+  - Browser: generator against a local stand-in backend: login box appears, wrong password shows an error, right one closes it, requests then carry the login and the show list loads.
+  - Note: the generator folder's git remote points at the backend repo and it holds a lot of older uncommitted work, so these generator changes are left uncommitted (logged in the generator's CHANGELOG). They go live by building and uploading the generator.
 - [ ] 4d. Media files: S3 files private, players get short-lived links through the play endpoint.
 - Each part ships behind a backend switch (`ACCESS_ENFORCE`, off by default) and is deployed + tested separately.
 
@@ -133,3 +139,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 5 Nov 2026: Module 4 investigated; key length 12 h agreed; found generator shares player endpoints, lists leak full content, media is public. Waiting for scope decision before coding.
 - 5 Nov 2026: client chose the full Module 4 (4a-4d). 4a done and tested, not deployed.
 - 5 Nov 2026: 4b done and tested, not deployed. Next: 4c generator login.
+- 5 Nov 2026: 4c done and tested, not deployed. Next: 4d private media.
