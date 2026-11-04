@@ -36,16 +36,19 @@ function initQuizCatalogInteractions(){
 				BildeQuiz: 'https://bestefar.no/bestefar-image/index.html?show={id}',
 				BilderMusikk: 'https://bestefar.no/bestefar-imagemusic/index.html?show={id}'
 			};
-			var playerUrl = playerUrls[row.dataset.category];
-			var pdfPath = QUIZ_PDF_PATH[row.dataset.category];
-			if(!playerUrl && !pdfPath){ return; }
+			// With access control on, the row says where Start goes (data-start-url)
+			// or that it is locked (data-locked + data-lock-message).
+			var locked = row.dataset.locked === '1';
+			var playerUrl = locked ? null : (row.dataset.startUrl || playerUrls[row.dataset.category]);
+			var pdfPath = locked ? null : QUIZ_PDF_PATH[row.dataset.category];
+			if(!playerUrl && !pdfPath && !locked){ return; }
 			var modal = document.getElementById('quizMobileModal');
 			if(!modal){ return; }
 			modal.querySelector('.qmm-name').textContent = row.dataset.name || '';
 			modal.querySelector('.qmm-date').textContent = row.dataset.date || '';
 			modal.querySelector('.qmm-category').textContent = row.dataset.category || '';
 			modal.querySelector('.qmm-count').textContent = row.dataset.count || '';
-			modal.querySelector('.qmm-info').textContent = row.dataset.info || '';
+			modal.querySelector('.qmm-info').textContent = locked ? row.dataset.lockMessage : (row.dataset.info || '');
 			// Music Type (Musikk/Talemåte/Lyd) only applies to AudioQuiz - the
 			// wrap span is hidden entirely for other categories instead of
 			// showing an empty " – " gap.

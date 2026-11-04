@@ -52,11 +52,21 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - [ ] Reading grants from MySQL and saving `first_opened_at` / `expires_at` on first open: built in Module 3 where the rule is first used
 - Assumptions to confirm with the client: an unapproved customer can still open "open to all registered" shows; old customers with no type behave like test users with no ticks; a paid plan with no end date never expires.
 
-### [ ] Module 3. Catalog
-- [ ] `/home/sporreleker` requires login
-- [ ] Rows shown, locked or hidden per `can_open`, clear "no access" message
-- [ ] Demo rows stay visible
-- [ ] Regression test: current demo behaviour unchanged; phone-width browser check
+### [~] Module 3. Catalog (built and tested 4 Nov 2026, branch `feature/access-catalog`) - waiting on backend deploy + upload
+Everything below only takes effect when `access_control_enabled` is TRUE. With it FALSE the catalog stays exactly as today.
+- [x] Backend: the three show lists include each show's `accessTier` (backend commit `04eb6f4`, 3 tests). **Not deployed yet** (deploy was blocked by the permission check; needs your OK)
+- [x] `models/Access_model.php`: loads the logged-in customer and their grants, calls `access_can_open()`, saves `first_opened_at` / `expires_at` on a grant's first open (never restarts a running clock)
+- [x] `/home/sporreleker` requires login (redirect to the login page)
+- [x] Each row: Start + PDF when allowed; lock icon + "Låst" when not (full message as tooltip and in the phone popup)
+- [x] Expired: lock + "Utgått"; banner "Ditt abonnement har utgått. Vil du fornye det?"
+- [x] Start goes through `home/open_quiz/<type>/<id>`: checks again, starts the 3-day clock, opens the player; refused -> back to the catalog with `?access=<reason>` banner
+- [x] "Open to all registered" and demo tags are used per row (from the backend lists)
+- [x] Crossword (TekstQuiz) rows left exactly as today (postponed)
+- [x] Tests: `tests/access-catalog.test.js` (17 tests: switch-off catalog matches main's HTML, open_quiz unchanged when off, row locking, messages, open_quiz, first-open saving, other customer's grant ignored). Fail on main's code (5 of 16 at the time), pass on the branch. Whole suite 65/65.
+- [x] Browser check (local copy of the database `bestefar_m3test` + 2 local test customers, switch on): logged out -> login page; test customer with AudioQuiz tick -> AudioQuiz open, other types locked; Start -> AudioQuiz player; image show refused -> banner; expired customer -> all rows "Utgått" + banner; phone width 388px popup shows the expired message and hides Start/Skriv ut; switch off + logged out -> catalog as today.
+- [ ] Not verified: real iPhone/Safari; live one.com server; demo/registered tags in the browser (needs the backend deploy)
+- [ ] Upload, then switch stays OFF until Module 4 and the customer mapping are done
+- Found: on the local server old session messages ("Wellcome ...") never clear. Pre-existing, not fixed (not in the plan); the catalog banner avoids session messages for that reason.
 
 ### [ ] Module 4. Real enforcement (play tokens)
 - [ ] Website issues a short-lived signed token (user, quiz, expiry)
@@ -92,3 +102,5 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - 3 Nov 2026: client answered Q3 to Q7. Next: reply with the mapping proposal, then Module 1 (waits only on tick types).
 - 4 Nov 2026: Module 1 SQL half done on branch `feature/access-data-model`.
 - 4 Nov 2026: Module 2 done (rule + tests, switch off).
+- 4 Nov 2026: Module 3 started; sub-items written down before coding.
+- 4 Nov 2026: Module 3 built and tested (65/65, browser checked at phone width). Waiting on backend deploy OK and upload.

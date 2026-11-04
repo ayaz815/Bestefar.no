@@ -59,6 +59,11 @@
 		// The "Spørreleker" catalog: every real quiz from api.bestefar.no,
 		// one sortable, filterable list.
 		public function sporreleker(){
+			$this->load->model('Access_model');
+			if($this->Access_model->enabled() && !$this->Access_model->is_logged_in()){
+				redirect('login', 'refresh');
+			}
+
 			$quiz_type = $this->input->get('type');
 			$sort      = $this->input->get('sort') ?: 'date';
 			$dir       = ($this->input->get('dir') == 'asc') ? 'asc' : 'desc';
@@ -66,7 +71,8 @@
 			$quizzes = $this->Admin_model->get_quizzes_catalog($quiz_type, $sort, $dir);
 
 			$data['system_setting'] = $this->Admin_model->get_row_id('system_setting', 1);
-			$data['quizzes']        = $quizzes;
+			$data['quizzes']        = $this->Access_model->annotate_catalog($quizzes);
+			$data['access_message'] = $this->Access_model->refused_message($this->input->get('access'));
 			$data['quiz_type']      = $quiz_type;
 			$data['sort']           = $sort;
 			$data['dir']            = $dir;
@@ -83,6 +89,20 @@
 			}
 
 			$this->load->view('frontend/index', $data);
+		}
+
+		// Start button target when access control is on: checks access again,
+		// starts a picked show's 3-day clock on first open, then opens the player.
+		public function open_quiz($type = '', $quiz_id = ''){
+			$this->load->model('Access_model');
+			$decision = $this->Access_model->open($type, rawurldecode($quiz_id));
+			if($decision['allowed']){
+				redirect($decision['player_url']);
+			}
+			if($decision['reason'] == 'login_required'){
+				redirect('login', 'refresh');
+			}
+			redirect('home/sporreleker?access=' . rawurlencode($decision['reason']));
 		}
 
     	public function blogs($param1 = '', $param2 = '') {

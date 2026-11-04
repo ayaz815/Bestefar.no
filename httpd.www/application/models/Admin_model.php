@@ -899,6 +899,11 @@
 			}));
 		}
 
+		// Who may open the show (see Access_model). Missing = restricted.
+		private function access_tier($show){
+			return !empty($show['accessTier']) ? $show['accessTier'] : 'restricted';
+		}
+
 		// AudioQuiz has no created/updated date on the API at all. So the
 		// catalog date is "the first time our app noticed this quiz exists" -
 		// stable once recorded, stored locally, never fabricated per request.
@@ -953,6 +958,7 @@
 					'date'           => $this->get_or_record_first_seen($show['id']),
 					'info'           => $info,
 					'music_type'     => $music_type,
+					'tier'           => $this->access_tier($show),
 				);
 			}, $shows);
 		}
@@ -968,6 +974,7 @@
 					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['quizForms']) ? count($show['quizForms']) : 0),
 					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
 					'info'           => '',
+					'tier'           => $this->access_tier($show),
 				);
 			}, $shows);
 		}
@@ -983,6 +990,7 @@
 					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['screens']) ? count($show['screens']) : 0),
 					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
 					'info'           => '',
+					'tier'           => $this->access_tier($show),
 				);
 			}, $shows);
 		}

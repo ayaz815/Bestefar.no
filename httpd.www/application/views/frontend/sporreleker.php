@@ -20,6 +20,10 @@
 		</div>
 	</div>
 
+<?php if(!empty($access_message)){ /* refused open_quiz, see Home::open_quiz */ ?>
+	<p class="quiz-access-message"><?php echo htmlspecialchars($access_message); ?></p>
+
+<?php } ?>
 	<!-- Mobile-only header: no filter (phones only ever see AudioQuiz, via the
 	     nav link's ?type=AudioQuiz), just the category name and count. Hidden
 	     on desktop/tablet by CSS, where the full header above is used instead. -->
@@ -58,8 +62,13 @@
 				<?php foreach($quizzes as $quiz){
 					$quiz_date_fmt = $quiz['date'] ? date('d.m.y', strtotime($quiz['date'])) : '-';
 					$quiz_info_text = !empty($quiz['info']) ? $quiz['info'] : 'Ingen info lagt inn for denne quizen ennå.';
+					// Only set when access control is switched on (Access_model::annotate_catalog).
+					$quiz_locked = isset($quiz['access']) && !$quiz['access']['allowed'];
+					$quiz_access_attrs = !isset($quiz['access']) ? '' : ($quiz_locked
+						? ' data-locked="1" data-lock-message="'.htmlspecialchars(Access_model::message_for($quiz['access']['reason'])).'"'
+						: ' data-start-url="'.htmlspecialchars($quiz['open_url']).'"');
 				?>
-					<tr class="quiz-row" data-id="<?php echo htmlspecialchars($quiz['external_id']); ?>" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>" data-musictype="<?php echo htmlspecialchars(!empty($quiz['music_type']) ? $quiz['music_type'] : ''); ?>">
+					<tr class="quiz-row" data-id="<?php echo htmlspecialchars($quiz['external_id']); ?>" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>" data-musictype="<?php echo htmlspecialchars(!empty($quiz['music_type']) ? $quiz['music_type'] : ''); ?>"<?php echo $quiz_access_attrs; ?>>
 						<td class="quiz-date"><?php echo $quiz_date_fmt; ?></td>
 						<td><?php echo htmlspecialchars($quiz['quiz_type']); ?></td>
 						<td><?php echo htmlspecialchars($quiz['name']); ?></td>
@@ -73,6 +82,12 @@
 								</button>
 								<!-- The client's own supplied document symbol (Symbol.png).
 								     PDFs exist for AudioQuiz, BildeQuiz and TekstQuiz (crossword). -->
+								<?php if($quiz_locked){ ?>
+								<span class="quiz-lock" title="<?php echo htmlspecialchars(Access_model::message_for($quiz['access']['reason'])); ?>">
+									<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3H9z"/></svg>
+									<span class="quiz-lock-text"><?php echo htmlspecialchars(Access_model::short_label_for($quiz['access']['reason'])); ?></span>
+								</span>
+								<?php }else{ ?>
 								<?php
 									$pdf_paths = array('AudioQuiz' => 'forms', 'BildeQuiz' => 'image-quiz', 'BilderMusikk' => 'image-music', 'TekstQuiz' => 'crossword');
 								?>
@@ -95,13 +110,14 @@
 									);
 								?>
 								<?php if(isset($player_urls[$quiz['quiz_type']])){ ?>
-								<a class="quiz-start" href="<?php echo htmlspecialchars(sprintf($player_urls[$quiz['quiz_type']], urlencode($quiz['external_id']))); ?>" target="_blank"" rel="noopener" title="Start quiz">
+								<a class="quiz-start" href="<?php echo htmlspecialchars(isset($quiz['open_url']) ? $quiz['open_url'] : sprintf($player_urls[$quiz['quiz_type']], urlencode($quiz['external_id']))); ?>" target="_blank"" rel="noopener" title="Start quiz">
 									<img src="<?php echo base_url('assets/frontend/images/playbutton.png'); ?>" alt="Start">
 								</a>
 								<?php }else{ ?>
 								<span class="quiz-start" title="Kommer snart">
 									<img src="<?php echo base_url('assets/frontend/images/playbutton.png'); ?>" alt="Start">
 								</span>
+								<?php } ?>
 								<?php } ?>
 							</span>
 						</td>
