@@ -89,7 +89,13 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
   - Not verified: real backend with enforcement on; ImageQuiz/ImageMusic players in a browser; iPhone/Safari.
   - Known gap until 4c: with enforcement on, the generator Preview for ImageQuiz/ImageMusic has no key. Enforcement stays off until 4c.
   - Deploy order when the time comes: backend first (new `/api/play` routes), then upload the players, then the website files, then switches on.
-- [ ] 4b. Public lists trimmed to what the catalog needs (name, count, info, date, tag); the generator gets its own full list behind 4c.
+- [x] 4b. Public lists trimmed (built and tested 5 Nov; backend branch `feature/trim-public-lists` commit `5fa1afd`, website branch `feature/access-play-keys`; nothing deployed or uploaded)
+  - Backend: with `ACCESS_ENFORCE=true` the four public lists (`forms/get-all`, `image-quiz/get-all-image-quizzes`, `image-music/get-all-image-music-shows`, `audio-quiz/get-all-audio-quizzes`) send only catalog fields: id, name, type, info, published, tag, question count, Music Type, dates. No questions, answers or file links. Switch off = unchanged.
+  - Why behind the switch: the generator's archive reads full content from these same lists. It moves to its own logged-in list in 4c.
+  - Website: catalog reads both shapes (`Admin_model::catalog_question_count`, `catalog_music_type`), shared by all three list readers.
+  - Tests: backend 35/35 (no answers/links leak with the switch on, full content with it off; new tests fail 5/9 on old code); website 149/149 (new tests fail 4/4 on old code).
+  - Checked: local catalog against the live API shows the same question counts and Music Types as bestefar.no today.
+  - Not verified: the trimmed lists against the real backend (not deployed).
 - [ ] 4c. Generator login: the generator's read/save/delete endpoints require an admin login.
 - [ ] 4d. Media files: S3 files private, players get short-lived links through the play endpoint.
 - Each part ships behind a backend switch (`ACCESS_ENFORCE`, off by default) and is deployed + tested separately.
@@ -126,3 +132,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 
 - 5 Nov 2026: Module 4 investigated; key length 12 h agreed; found generator shares player endpoints, lists leak full content, media is public. Waiting for scope decision before coding.
 - 5 Nov 2026: client chose the full Module 4 (4a-4d). 4a done and tested, not deployed.
+- 5 Nov 2026: 4b done and tested, not deployed. Next: 4c generator login.

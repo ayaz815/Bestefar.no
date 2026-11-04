@@ -899,6 +899,23 @@
 			}));
 		}
 
+		// The show lists come in two shapes: full (every screen included) or, once
+		// the backend's ACCESS_ENFORCE is on, trimmed to catalog fields with
+		// numberOfScreens / musicType instead of the screens themselves.
+		public static function catalog_question_count($show, $screens_key){
+			if(isset($show['numberOfScreens'])){
+				return (int) $show['numberOfScreens'];
+			}
+			return isset($show[$screens_key]) ? count($show[$screens_key]) : 0;
+		}
+
+		public static function catalog_music_type($show){
+			if(isset($show['musicType'])){
+				return trim($show['musicType']);
+			}
+			return isset($show['quizForms'][0]['firmNaming']) ? trim($show['quizForms'][0]['firmNaming']) : '';
+		}
+
 		// Who may open the show (see Access_model). Missing = restricted.
 		private function access_tier($show){
 			return !empty($show['accessTier']) ? $show['accessTier'] : 'restricted';
@@ -948,13 +965,13 @@
 					'Saying' => 'Talemåte',
 					'Sound'  => 'Lyd',
 				);
-				$raw_music_type = isset($show['quizForms'][0]['firmNaming']) ? trim($show['quizForms'][0]['firmNaming']) : '';
+				$raw_music_type = self::catalog_music_type($show);
 				$music_type = isset($firm_naming_labels[$raw_music_type]) ? $firm_naming_labels[$raw_music_type] : $raw_music_type;
 				return array(
 					'quiz_type'      => 'AudioQuiz',
 					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
-					'question_count' => isset($show['quizForms']) ? count($show['quizForms']) : 0,
+					'question_count' => self::catalog_question_count($show, 'quizForms'),
 					'date'           => $this->get_or_record_first_seen($show['id']),
 					'info'           => $info,
 					'music_type'     => $music_type,
@@ -971,7 +988,7 @@
 					'quiz_type'      => 'BildeQuiz',
 					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
-					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['quizForms']) ? count($show['quizForms']) : 0),
+					'question_count' => self::catalog_question_count($show, 'quizForms'),
 					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
 					'info'           => '',
 					'tier'           => $this->access_tier($show),
@@ -987,7 +1004,7 @@
 					'quiz_type'      => 'BilderMusikk',
 					'external_id'    => $show['id'],
 					'name'           => isset($show['quizName']) ? $show['quizName'] : '',
-					'question_count' => isset($show['numberOfScreens']) ? (int) $show['numberOfScreens'] : (isset($show['screens']) ? count($show['screens']) : 0),
+					'question_count' => self::catalog_question_count($show, 'screens'),
 					'date'           => isset($show['createdAt']) ? $show['createdAt'] : '',
 					'info'           => '',
 					'tier'           => $this->access_tier($show),
