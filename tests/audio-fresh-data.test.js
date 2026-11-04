@@ -24,7 +24,7 @@ function run({ path: p = "/bestefar-audio/index.html", search = "?show=abc", cac
     location: { search },
     localStorage: { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v) },
     fetch: async (url) => {
-      if (String(url).includes("get-audio-quiz")) {
+      if (String(url).includes("/api/play/audio/")) {
         fetched++;
         if (apiFails) throw new Error("offline");
         return { ok: true, json: async () => api };

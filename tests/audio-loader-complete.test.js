@@ -33,7 +33,7 @@ function run({ p = "/bestefar-audio/index.html", search = "?show=abc", href, cac
     localStorage: { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v) },
     fetch: async (url, opts) => {
       calls.push({ url: String(url), opts });
-      if (String(url).includes("get-audio-quiz")) {
+      if (String(url).includes("/api/play/audio/")) {
         if (apiFails) throw new Error("offline");
         if (apiHang) return new Promise((_, rej) => opts.signal.addEventListener("abort", () => rej(Object.assign(new Error("aborted"), { name: "AbortError" }))));
         return { ok: apiStatus === 200, status: apiStatus, json: async () => api };
@@ -45,7 +45,7 @@ function run({ p = "/bestefar-audio/index.html", search = "?show=abc", href, cac
   vm.runInContext(code + "\nthis.load = loadAudioQuizData; this.map = quizFormsArrayToScreenMap; this.has = hasScreenData;", sb);
   return { sb, store, calls, listeners, reloads: () => reloads, load: () => sb.load() };
 }
-const apiCalls = (r) => r.calls.filter((c) => c.url.includes("get-audio-quiz"));
+const apiCalls = (r) => r.calls.filter((c) => c.url.includes("/api/play/audio/"));
 const stale = { id: "abc", screen1: { musicName: "old" }, screen2: {}, screen3: {} };
 const fresh = { id: "abc", quizName: "Q", quizForms: forms(4, "new") };
 
@@ -83,7 +83,7 @@ test("API fetch bypasses the HTTP cache (no-store) and is abortable", async () =
   const c = apiCalls(r)[0];
   assert.strictEqual(c.opts.cache, "no-store");
   assert.ok(c.opts.signal);
-  assert.ok(c.url.endsWith("/get-audio-quiz/abc"));
+  assert.ok(c.url.endsWith("/api/play/audio/abc"));
 });
 
 // ── show-id parsing ───────────────────────────────────────────────────────

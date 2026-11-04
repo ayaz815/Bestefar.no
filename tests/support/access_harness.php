@@ -35,7 +35,8 @@ class FakeLoader {
 class FakeConfig {
 	public $enabled;
 	function load() {}
-	function item($key) { return $this->enabled; }
+	public $secret = '';
+	function item($key) { return $key === 'access_token_secret' ? $this->secret : $this->enabled; }
 }
 class FakeSession {
 	public $data;
@@ -49,6 +50,8 @@ class CI_Model {
 }
 
 $config = new FakeConfig(); $config->enabled = !empty($in['enabled']);
+$config->secret = isset($in['secret']) ? $in['secret'] : '';
+function log_message($level, $msg) { global $logged; $logged[] = $msg; }
 $session = new FakeSession(); $session->data = isset($in['session']) ? $in['session'] : array();
 $db = new FakeDb(isset($in['tables']) ? $in['tables'] : array());
 CI_Model::$deps = array('load' => new FakeLoader(), 'config' => $config, 'session' => $session, 'db' => $db);
@@ -64,7 +67,7 @@ $model = new TestAccess_model();
 if ($action === 'annotate') {
 	echo json_encode(array('quizzes' => $model->annotate_catalog($in['quizzes'])));
 } elseif ($action === 'open') {
-	$d = $model->open($in['type'], $in['id']);
+	$d = $model->open($in['type'], $in['id'], isset($in['target']) ? $in['target'] : 'player');
 	echo json_encode(array('decision' => $d, 'updates' => $db->updates));
 } elseif ($action === 'refused') {
 	echo json_encode(array('message' => $model->refused_message($in['reason'])));

@@ -78,7 +78,20 @@
     </div>
 
     <script>
-      const IQ_API_BASE = "https://api.bestefar.no/api/image-quiz";
+      // Key-checked read route (backend routes/playRoutes.js).
+      const IQ_PLAY_API = "https://api.bestefar.no/api/play/image";
+      // Play key from bestefar.no's Start button (access control, valid 12 h).
+      // Saved for this tab so later screens, whose URL has no key, still load
+      // the show. Empty when access control is off or for the generator Preview.
+      function playKeyQuery(showId) {
+        const storageKey = "iq_play_key:" + showId;
+        let key = new URLSearchParams(location.search).get("key") || "";
+        try {
+          if (key) sessionStorage.setItem(storageKey, key);
+          else key = sessionStorage.getItem(storageKey) || "";
+        } catch {}
+        return key ? "?key=" + encodeURIComponent(key) : "";
+      }
       const IQ_STORAGE_KEY = "iq_preview_json";
       const showId = new URLSearchParams(location.search).get("show");
 
@@ -164,7 +177,7 @@
 
         let data = null;
         try {
-          const r = await fetch(`${IQ_API_BASE}/get-image-quiz/${id}`);
+          const r = await fetch(`${IQ_PLAY_API}/${id}${playKeyQuery(id)}`);
           if (r.ok) data = await r.json();
         } catch {}
 

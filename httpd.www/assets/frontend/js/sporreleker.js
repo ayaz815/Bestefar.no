@@ -64,7 +64,7 @@ function initQuizCatalogInteractions(){
 			if(printBtn){
 				printBtn.style.display = pdfPath ? '' : 'none';
 				printBtn.onclick = pdfPath ? function(){
-					printQuizPdf(quizPdfUrl(row.dataset.category, quizId), row.dataset.name);
+					printQuizPdf(row.dataset.pdfUrl || quizPdfUrl(row.dataset.category, quizId), row.dataset.name);
 				} : null;
 			}
 

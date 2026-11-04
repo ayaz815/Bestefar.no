@@ -78,7 +78,17 @@ Findings (checked against the live API, read-only):
 4. Music, audio and image files are on S3 and open directly by link (no login).
 
 So keys on the player endpoints alone would NOT make shows exclusive. Proposed split:
-- [ ] 4a. Player keys: the website issues a signed 12-hour key in `open_quiz`; new player-only read endpoints check it; the three players use them. Generator endpoints untouched.
+- [x] 4a. Player keys (built and tested 5 Nov; website branch `feature/access-play-keys`, backend branch `feature/play-keys` commit `2726e2b`; nothing deployed or uploaded)
+  - Website: `open_quiz` adds a 12-hour signed key to the player link; PDF buttons go through `open_quiz?pdf=1` -> backend `/api/play/<type>/<id>/pdf`. No key while the switch is off.
+  - Secret: `application/config/access_secret.php` (gitignored, example file committed) must match `ACCESS_TOKEN_SECRET` in the backend `.env`.
+  - Backend: `/api/play/<type>/<id>` and `/pdf` for players and PDFs; those plus `audio-quiz/get-audio-quiz` and the three old `/pdf/:id` routes need a key once `ACCESS_ENFORCE=true`. Off by default.
+  - Players (AudioQuiz, ImageQuiz index + dynamicQuiz, ImageMusic) read from `/api/play/...` and send the key; it is kept per tab so later screens load too. AudioQuiz script version bumped to `v=20261105`.
+  - Branch merged `feature/audio-single-page` first (the live AudioQuiz is that code), so these player files build on what is live.
+  - Tests: backend 26/26 (key check, switch, which routes are guarded, generator routes untouched); website 145/145 (keys in links, PHP key accepted by the backend check, player key handling; new player tests fail on the old files 14/14).
+  - Browser (local test server with fake API): AudioQuiz title screen and the first question screen both load the show with the key.
+  - Not verified: real backend with enforcement on; ImageQuiz/ImageMusic players in a browser; iPhone/Safari.
+  - Known gap until 4c: with enforcement on, the generator Preview for ImageQuiz/ImageMusic has no key. Enforcement stays off until 4c.
+  - Deploy order when the time comes: backend first (new `/api/play` routes), then upload the players, then the website files, then switches on.
 - [ ] 4b. Public lists trimmed to what the catalog needs (name, count, info, date, tag); the generator gets its own full list behind 4c.
 - [ ] 4c. Generator login: the generator's read/save/delete endpoints require an admin login.
 - [ ] 4d. Media files: S3 files private, players get short-lived links through the play endpoint.
@@ -115,3 +125,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 4 Nov 2026: Module 3 built and tested (65/65, browser checked at phone width). Waiting on backend deploy OK and upload.
 
 - 5 Nov 2026: Module 4 investigated; key length 12 h agreed; found generator shares player endpoints, lists leak full content, media is public. Waiting for scope decision before coding.
+- 5 Nov 2026: client chose the full Module 4 (4a-4d). 4a done and tested, not deployed.

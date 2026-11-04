@@ -58,7 +58,21 @@ setupAutoFullscreen();
 // That conversion happens once, here, so nothing downstream needs to
 // change.
 const AQ_STORAGE_KEY = "aq_preview_json";
-const AQ_API_BASE = "https://api.bestefar.no/api/audio-quiz";
+// Key-checked read route (backend routes/playRoutes.js).
+const AQ_PLAY_API = "https://api.bestefar.no/api/play/audio";
+
+// Play key from bestefar.no's Start button (access control, valid 12 h).
+// Saved for this tab so later screens, whose URL has no key, still load
+// the show. Empty when access control is off or for the generator Preview.
+function playKeyQuery(showId) {
+  const storageKey = "aq_play_key:" + showId;
+  let key = new URLSearchParams(location.search).get("key") || "";
+  try {
+    if (key) sessionStorage.setItem(storageKey, key);
+    else key = sessionStorage.getItem(storageKey) || "";
+  } catch {}
+  return key ? "?key=" + encodeURIComponent(key) : "";
+}
 
 // ── Always enter through the title screen ──────────────────────────────
 // A shared link is only ever supposed to point at index.html (the title
@@ -235,7 +249,7 @@ function loadAudioQuizData() {
     if (!data && expectedId) {
       try {
         const r = await fetchWithTimeout(
-          `${AQ_API_BASE}/get-audio-quiz/${expectedId}`
+          `${AQ_PLAY_API}/${expectedId}${playKeyQuery(expectedId)}`
         );
         if (!r.ok) window._aqErr = "API HTTP " + r.status;
         if (r.ok) {

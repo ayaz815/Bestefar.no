@@ -91,13 +91,15 @@
 			$this->load->view('frontend/index', $data);
 		}
 
-		// Start button target when access control is on: checks access again,
-		// starts a picked show's 3-day clock on first open, then opens the player.
+		// Start/PDF target when access control is on: checks access again, starts a
+		// picked show's 3-day clock on first open, then opens the player (or the PDF
+		// with ?pdf=1) with a 12-hour play key.
 		public function open_quiz($type = '', $quiz_id = ''){
 			$this->load->model('Access_model');
-			$decision = $this->Access_model->open($type, rawurldecode($quiz_id));
+			$target = $this->input->get('pdf') ? 'pdf' : 'player';
+			$decision = $this->Access_model->open($type, rawurldecode($quiz_id), $target);
 			if($decision['allowed']){
-				redirect($decision['player_url']);
+				redirect($decision['target_url']);
 			}
 			if($decision['reason'] == 'login_required'){
 				redirect('login', 'refresh');

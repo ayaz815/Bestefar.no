@@ -68,7 +68,7 @@ http.createServer(async (req, res) => {
     q.quizName = b.quizName; q.quizForms = b.quizForms;
     return send(res, 200, { success: true });
   }
-  m = p.match(/^\/api\/audio-quiz\/get-audio-quiz\/([^/]+)$/);
+  m = p.match(/^\/api\/play\/audio\/([^/]+)$/);
   if (m && req.method === "GET") {
     const q = quizzes.get(m[1]);
     return q ? send(res, 200, { id: q.id, quizName: q.quizName, quizForms: [...q.quizForms].sort((a, b) => a.page - b.page) }) : send(res, 404, { error: "not found" });
@@ -81,7 +81,7 @@ http.createServer(async (req, res) => {
   fs.readFile(file, (err, data) => {
     if (err) { res.writeHead(404); return res.end("404"); }
     if (file.endsWith(path.join("bestefar-audio", "data", "script.js"))) {
-      data = Buffer.from(data.toString().replace("https://api.bestefar.no/api/audio-quiz", `http://localhost:${port}/api/audio-quiz`));
+      data = Buffer.from(data.toString().replace("https://api.bestefar.no/api/play/audio", `http://localhost:${port}/api/play/audio`));
     }
     res.writeHead(200, { "content-type": types[path.extname(file)] || "application/octet-stream", "cache-control": "no-store" });
     res.end(data);

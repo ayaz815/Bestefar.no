@@ -66,7 +66,7 @@
 					$quiz_locked = isset($quiz['access']) && !$quiz['access']['allowed'];
 					$quiz_access_attrs = !isset($quiz['access']) ? '' : ($quiz_locked
 						? ' data-locked="1" data-lock-message="'.htmlspecialchars(Access_model::message_for($quiz['access']['reason'])).'"'
-						: ' data-start-url="'.htmlspecialchars($quiz['open_url']).'"');
+						: ' data-start-url="'.htmlspecialchars($quiz['open_url']).'" data-pdf-url="'.htmlspecialchars($quiz['open_url'].'?pdf=1').'"');
 				?>
 					<tr class="quiz-row" data-id="<?php echo htmlspecialchars($quiz['external_id']); ?>" data-name="<?php echo htmlspecialchars($quiz['name']); ?>" data-date="<?php echo htmlspecialchars($quiz_date_fmt); ?>" data-category="<?php echo htmlspecialchars($quiz['quiz_type']); ?>" data-count="<?php echo (int) $quiz['question_count']; ?>" data-info="<?php echo htmlspecialchars($quiz_info_text); ?>" data-musictype="<?php echo htmlspecialchars(!empty($quiz['music_type']) ? $quiz['music_type'] : ''); ?>"<?php echo $quiz_access_attrs; ?>>
 						<td class="quiz-date"><?php echo $quiz_date_fmt; ?></td>
@@ -92,7 +92,7 @@
 									$pdf_paths = array('AudioQuiz' => 'forms', 'BildeQuiz' => 'image-quiz', 'BilderMusikk' => 'image-music', 'TekstQuiz' => 'crossword');
 								?>
 								<?php if(isset($pdf_paths[$quiz['quiz_type']])){ ?>
-								<a class="quiz-pdf" href="https://api.bestefar.no/api/<?php echo $pdf_paths[$quiz['quiz_type']]; ?>/pdf/<?php echo urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Skriv ut quiz">
+								<a class="quiz-pdf" href="<?php echo isset($quiz['open_url']) ? htmlspecialchars($quiz['open_url'].'?pdf=1') : 'https://api.bestefar.no/api/'.$pdf_paths[$quiz['quiz_type']].'/pdf/'.urlencode($quiz['external_id']); ?>" target="_blank" rel="noopener" title="Skriv ut quiz">
 									<img src="<?php echo base_url('assets/frontend/images/quiz-pdf-icon.png'); ?>" alt="PDF">
 								</a>
 								<?php }else{ ?>

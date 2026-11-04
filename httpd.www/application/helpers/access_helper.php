@@ -131,3 +131,18 @@ if (!function_exists('access_grant_decision')) {
 		return access_decision(true, 'grant_active', $grant); // no time limit
 	}
 }
+
+// Signed play key the backend checks before sending a show or its PDF
+// (backend: utils/playKey.js, same format). Valid for $hours after Start.
+if (!function_exists('access_play_key')) {
+	function access_play_key($users_id, $type, $quiz_id, $now, $secret, $hours = 12) {
+		$b64url = function ($data) { return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); };
+		$part = $b64url(json_encode(array(
+			'u'   => (int) $users_id,
+			't'   => (string) $type,
+			'q'   => (string) $quiz_id,
+			'exp' => $now->getTimestamp() + $hours * 3600,
+		)));
+		return $part . '.' . $b64url(hash_hmac('sha256', $part, $secret, true));
+	}
+}

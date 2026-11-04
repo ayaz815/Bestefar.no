@@ -125,7 +125,7 @@ test("dynamicQuiz: maps raw API data itself when nothing is cached (was 'No ques
     fetch: async () => ({ ok: true, json: async () => quiz }),
     containerSingle: { querySelector: () => ({ set textContent(v) { qtext = v; } }) },
     singleContainer: { classList: { remove() {} } },
-    IQ_STORAGE_KEY: "iq_preview_json", IQ_API_BASE: "https://api/x",
+    IQ_STORAGE_KEY: "iq_preview_json", IQ_PLAY_API: "https://api/x", playKeyQuery: () => "",
     buildDrawerList() {}, preloadFirstQuestionMedia: async () => {}, showQuestion: (i) => { shown = i; },
   };
   vm.createContext(sandbox);

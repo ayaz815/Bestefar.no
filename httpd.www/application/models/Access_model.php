@@ -20,6 +20,11 @@ class Access_model extends CI_Model {
 		'imagemusic' => 'https://bestefar.no/bestefar-imagemusic/index.html?show=%s',
 	);
 
+	// Key-checked PDF route on the backend (see backend routes/playRoutes.js).
+	const PDF_URL = 'https://api.bestefar.no/api/play/%s/%s/pdf';
+
+	const PLAY_KEY_HOURS = 12;
+
 	private $api_base = 'https://api.bestefar.no/api';
 	private $user = false; // false = not loaded yet, null = not logged in
 
@@ -28,6 +33,7 @@ class Access_model extends CI_Model {
 		$this->load->database();
 		$this->load->helper('access');
 		$this->config->load('access', TRUE);
+		$this->config->load('access_secret', TRUE, TRUE); // optional file, kept out of git
 	}
 
 	public function enabled() {
@@ -57,8 +63,9 @@ class Access_model extends CI_Model {
 	}
 
 	// Checks one show right before it opens and starts a grant's clock on first open.
-	// Returns the decision, plus 'player_url' when allowed.
-	public function open($type, $quiz_id) {
+	// $target is 'player' or 'pdf'. Returns the decision, plus 'target_url' when
+	// allowed: the player or PDF link, carrying a 12-hour play key when the switch is on.
+	public function open($type, $quiz_id, $target = 'player') {
 		if (!isset(self::PLAYER_URLS[$type])) {
 			return access_decision(false, 'unknown_type');
 		}
@@ -69,9 +76,25 @@ class Access_model extends CI_Model {
 			$this->start_grant_clock($decision['grant']);
 		}
 		if ($decision['allowed']) {
-			$decision['player_url'] = sprintf(self::PLAYER_URLS[$type], rawurlencode($quiz_id));
+			$decision['target_url'] = $this->target_url($type, $quiz_id, $target, $user);
 		}
 		return $decision;
+	}
+
+	private function target_url($type, $quiz_id, $target, $user) {
+		$url = $target === 'pdf'
+			? sprintf(self::PDF_URL, $type, rawurlencode($quiz_id))
+			: sprintf(self::PLAYER_URLS[$type], rawurlencode($quiz_id));
+		$secret = $this->config->item('access_token_secret', 'access_secret');
+		if (!$this->enabled() || !$user) {
+			return $url;
+		}
+		if (!$secret) {
+			log_message('error', 'Access control is on but config/access_secret.php has no access_token_secret');
+			return $url;
+		}
+		$key = access_play_key($user['users_id'], $type, $quiz_id, new DateTime(), $secret, self::PLAY_KEY_HOURS);
+		return $url . (strpos($url, '?') === false ? '?' : '&') . 'key=' . rawurlencode($key);
 	}
 
 	// Text shown on a locked row / after a refused open.

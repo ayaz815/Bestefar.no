@@ -37,7 +37,7 @@ test("REGRESSION: switch off, the catalog HTML matches main's view (ignoring ind
 test("REGRESSION: switch off, open_quiz still opens the player for anyone", () => {
   const out = run("open", { enabled: false, type: "audio", id: "q1" });
   assert.strictEqual(out.decision.allowed, true);
-  assert.strictEqual(out.decision.player_url, "https://bestefar.no/bestefar-audio/index.html?screen=1&show=q1&autostart=1");
+  assert.strictEqual(out.decision.target_url, "https://bestefar.no/bestefar-audio/index.html?screen=1&show=q1&autostart=1");
   assert.deepStrictEqual(out.updates, []);
 });
 
@@ -56,7 +56,7 @@ test("switch on: tags from the API are used (registered and demo shows)", () => 
   assert.deepStrictEqual(out.map((q) => q.access.reason), ["open_to_registered", "not_approved"]);
 });
 
-test("allowed row: Start goes through open_quiz, PDF stays", () => {
+test("allowed row: Start goes through open_quiz, PDF button stays", () => {
   const html = render([{ ...quiz(), access: { allowed: true, reason: "type_allowed" }, open_url: "https://bestefar.no/home/open_quiz/audio/q1" }]);
   assert.match(html, /class="quiz-start" href="https:\/\/bestefar\.no\/home\/open_quiz\/audio\/q1"/);
   assert.match(html, /class="quiz-pdf" href=/);
@@ -103,7 +103,7 @@ test("open: unknown type (e.g. crossword) is refused", () => {
 test("open: the show's tag from the API is used", () => {
   const out = run("open", { ...loggedIn(customer({ approval_status: 0 })), tier: "registered", type: "image", id: "i1" });
   assert.strictEqual(out.decision.allowed, true);
-  assert.strictEqual(out.decision.player_url, "https://bestefar.no/bestefar-image/index.html?show=i1");
+  assert.strictEqual(out.decision.target_url, "https://bestefar.no/bestefar-image/index.html?show=i1");
 });
 
 test("open: birthday show's first open saves first_opened_at and expires_at = +3 days, only if not started", () => {
@@ -130,6 +130,56 @@ test("open: another customer's grant does not count", () => {
   const grant = { grant_id: 9, users_id: 99, quiz_type: "audio", quiz_id: "q1", days_valid: 3, first_opened_at: null, expires_at: null };
   const out = run("open", { ...loggedIn(user, [grant]), type: "audio", id: "q1" });
   assert.deepStrictEqual([out.decision.allowed, out.updates.length], [false, 0]);
+});
+
+// ── play keys (Module 4a) ─────────────────────────────────────────────────────
+const SECRET = "test-secret";
+const keyOf = (url) => decodeURIComponent((url.match(/[?&]key=([^&]+)/) || [])[1] || "");
+const payloadOf = (key) => JSON.parse(Buffer.from(key.split(".")[0], "base64url").toString());
+
+test("open with the switch on: player link carries a 12-hour key for this customer and show", () => {
+  const out = run("open", { ...loggedIn(customer({ allow_audio: 1 })), secret: SECRET, type: "audio", id: "q1" });
+  assert.match(out.decision.target_url, /^https:\/\/bestefar\.no\/bestefar-audio\/index\.html\?screen=1&show=q1&autostart=1&key=/);
+  const p = payloadOf(keyOf(out.decision.target_url));
+  assert.deepStrictEqual([p.u, p.t, p.q], [7, "audio", "q1"]);
+  const hours = (p.exp - Date.now() / 1000) / 3600;
+  assert.ok(hours > 11.9 && hours <= 12, `key lasts ${hours} h`);
+});
+
+test("open ?pdf=1: goes to the key-checked PDF route", () => {
+  const out = run("open", { ...loggedIn(customer({ allow_image: 1 })), secret: SECRET, type: "image", id: "i1", target: "pdf" });
+  assert.match(out.decision.target_url, /^https:\/\/api\.bestefar\.no\/api\/play\/image\/i1\/pdf\?key=/);
+});
+
+test("REGRESSION: switch off, no key is added (players and PDFs work as today)", () => {
+  const out = run("open", { enabled: false, secret: SECRET, type: "image", id: "i1" });
+  assert.strictEqual(out.decision.target_url, "https://bestefar.no/bestefar-image/index.html?show=i1");
+});
+
+test("switch on but no secret on the server: link without key (backend then refuses if enforcing)", () => {
+  const out = run("open", { ...loggedIn(customer({ allow_audio: 1 })), type: "audio", id: "q1" });
+  assert.strictEqual(keyOf(out.decision.target_url), "");
+});
+
+test("PHP keys pass the backend's own check (same format both sides)", (t) => {
+  const backendUtil = path.join(repo, "..", "backend", "utils", "playKey.js");
+  if (!fs.existsSync(backendUtil)) return t.skip("backend repo not next to this one");
+  const { verifyPlayKey } = require(backendUtil);
+  const out = run("open", { ...loggedIn(customer({ allow_audio: 1 })), secret: SECRET, type: "audio", id: "q1" });
+  const key = keyOf(out.decision.target_url);
+  assert.strictEqual(verifyPlayKey(key, { type: "audio", id: "q1", secret: SECRET }).ok, true);
+  assert.strictEqual(verifyPlayKey(key, { type: "audio", id: "q2", secret: SECRET }).reason, "wrong_show");
+  assert.strictEqual(verifyPlayKey(key, { type: "audio", id: "q1", secret: "wrong" }).reason, "bad_signature");
+});
+
+test("allowed row (switch on): PDF goes through open_quiz ?pdf=1", () => {
+  const html = render([{ ...quiz(), access: { allowed: true, reason: "type_allowed" }, open_url: "https://bestefar.no/home/open_quiz/audio/q1" }]);
+  assert.match(html, /class="quiz-pdf" href="https:\/\/bestefar\.no\/home\/open_quiz\/audio\/q1\?pdf=1"/);
+  assert.match(html, /data-pdf-url="https:\/\/bestefar\.no\/home\/open_quiz\/audio\/q1\?pdf=1"/);
+});
+
+test("the secret file is never committed", () => {
+  assert.match(fs.readFileSync(path.join(repo, ".gitignore"), "utf8"), /^httpd\.www\/application\/config\/access_secret\.php$/m);
 });
 
 // ── wiring ───────────────────────────────────────────────────────────────────
