@@ -34,12 +34,14 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - [ ] PR opened (branch `feature/password-hashing`), files uploaded, live login checked
 - [ ] Follow-ups: admin table passwords still plain text (column is varchar(55), needs widening); SMTP password is hard-coded in `Admin_model.php`
 
-### [ ] Module 1. Data model (additive, old columns stay)
-- [ ] `users`: `client_type`, `plan`, `access_start`, `access_end`
-- [ ] `users`: `allow_audio`, `allow_image`, `allow_imagemusic`, `allow_demo`
-- [ ] New table `user_show_grants` (user, quiz type, quiz id, start, expiry)
-- [ ] Mongo: `isDemo` on the four quiz models, "Demo show" switch in the generator
-- [ ] SQL migration script + rollback script, tests, PR
+### [~] Module 1. Data model (additive, old columns stay) - website SQL half done 4 Nov, backend half next
+- [x] `users`: `client_type`, `plan`, `payment_registered`, `access_start`, `access_end` (4 Nov)
+- [x] `users`: `allow_audio`, `allow_image`, `allow_imagemusic`, `allow_demo` (4 Nov)
+- [x] New table `user_show_grants` (user, quiz type, quiz id, days_valid, first_opened_at, expires_at) (4 Nov)
+- [x] SQL up + down scripts in `database/migrations/`, tested on a scratch DB (`tests/access-data-model.test.js`)
+- [ ] Run the up script on live (user, after backup)
+- [ ] Mongo: one `accessTier` field (restricted / registered / demo) on the four quiz models + endpoint + "Demo show" / "Open to all registered" switch in the generator (client Q5)
+- [ ] PR
 
 ### [ ] Module 2. One rule in one place: `can_open(user, quiz)`
 - [ ] Demo quiz needs `allow_demo`; Full opens everything; paid all-shows opens everything within dates
@@ -86,3 +88,4 @@ Plus: admin "Allow to open…" per show type, and one for "demo view" (shows tag
 - 2 Nov 2026: plan written, Module 0 started.
 - 2 Nov 2026: client answered Q1 (crossword postponed) and Q2 (3 days start at first open, payment must be registered). Q3 to Q7 pending.
 - 3 Nov 2026: client answered Q3 to Q7. Next: reply with the mapping proposal, then Module 1 (waits only on tick types).
+- 4 Nov 2026: Module 1 SQL half done on branch `feature/access-data-model`.
