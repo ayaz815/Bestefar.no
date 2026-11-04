@@ -116,7 +116,7 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [x] Only appears once the Module 1 SQL has been run (`Access_model::columns_ready()`), so nothing breaks before that.
 - [x] Customer list: "Access" column ("Paid · All shows", "Paid · Per show · not paid", "... · Utgått", "Not set").
 - [x] Input is cleaned before saving (unknown values become empty); saving only touches that customer and that customer's picked shows.
-- [x] Tests: `tests/access-admin-customers.test.js` (13; fail 12/12 on old code). Whole suite 162/162.
+- [x] Tests: `tests/access-admin-customers.test.js` (13; fail 12/12 on old code). Whole suite 161/161.
 - [x] Checked on the local copy of the database: admin list shows the Access column; details window shows the section with 13 shows to pick; a save changed only that customer; the customer then saw only the picked show open; opening it started the 3-day clock (72 h).
 - Found and fixed while checking: the details window crashed (a model can't be loaded through `$this` inside a CodeIgniter view). Unit tests could not see this; the browser check did.
 - [ ] Not checked visually (screenshot) and not on one.com.
