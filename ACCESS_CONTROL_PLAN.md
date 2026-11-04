@@ -126,7 +126,7 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 ## Deployment status (5 Nov 2026)
 - All code for Modules 0-5 is built and tested (registration form excepted, waiting for the client).
 - Upload package: `~/Per Olav Projects/_upload_2026-11-05_access_control/` with `DEPLOY.md` (order, checks, rollback, how to switch on).
-- [ ] Backend deploy to EC2: blocked by the permission check when I tried; run the command in `DEPLOY.md` step 1.
+- [x] Backend deploy to EC2: `feature/private-media` (`29ebc01`) live, pm2 restarted 4 Nov 2026. Checked: play, PDF, lists, access-tier, old audio route all 200; switches off (plain media links, no login asked).
 - [ ] Website upload (24 files): AFTER the backend deploy (new players need the new backend).
 - [ ] Generator upload: see warning in `DEPLOY.md` step 4.
 - [ ] Switches on: `DEPLOY.md` step 6, after existing customers are given a type.
@@ -163,3 +163,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 5 Nov 2026: 4d code done and tested, not deployed. Next: Module 5.
 - 5 Nov 2026: Module 5 admin part done and tested. Registration form waits for the client's version.
 - 5 Nov 2026: all modules built and tested; deploy package prepared; backend deploy blocked by the permission check, waiting for the user.
+- 4 Nov 2026: backend `feature/private-media` deployed to EC2 and checked live (switches off). Next: website upload.
