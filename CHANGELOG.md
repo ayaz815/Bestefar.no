@@ -6,9 +6,13 @@ Short, newest-first log of what's actually shipped in this repo, so a new sessio
 
 Hold these for one combined email once the current batch of fixes is done - don't send piecemeal.
 
+- **Admin profile picture (5 Nov 2026):** the admin top bar now shows the round Bf icon. Ask Per Olav if he wants his own picture or a different logo there, and for the original logo files.
+
 - **Music Type Norwegian labels (raised 14 Oct 2026):** the mobile popup now shows "Musikk" for Music-type quizzes (confirmed from the mockup). "Saying" and "Sound" are guessed as "Talemåte" and "Lyd" (`Admin_model.php`'s `$firm_naming_labels`) - please confirm or correct these.
 
 ## Changelog
+
+- **2026-11-05** — Admin header/tab: Bestefar logo, tab icon and profile icon instead of missing template images. (`f44c031`)
 
 - **2026-10-25** — BildeQuiz/BilderMusikk not working in Safari (Preview, share link, catalog). `dynamicQuiz.html` and `imageMusic.html` called `document.documentElement.requestFullscreen()` unguarded at page load - iPhone/older Safari don't have it, so it threw and the rest of the page script never ran; `dynamicQuiz.html` also needed `BroadcastChannel` (Safari < 15.4). Both are now feature-detected/wrapped (webkit-prefixed fallback kept). Tests: `tests/players-safari.test.js`. **Upload needed**: `bestefar-image/data/screens/dynamicQuiz.html`, `bestefar-imagemusic/data/screens/imageMusic.html`.
 - **2026-10-25** — BildeQuiz/BilderMusikk quizzes not opening on phones (share-link/catalog "Start Quiz"). The opening screens waited for ALL media to preload ("Om verdensrommet" = 266 MB) and phones never fire the preload events, so Start never enabled. `bestefar-image/index.html` now waits only for the first question (5s cap); `bestefar-imagemusic/index.html` keeps full preload but capped at 10s; `bestefar-image/data/screens/dynamicQuiz.html` maps the raw API data itself when nothing is cached (was "No questions found"). Tests: `node --test tests/`. **Upload needed**: those 3 files.
