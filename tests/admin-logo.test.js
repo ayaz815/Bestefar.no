@@ -26,3 +26,8 @@ test("uploaded admin logo is capped to the top bar height and width on every scr
   assert.match(css, /@media \(max-width:991px\)\{[^}]*max-width:calc\(100% - 120px\)\}/, "leaves room for the phone menu buttons");
   assert.ok(css.indexOf("max-height:36px") > css.indexOf("css/style.css"), "must come after the theme's style.css to win");
 });
+
+test("admin top.php has no hidden BOM character (it pushed the whole admin 21px down)", () => {
+  const bytes = fs.readFileSync(path.join(theme, "top.php"));
+  assert.notDeepStrictEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
+});
