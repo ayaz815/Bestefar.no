@@ -5,7 +5,7 @@
     <meta name="keywords" content="Admin , Responsive, Landing, Bootstrap, App, Template, Mobile, iOS, Android, apple, creative app">
     <meta name="author" content="#">
     <!-- Favicon icon -->
-    <link rel="icon" href="<?php echo base_url(); ?>/assets/favicon.png" type="image/x-icon">
+    <link rel="icon" href="<?php echo base_url(); ?>assets/frontend/images/fevicon.png" type="image/png">
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
     <!-- Required Fremwork -->

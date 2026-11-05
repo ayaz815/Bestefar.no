@@ -6,7 +6,7 @@
                             <i class="feather icon-menu"></i>
                         </a>
                         <a href="">
-                            <img class="img-fluid" src="<?php echo base_url(); ?>uploads/admin/system_image.jpg" alt="Theme-Logo" />
+                            <img class="img-fluid" src="<?php echo base_url(); ?>assets/frontend/images/logo/Logo-1-300x82.jpg" alt="Bestefar.no" style="max-height:40px" />
                         </a>
                         <a class="mobile-options">
                             <i class="feather icon-more-horizontal"></i>
@@ -90,7 +90,7 @@
                             <li class="user-profile header-notification">
                                 <div class="dropdown-primary dropdown">
                                     <div class="dropdown-toggle" data-toggle="dropdown">
-                                        <img src="<?php echo base_url(); ?>uploads/admin/admin_<?php echo $this->session->userdata('admin_id'); ?>.jpg" class="img-radius" alt="User-Profile-Image">
+                                        <img src="<?php echo base_url(); ?>assets/frontend/images/fevicon.png" class="img-radius" alt="Bestefar.no">
                                         <span><?php echo $this->session->userdata('name'); ?></span>
                                         <i class="feather icon-chevron-down"></i>
                                     </div>
