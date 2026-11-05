@@ -12,6 +12,8 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
+- **2026-11-05** — Admin UI: feather icons visible (phone menu button), icofont icons via Font Awesome, 'Welcome' popup no longer repeats (CI flashdata + PHP 8 fix), correct page headings, visitors chart readable on phones. (`39a80bd`)
+
 - **2026-11-05** — Admin tab icon is now the Bestefar icon; the logo uploaded in System Setting always fits the top bar (desktop and phone). Header logo and profile picture come from admin Settings. (`f44c031`)
 
 - **2026-10-25** — BildeQuiz/BilderMusikk not working in Safari (Preview, share link, catalog). `dynamicQuiz.html` and `imageMusic.html` called `document.documentElement.requestFullscreen()` unguarded at page load - iPhone/older Safari don't have it, so it threw and the rest of the page script never ran; `dynamicQuiz.html` also needed `BroadcastChannel` (Safari < 15.4). Both are now feature-detected/wrapped (webkit-prefixed fallback kept). Tests: `tests/players-safari.test.js`. **Upload needed**: `bestefar-image/data/screens/dynamicQuiz.html`, `bestefar-imagemusic/data/screens/imageMusic.html`.
