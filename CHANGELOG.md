@@ -12,6 +12,8 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
+- **2026-11-05** — Admin UI: feather icons visible (phone menu button), icofont icons via Font Awesome, 'Welcome' popup no longer repeats (CI flashdata + PHP 8 fix), correct page headings, visitors chart readable on phones. (`39a80bd`)
+
 - **2026-11-05** — Admin tab icon is now the Bestefar icon; the logo uploaded in System Setting always fits the top bar (desktop and phone). Header logo and profile picture come from admin Settings. (`f44c031`)
 - 2026-11-05 (branch `feature/access-admin-customers`, not live) Access-control Module 5 (admin): "Customer access" section in the customer details window and an Access column in the customer list. Upload: `application/views/admin/modals/customer_access.php` (new), `application/views/admin/modals/user_details.php`, `application/views/admin/users.php`, `application/controllers/Admin.php`, plus `application/models/Access_model.php` and `application/helpers/access_helper.php`.
 - 2026-11-05 (branch `feature/access-play-keys`, not live) Access-control Module 4b: catalog reads question count and Music Type from either list shape, so it keeps working when the backend trims the public lists. Upload with Module 4: `application/models/Admin_model.php`.
