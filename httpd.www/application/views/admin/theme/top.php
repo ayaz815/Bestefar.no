@@ -36,7 +36,8 @@
     <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/admin/assets/css/jquery.mCustomScrollbar.css">
     <style>
         /* Logo uploaded in System Setting: always fits the top bar, any size, any device. */
-        .header-navbar .navbar-logo > a:not(.mobile-menu):not(.mobile-options){display:flex;align-items:center;justify-content:center;height:100%;max-width:100%;overflow:hidden;margin:0 auto}
-        .header-navbar .navbar-logo > a img.img-fluid{max-height:36px;max-width:100%;width:auto;height:auto;object-fit:contain}
+        .header-navbar .navbar-logo > a:not(.mobile-menu):not(.mobile-options){display:flex;align-items:center;justify-content:center;height:100%;max-width:100%;margin:0 auto}
+        .header-navbar .navbar-logo > a img.img-fluid{max-height:40px;max-width:100%;width:auto;height:auto;object-fit:contain}
+        @media (min-width:992px){.header-navbar .navbar-logo > a:not(.mobile-menu):not(.mobile-options){justify-content:flex-start;margin:0;padding-left:12px}}
         @media (max-width:991px){.header-navbar .navbar-logo > a:not(.mobile-menu):not(.mobile-options){max-width:calc(100% - 120px)}}
     </style>
