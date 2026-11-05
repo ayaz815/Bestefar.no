@@ -19,3 +19,10 @@ test("REGRESSION: header logo and profile picture still come from the Settings u
   assert.match(html, /uploads\/admin\/system_image\.jpg/);
   assert.match(html, /uploads\/admin\/admin_<\?php echo \$this->session->userdata\('admin_id'\); \?>\.jpg/);
 });
+
+test("uploaded admin logo is capped to the top bar height and width on every screen size", () => {
+  const css = read("top.php");
+  assert.match(css, /\.navbar-logo > a img\.img-fluid\{max-height:36px;max-width:100%;width:auto;height:auto;object-fit:contain\}/);
+  assert.match(css, /@media \(max-width:991px\)\{[^}]*max-width:calc\(100% - 120px\)\}/, "leaves room for the phone menu buttons");
+  assert.ok(css.indexOf("max-height:36px") > css.indexOf("css/style.css"), "must come after the theme's style.css to win");
+});

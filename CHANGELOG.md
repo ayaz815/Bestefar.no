@@ -12,7 +12,7 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
-- **2026-11-05** — Admin tab icon is now the Bestefar icon (header logo and profile picture are uploaded in admin Settings instead). (`f44c031`)
+- **2026-11-05** — Admin tab icon is now the Bestefar icon; the logo uploaded in System Setting always fits the top bar (desktop and phone). Header logo and profile picture come from admin Settings. (`f44c031`)
 
 - **2026-10-25** — BildeQuiz/BilderMusikk not working in Safari (Preview, share link, catalog). `dynamicQuiz.html` and `imageMusic.html` called `document.documentElement.requestFullscreen()` unguarded at page load - iPhone/older Safari don't have it, so it threw and the rest of the page script never ran; `dynamicQuiz.html` also needed `BroadcastChannel` (Safari < 15.4). Both are now feature-detected/wrapped (webkit-prefixed fallback kept). Tests: `tests/players-safari.test.js`. **Upload needed**: `bestefar-image/data/screens/dynamicQuiz.html`, `bestefar-imagemusic/data/screens/imageMusic.html`.
 - **2026-10-25** — BildeQuiz/BilderMusikk quizzes not opening on phones (share-link/catalog "Start Quiz"). The opening screens waited for ALL media to preload ("Om verdensrommet" = 266 MB) and phones never fire the preload events, so Start never enabled. `bestefar-image/index.html` now waits only for the first question (5s cap); `bestefar-imagemusic/index.html` keeps full preload but capped at 10s; `bestefar-image/data/screens/dynamicQuiz.html` maps the raw API data itself when nothing is cached (was "No questions found"). Tests: `node --test tests/`. **Upload needed**: those 3 files.
