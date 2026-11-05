@@ -177,3 +177,4 @@ Same website and look, its own address and its own copy of the database, access 
 - 4 Nov 2026: backend `feature/private-media` deployed to EC2 and checked live (switches off). Next: website upload.
 - 4 Nov 2026: Module 6 test site built and tested (branch `feature/staging-site`); waiting for subdomain + test database on one.com.
 - 4 Nov 2026: Module 6 parked at the user's request; testing stays on the Mac (localhost:8888).
+- 5 Nov 2026: asked Per Olav for the layout of the admin customer page and the registration form. He needs more time (lecturing until Friday) and wants to design it step by step. Waiting; switches stay off.
