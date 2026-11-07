@@ -746,6 +746,7 @@
 				$save_data['postal2'] = $this->input->post('postal2');
 				$save_data['web'] = $this->input->post('web');
 				$save_data['projector'] = $this->input->post('projector');
+				$save_data['amplifier_speakers'] = $this->input->post('amplifier_speakers');
 				$save_data['fname'] = $this->input->post('fname');
 				$save_data['lname'] = $this->input->post('lname');
 				$save_data['phone'] = $this->input->post('phone');
@@ -796,7 +797,7 @@
                             <br>
                             Med vennlig hilsen
                             <br>
-                            <img src="https://bestefar.no/assets/frontend/images/logo/Logo-1.jpg" width="140px" height="40px"/>
+                            <img src="https://bestefar.no/assets/frontend/images/logo/logo_3000-300x101.png" width="140px" height="47px"/>
                             <br>
                             <a href="https://bestefar.no/">www.bestefar.no</a>';
                 

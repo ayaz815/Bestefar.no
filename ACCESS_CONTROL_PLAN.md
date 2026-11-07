@@ -120,7 +120,8 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [x] Checked on the local copy of the database: admin list shows the Access column; details window shows the section with 13 shows to pick; a save changed only that customer; the customer then saw only the picked show open; opening it started the 3-day clock (72 h).
 - Found and fixed while checking: the details window crashed (a model can't be loaded through `$this` inside a CodeIgniter view). Unit tests could not see this; the browser check did.
 - [ ] Not checked visually (screenshot) and not on one.com.
-- [ ] Registration form redesign: NOT built. The plan says the client's version comes first and we have not received it.
+- [x] Registration form: client's revised layout received 7 Nov 2026 and built (branch `feature/registration-form`): "Alle feltene må fylles ut" heading, new placeholders, new required Ja/Nei question "Vi har forsterker og høyttalere" (`users.amplifier_speakers`, shown in the admin details window), projector now required too. SQL: `database/migrations/2026-11-07_registration_amplifier_up.sql`, run BEFORE uploading the model. Tests: `tests/registration-form.test.js` (9; 7 fail on old code). Local browser check at 320-1200px and a real local submit passed. Not checked on one.com or a real phone.
+- [ ] Admin customer page layout: still waiting for the client.
 - [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
 ## Deployment status (5 Nov 2026)
@@ -164,3 +165,4 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - 5 Nov 2026: Module 5 admin part done and tested. Registration form waits for the client's version.
 - 5 Nov 2026: all modules built and tested; deploy package prepared; backend deploy blocked by the permission check, waiting for the user.
 - 4 Nov 2026: backend `feature/private-media` deployed to EC2 and checked live (switches off). Next: website upload.
+- 7 Nov 2026: client's registration form layout and high-resolution logo received. Form and logo built and tested on `feature/registration-form`, not live. Client follows up on the other questions.

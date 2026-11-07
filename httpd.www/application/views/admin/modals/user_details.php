@@ -54,6 +54,10 @@ foreach($user_shows as $us){
 								<div class="col-md-4"> <b>Projector : </b></div>
 								<div class="col-md-8"><?= $user->projector; ?> </div>
 							</div>
+							<div class="row row_div">
+								<div class="col-md-4"> <b>Amplifier and speakers : </b></div>
+								<div class="col-md-8"><?= $user->amplifier_speakers; ?> </div>
+							</div>
 							
 							<div class="row"> <div class="col-md-12"><br/> <h5><b>Contact Person</b></h5> </div> </div>
 							<div class="row row_div">

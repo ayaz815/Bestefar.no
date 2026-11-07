@@ -12,6 +12,25 @@
 	.form_c{
 		text-transform: capitalize;
 	}
+	.form_c::placeholder{
+		text-transform: none;
+	}
+	.register_title{
+		display: inline-block;
+		margin-right: 25px;
+	}
+	.register_radio_group{
+		display: inline-block;
+		margin-right: 25px;
+		white-space: nowrap;
+	}
+	@media only screen and (max-width: 480px) {
+		.register_radio_group{
+			display: block;
+			white-space: normal;
+			margin-bottom: 8px;
+		}
+	}
 	.mg_btm{
 		margin-bottom:15px;
 	}
@@ -92,7 +111,8 @@
 	<form method="POST" id="register_form" action="<?php echo base_url('login/register/create'); ?>"  enctype="multipart/form-data">
 	  <div class="row">
 		<div class="col-md-12">
-		  <h3  style="font-family: "><b>Registrering</b></h3>
+		  <h3 class="register_title" style="font-family: "><b>Registrering</b></h3>
+		  <span>Alle feltene må fylles ut</span>
 		</div>
 		
 	  </div>
@@ -101,7 +121,7 @@
 		  Institusjon/forening:
 		</div>
 		<div class="col-md-9">
-		 <input type="text" class="form-control form_c" name="institute" required>
+		 <input type="text" class="form-control form_c" name="institute" placeholder="Hvis du er privatperson, etternavn" required>
 		</div>
 	  </div>
 	  
@@ -110,7 +130,7 @@
 		  Gateadresse:
 		</div>
 		<div class="col-md-9">
-		 <input type="text" class="form-control form_c" name="address" required> 
+		 <input type="text" class="form-control form_c" name="address" placeholder="Må fylles inn" required> 
 		</div>
 	  </div>
 	  
@@ -131,20 +151,30 @@
 		  Web eller Facebook:
 		</div>
 		<div class="col-md-9">
-		 <input type="text" class="form-control form_c" name="web" placeholder="Velg enten eller. Bruk URL-adresse." required> 
+		 <input type="text" class="form-control form_c" name="web" placeholder="Velg Enten Eller. Bruk URL-Adresse." required> 
 		</div>
 	  </div>
 	  
 	  <div class="row mg_btm_p">
 		<div class="col-md-3 col-sm-4 col-xs-4 col-lg-3">
-		  Vi har projektor: 
+		  Vi har projektor:
 		</div>
 		<div class="col-md-9 col-sm-8 col-xs-8 col-lg-9">
-		<label for="c1"> Ja</label> 
-		  <input name="projector" value="Yes" type="radio" id="c1" style="-ms-transform: scale(1.5); transform: scale(1.3);margin: 0px 10px 0px 3px;"> 
-		
-		<label for="c2"> Nei</label> 
+		<span class="register_radio_group">
+		<label for="c1"> Ja</label>
+		  <input name="projector" value="Yes" type="radio" id="c1" style="-ms-transform: scale(1.5); transform: scale(1.3);margin: 0px 10px 0px 3px;" required>
+
+		<label for="c2"> Nei</label>
 		<input  name="projector" value="No" type="radio" id="c2" style="-ms-transform: scale(1.5); transform: scale(1.3);margin: 0px 10px 0px 3px;">
+		</span>
+		<span class="register_radio_group">
+		Vi har forsterker og høyttalere:
+		<label for="c3"> Ja</label>
+		  <input name="amplifier_speakers" value="Yes" type="radio" id="c3" style="-ms-transform: scale(1.5); transform: scale(1.3);margin: 0px 10px 0px 3px;" required>
+
+		<label for="c4"> Nei</label>
+		<input  name="amplifier_speakers" value="No" type="radio" id="c4" style="-ms-transform: scale(1.5); transform: scale(1.3);margin: 0px 10px 0px 3px;">
+		</span>
 		</div>
 	  </div>
 	  <!--
@@ -172,7 +202,7 @@
 		  Telefon(er):
 		</div>
 		<div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 width_50" style="padding-right: 10px !important;">
-		 <input type="text" placeholder="Institusjon/forening" class="form-control form_c" name="phone" required>
+		 <input type="text" placeholder="Institusjon/Forening" class="form-control form_c" name="phone" required>
 		</div>
 		<div class="col-lg-5 col-md-5 col-sm-6  col-xs-6 width_50" style="padding-left: 0px !important;">
 		 <input type="text" placeholder="Privat" class="form-control form_c" name="mobile" required>
@@ -197,7 +227,7 @@
 		 Epostadresse:
 		</div>
 		<div class="col-md-9">
-		 <input type="email" class="form-control" name="email" required> 
+		 <input type="email" class="form-control" name="email" placeholder="Må fylles inn" required> 
 		</div>
 	  </div>
 	  

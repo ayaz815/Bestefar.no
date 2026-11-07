@@ -87,7 +87,7 @@ body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: 
 				<div class="elementor-widget-container">
 			<style>/*! elementor - v3.18.0 - 08-12-2023 */
 .elementor-widget-image{text-align:center}.elementor-widget-image a{display:inline-block}.elementor-widget-image a img[src$=".svg"]{width:48px}.elementor-widget-image img{vertical-align:middle;display:inline-block}</style>													<a href="<?php echo base_url();?>home">
-							<img width="982" height="268" src="<?php echo base_url(); ?>assets/frontend/images/logo/Logo-1.jpg" class="attachment-large size-large wp-image-151" alt="" srcset="<?php echo base_url(); ?>assets/frontend/images/logo/Logo-1.jpg 982w, <?php echo base_url(); ?>assets/frontend/images/logo/Logo-1-300x82.jpg 300w, <?php echo base_url(); ?>assets/frontend/images/logo/Logo-1-768x210.jpg 768w" sizes="(max-width: 982px) 100vw, 982px" />								</a>
+							<img width="982" height="333" src="<?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-982x333.png" class="attachment-large size-large wp-image-151" alt="" srcset="<?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-982x333.png 982w, <?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-300x101.png 300w, <?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-768x260.png 768w" sizes="(max-width: 982px) 100vw, 982px" />								</a>
 															</div>
 				</div>
 					</div>
@@ -255,7 +255,7 @@ body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: 
 								<div class="elementor-element elementor-element-4c66180 elementor-widget elementor-widget-image" data-id="4c66180" data-element_type="widget" data-widget_type="image.default">
 				<div class="elementor-widget-container">
 																<a href="<?php echo base_url();?>home">
-							<img width="982" height="268" style="margin-left:3px" src="<?php echo base_url(); ?>assets/frontend/images/logo/Logo-1.jpg" class="attachment-large size-large wp-image-151" alt="" srcset="<?php echo base_url(); ?>assets/frontend/images/logo/Logo-1.jpg 982w, <?php echo base_url(); ?>assets/frontend/images/logo/Logo-1-300x82.jpg 300w, <?php echo base_url(); ?>assets/frontend/images/logo/Logo-1-768x210.jpg 768w" sizes="(max-width: 982px) 100vw, 982px" />								</a>
+							<img width="982" height="333" style="margin-left:3px" src="<?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-982x333.png" class="attachment-large size-large wp-image-151" alt="" srcset="<?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-982x333.png 982w, <?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-300x101.png 300w, <?php echo base_url(); ?>assets/frontend/images/logo/logo_3000-768x260.png 768w" sizes="(max-width: 982px) 100vw, 982px" />								</a>
 															</div>
 				</div>
 					</div>
