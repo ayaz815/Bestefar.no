@@ -10,6 +10,7 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
+- **2026-11-07** (branch `feature/registration-form`, not live) Client's revised registration form (new amplifier/speakers question, placeholders, all fields required) and new high-resolution logo in the site header and confirmation email. Run `database/migrations/2026-11-07_registration_amplifier_up.sql` first. (`94a94b2`)
 - 2026-11-05 (branch `feature/access-admin-customers`, not live) Access-control Module 5 (admin): "Customer access" section in the customer details window and an Access column in the customer list. Upload: `application/views/admin/modals/customer_access.php` (new), `application/views/admin/modals/user_details.php`, `application/views/admin/users.php`, `application/controllers/Admin.php`, plus `application/models/Access_model.php` and `application/helpers/access_helper.php`.
 - 2026-11-05 (branch `feature/access-play-keys`, not live) Access-control Module 4b: catalog reads question count and Music Type from either list shape, so it keeps working when the backend trims the public lists. Upload with Module 4: `application/models/Admin_model.php`.
 - 2026-11-05 (branch `feature/access-play-keys`, not live) Access-control Module 4a: 12-hour signed play keys in `open_quiz` links and PDF buttons; players read from the backend `/api/play/...` routes and send the key. Needs backend branch `feature/play-keys` deployed BEFORE the player files are uploaded.
