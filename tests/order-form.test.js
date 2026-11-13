@@ -158,8 +158,20 @@ test("SMTP settings live in config/email.php, which CodeIgniter applies on every
   assert.strictEqual(c.smtp_host, "mailout.one.com");
   assert.strictEqual(c.smtp_port, 587);
   assert.strictEqual(c.smtp_user, "support@bestefar.no");
+  assert.ok(typeof c.smtp_pass === "string");
   assert.strictEqual(c.mailtype, "html");
   assert.strictEqual(c.charset, "utf-8");
+});
+
+test("SMTP password is not in git: read from the gitignored email_secret.php", () => {
+  const cfg = read("config/email.php");
+  assert.match(cfg, /\$config\['smtp_pass'\]\s*=\s*'';/);
+  assert.match(cfg, /include __DIR__ \. '\/email_secret\.php';/);
+  assert.match(read("config/email_secret.example.php"), /\$config\['smtp_pass'\] = '';/);
+  assert.match(fs.readFileSync(path.join(repo, ".gitignore"), "utf8"), /^httpd\.www\/application\/config\/email_secret\.php$/m);
+  const tracked = execFileSync("git", ["ls-files", "httpd.www/application"], { cwd: repo, encoding: "utf8" });
+  assert.doesNotMatch(tracked, /email_secret\.php\n/, "email_secret.php must not be committed");
+  assert.doesNotMatch(read("models/Admin_model.php"), /smtp_pass/);
 });
 
 test("registration no longer loads the e-mail library twice (second load with the SMTP settings was skipped)", () => {
