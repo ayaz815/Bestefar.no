@@ -107,6 +107,36 @@
 			redirect('home/sporreleker?access=' . rawurlencode($decision['reason']));
 		}
 
+		// Order form "Bestilling" (Module 7): logged-in customers only, always.
+		// GET shows the form, POST saves the order, then redirect (no resubmit on reload).
+		public function bestilling($status = ''){
+			$this->load->model('Order_model');
+			$customer = $this->Order_model->current_customer();
+			if(!$customer){
+				redirect('login', 'refresh');
+			}
+
+			$data['show_choices'] = $this->Order_model->show_choices();
+			$data['errors'] = array();
+			if($this->input->method() === 'post'){
+				$result = $this->Order_model->table_ready()
+					? $this->Order_model->place($customer, $this->input->post(), $data['show_choices'])
+					: array('ok' => false, 'errors' => array('Bestilling er ikke tilgjengelig ennå. Prøv igjen senere.'));
+				if($result['ok']){
+					redirect('home/bestilling/sendt');
+				}
+				$data['errors'] = $result['errors'];
+			}
+
+			$data['customer']       = $customer;
+			$data['posted']         = $this->input->post() ?: array();
+			$data['sent']           = ($status === 'sendt');
+			$data['system_setting'] = $this->Admin_model->get_row_id('system_setting', 1);
+			$data['page_title']     = 'Bestilling';
+			$data['page_name']      = 'bestilling';
+			$this->load->view('frontend/index', $data);
+		}
+
     	public function blogs($param1 = '', $param2 = '') {
     	    $users_id = isset($_SESSION['users_id']) ? $_SESSION['users_id'] : null;
     	    $blog_ids = null;

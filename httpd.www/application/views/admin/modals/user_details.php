@@ -202,6 +202,11 @@ foreach($user_shows as $us){
 										'show_choices' => $show_choices,
 									));
 								}
+								// Order form (Module 7): only once the orders SQL has been run.
+								$CI->load->model('Order_model');
+								if ($CI->Order_model->table_ready()) {
+									$this->load->view('admin/modals/customer_orders', array('orders' => $CI->Order_model->for_customer($user->users_id)));
+								}
 							?>
 							<div class="row row_div">
 								<div class="col-md-12"> <textarea name="notes"class="form-control" placeholder="Notes..."><?php echo $user->notes; ?></textarea></div> 

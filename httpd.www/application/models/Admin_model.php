@@ -736,10 +736,31 @@
 			
 		}
 		
+		// Active addresses from the admin "Admin emails" page.
+		function admin_email_addresses(){
+			$rows = $this->db->select('email')->get_where('admin_emails', array('status' => '1'))->result_array();
+			return array_column($rows, 'email');
+		}
+
+		// Sends one HTML e-mail with the SMTP settings in config/email.php.
+		// A failed send is logged, never shown: the caller has already saved its data.
+		function send_site_email($to, $subject, $html){
+			$this->load->library('email');
+			$this->email->clear();
+			$this->email->from('support@bestefar.no', 'Bestefar.no');
+			$this->email->to($to);
+			$this->email->subject($subject);
+			$this->email->message($html);
+			if($this->email->send(FALSE)){
+				return TRUE;
+			}
+			log_message('error', 'E-mail "' . $subject . '" not sent: ' . $this->email->print_debugger(array('headers')));
+			return FALSE;
+		}
+
 		function add_new_user(){
 			$exist = $this->db->get_where('users', array('email'=>$this->input->post('email')))->num_rows();
 			if($exist == 0){
-			    $this->load->library('email');
 				$save_data['institute'] = $this->input->post('institute');
 				$save_data['address'] = $this->input->post('address');
 				$save_data['postal1'] = $this->input->post('postal1');
@@ -758,34 +779,8 @@
 				$save_data['status'] = 'Inactive';
 				$save_data['date'] = date('Y-m-d H:i:s');
 				$this->db->insert('users' , $save_data); 
-				$this->db->select();
-    			$this->db->from('admin_emails');
-    			$this->db->where("status","1");
-    			$admin_email_data = $this->db->get(); 
-    			$admin_email_data = $admin_email_data->result_array();
-    			
-    			$user_emails = [];
-    			
-    			foreach($admin_email_data as $data){
-    			    $user_emails[] = $data['email'];
-    			}
-    // 			$user_emails[] ='shaheryarbhatti881@gmail.com';
-				// $email_body = $this->load->view('frontend/registration_email', $save_data, TRUE);
-				$config = array(
-                    'protocol'  => 'smtp',
-                    'smtp_host' => 'mailout.one.com',
-                    'smtp_port' => 587,  // You can also use 465 for SSL/TLS
-                    'smtp_user' => 'support@bestefar.no', // Your email address
-                    'smtp_pass' => '024Kx%#waste',
-                    'smtp_crypto' => 'tls',  // For port 587 use 'tls', for port 465 use 'ssl'
-                    'mailtype'  => 'html',   // IMPORTANT: Ensure it's set to HTML
-                    'charset'   => 'utf-8',
-                    'wordwrap'  => TRUE
-                );
-        
-                $this->load->library('email', $config);
-                $this->email->set_newline("\r\n");
-                $message = 'Hei, og..
+
+				$message = 'Hei, og..
                 <br>
                             takk for registreringen din.
                             <br>
@@ -800,40 +795,16 @@
                             <img src="https://bestefar.no/assets/frontend/images/logo/logo_3000-300x101.png" width="140px" height="47px"/>
                             <br>
                             <a href="https://bestefar.no/">www.bestefar.no</a>';
-                
-                // Set email parameters
-                $this->email->from('support@bestefar.no', 'Bestefar.no');
-                // $this->email->to($user_emails);
-                $this->email->to($this->input->post('email'));
-                $this->email->set_header('Content-Type', 'text/html');
-                $this->email->subject('Bekreftelse på registrering');
-                $this->email->message($message);
-                
-                if ($this->email->send()) {
-                    // echo 'Email sent successfully';
-                } else {
-                    show_error($this->email->print_debugger());
-                }
-                if($user_emails){
-                    
-                    $email_body = 'Ny bruker er registrert på Bestefar.no<br><br><br>';
-                    $email_body .= '<strong>Institusjon/forening:</strong>  ' . htmlspecialchars($this->input->post('institute')) . '<br>'; 
-                    $email_body .= '<strong>Poststed:</strong>  ' . htmlspecialchars($this->input->post('postal1')) . ' ' . htmlspecialchars($this->input->post('postal2')) . '<br>';
-                    $email_body .= '<strong>Kontaktperson:</strong>  ' . htmlspecialchars($this->input->post('fname')) . ' ' . htmlspecialchars($this->input->post('lname')) . '<br>'; 
-                   
-                    // Set email parameters
-                    $this->email->from('support@bestefar.no', 'Bestefar.no');
-                    $this->email->to($user_emails);
-                    $this->email->set_header('Content-Type', 'text/html');
-                    $this->email->subject('NY REGISTRERING');
-                    $this->email->message($email_body);
+				$this->send_site_email($this->input->post('email'), 'Bekreftelse på registrering', $message);
 
-                    if ($this->email->send()) {
-                        // echo 'Email sent successfully';
-                    } else {
-                        show_error($this->email->print_debugger());
-                    } 
-                }
+				$user_emails = $this->admin_email_addresses();
+				if($user_emails){
+					$email_body = 'Ny bruker er registrert på Bestefar.no<br><br><br>';
+					$email_body .= '<strong>Institusjon/forening:</strong>  ' . htmlspecialchars($this->input->post('institute')) . '<br>'; 
+					$email_body .= '<strong>Poststed:</strong>  ' . htmlspecialchars($this->input->post('postal1')) . ' ' . htmlspecialchars($this->input->post('postal2')) . '<br>';
+					$email_body .= '<strong>Kontaktperson:</strong>  ' . htmlspecialchars($this->input->post('fname')) . ' ' . htmlspecialchars($this->input->post('lname')) . '<br>'; 
+					$this->send_site_email($user_emails, 'NY REGISTRERING', $email_body);
+				}
 				return 'success';
 			}else{
 				return 'already_exist'; 

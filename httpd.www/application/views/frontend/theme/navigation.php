@@ -24,7 +24,7 @@
 					</div>
 					<div class="dropdown-content">
 						<?php if(isset($_SESSION['users_id'])){ ?>
-						<a href="<?= base_url(); ?>login/logout_user">Logg ut</a>
+						<a href="<?= base_url(); ?>home/bestilling">Bestilling</a>|<a href="<?= base_url(); ?>login/logout_user">Logg ut</a>
 						<?php }else{ ?>
 						<a href="<?= base_url(); ?>login">Åpne</a>|<!--<span class="hide_mobile">|</span>--><a href="<?= base_url(); ?>login/signup">Registrere</a>
 						<?php } ?>
@@ -153,7 +153,7 @@
 					</div>
 					<div class="dropdown-content">
 						<?php if(isset($_SESSION['users_id'])){ ?>
-						<a href="<?= base_url(); ?>login/logout_user">Logg ut</a>
+						<a href="<?= base_url(); ?>home/bestilling">Bestilling</a>|<a href="<?= base_url(); ?>login/logout_user">Logg ut</a>
 						<?php }else{ ?>
 						<a href="<?= base_url(); ?>login">Åpne</a>|<!--<span class="hide_mobile">|</span>--><a href="<?= base_url(); ?>login/signup">Registrere</a>
 						<?php } ?>
