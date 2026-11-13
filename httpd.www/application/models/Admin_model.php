@@ -933,11 +933,11 @@
 				// question in the generator but kept consistent across a
 				// quiz in practice - page 1's value is used as the quiz's
 				// overall type for the mobile popup's meta line.
-				// Translation of "Saying"/"Sound" to Norwegian is a guess -
-				// flagged for the client to confirm/correct.
+				// Norwegian labels confirmed by the client (8 Nov 2026:
+				// "Saying" is "Stemme").
 				$firm_naming_labels = array(
 					'Music'  => 'Musikk',
-					'Saying' => 'Talemåte',
+					'Saying' => 'Stemme',
 					'Sound'  => 'Lyd',
 				);
 				$raw_music_type = isset($show['quizForms'][0]['firmNaming']) ? trim($show['quizForms'][0]['firmNaming']) : '';
