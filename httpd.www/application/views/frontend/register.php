@@ -9,6 +9,13 @@
 		box-sizing: border-box !important;
 		transition: all .2s linear !important;
 	}
+	/* Hand (pointer) cursor over every field of the form (client, 14 Nov 2026). */
+	#register_form input,
+	#register_form textarea,
+	#register_form select,
+	#register_form label{
+		cursor: pointer;
+	}
 	.form_c{
 		text-transform: capitalize;
 	}
