@@ -203,6 +203,10 @@ a.quiz-start{ cursor:pointer; }
 
 /* Access control (only rendered when access_control_enabled is on) */
 .quiz-access-message { margin: 0 0 12px; padding: 10px 14px; background: #fff4d6; border: 1px solid #e0b84a; border-radius: 6px; }
-.quiz-lock { display: inline-flex; align-items: center; gap: 6px; color: #555; cursor: default; }
+/* Fixed 56px slot = PDF (24) + gap (8) + Start (24), so the info icon and the
+   lock/PDF icon sit at the same place in every row, whatever the label
+   ("Låst" / "Utgått") and whether the row is open or locked. */
+.quiz-lock { display: inline-flex; align-items: center; gap: 6px; width: 56px; color: #555; cursor: default; }
+.quiz-lock svg { flex: 0 0 24px; }
 .quiz-lock-text { font-size: 13px; white-space: nowrap; }
 @media (max-width: 767px) { .quiz-lock-text { display: none; } }
