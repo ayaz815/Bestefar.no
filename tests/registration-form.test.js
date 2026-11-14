@@ -83,3 +83,24 @@ test("the header on every device uses the client's new logo, and the files exist
 test("the confirmation email uses the new logo without stretching it", () => {
   assert.match(read("models/Admin_model.php"), /logo_3000-300x101\.png" width="140px" height="47px"/);
 });
+
+test("pointer (hand) cursor over every registration field, label and the send button", () => {
+  const view = read("views/frontend/register.php");
+  const m = view.match(/((?:#register_form [a-z]+,?\s*)+)\{\s*cursor:\s*pointer;/);
+  assert.ok(m, "no pointer-cursor rule scoped to #register_form");
+  for (const el of ["input", "textarea", "select", "label"]) {
+    assert.match(m[1], new RegExp("#register_form " + el + "\\b"), el);
+  }
+  assert.match(view, /<form [^>]*id="register_form"/);
+});
+
+test("regression: pointer rule stays scoped to the registration form (header/menu untouched)", () => {
+  const view = read("views/frontend/register.php");
+  const css = view.slice(0, view.indexOf("</style>")).replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const [, selectors] of css.matchAll(/([^{}]+)\{[^}]*cursor:\s*pointer/g)) {
+    for (const sel of selectors.split(",").map((x) => x.trim())) {
+      assert.ok(sel === ".register_btn" || sel.startsWith("#register_form "), `unscoped pointer selector: ${sel}`);
+    }
+  }
+  assert.match(view, /\.register_btn\{[^}]*cursor: pointer/);
+});
