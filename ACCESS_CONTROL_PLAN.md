@@ -124,11 +124,11 @@ So keys on the player endpoints alone would NOT make shows exclusive. Proposed s
 - [ ] Admin customer page layout: still waiting for the client.
 - [ ] Moving the existing customers to a type: done by you in this new admin section, one customer at a time (no automatic bulk change).
 
-### [~] Module 7. Order form "Bestilling" (client sketch `Bestilling.pdf`, 8 Nov 2026; built and tested 14 Nov 2026, branch `feature/order-form`) - waiting on client wording/prices, SQL and upload
+### [~] Module 7. Order form "Bestilling" (client sketch `Bestilling.pdf`, 8 Nov 2026; built and tested 14 Nov 2026, branch `feature/order-form`) - client wording + prices in (16 Nov); waiting on SQL and upload
 Client's logic: 1) everyone registers first, 2) a logged-in customer gets a new "Bestilling" menu item, 3) the order form confirms their details and lists the options.
 - [x] `home/bestilling`: login required (always, not tied to the access switch). Not logged in -> login page.
 - [x] Top part "Bestilling": Institusjon/forening, Kontaktperson (Fornavn, Etternavn), Telefon(er) (Institusjon/Forening, Privat), Epostadresse, filled in from the customer's registration and read-only (the form "confirms" them).
-- [x] "Detaljer": the three paid plans already used by the access rule: `per_show` (2 shows, 3 days from first open: customer picks 2 shows from the catalog), `audio_simple` (AudioQuiz + simple question sheets, 1 year), `all_shows` (all shows, 1 year). Optional wanted start date and a comment. No prices yet (client to supply).
+- [x] "Detaljer": the three paid plans already used by the access rule: `per_show` (2 shows, 3 days from first open: customer picks 2 shows from the catalog), `audio_simple` (AudioQuiz + simple question sheets, 1 year), `all_shows` (all shows, 1 year). Optional wanted start date and a comment. Client wording + prices (16 Nov 2026): "2 quizer i 3 dager (kr 150)", "Audio Quiz og Tekst Quiz i ett år (kr 1.800)", "Alle variantene i ett år (kr 2.900)"; price saved with each order (`orders.price`). All registered customers see the form (free/test too).
 - [x] "Bestill" button: input checked on the server (known plan, exactly 2 different catalog shows for `per_show`, valid date), saved in a new `orders` table (status `new`), e-mail to the admin addresses (Admin emails page) and a copy to the customer, then a thank-you message.
 - [x] Ordering grants nothing by itself: the admin registers payment and access by hand in "Customer access" (Module 5), as agreed 3 Nov. The customer's orders are listed there so the admin sees what was asked for.
 - [x] Menu: "Bestilling" next to "Logg ut" in the key-icon dropdown (desktop and mobile blocks).
@@ -137,7 +137,7 @@ Client's logic: 1) everyone registers first, 2) a logged-in customer gets a new 
 - [x] Tests: `tests/order-form.test.js` (24, harness `tests/support/order_harness.php`); 22 fail on the old code (the 2 that pass there are a regression check and the SQL file check). Whole suite 197/197.
 - [x] Browser check (local copy `bestefar_m3test`, orders SQL run there, local mail sent to a dead host so nothing real goes out): logged out -> login page; logged in -> form with the customer's details read-only and the 13 live shows; same show twice -> "Velg 2 forskjellige forestillinger." with choices kept; 2 different shows -> thank-you page, one row saved; admin customer window lists the order with the comment escaped; 375px width: no sideways scrolling.
 - [ ] Not verified: real e-mail delivery from one.com (the app's `log_threshold` is 0, so failed sends are not written to a log file on live either); real iPhone/Safari; one.com server.
-- Open for the client: Norwegian wording of the three options, prices, whether test/full (free) customers should see the form.
+- Client answered 16 Nov 2026: wording + prices done; all registered customers see the form.
 
 ## Deployment status (5 Nov 2026)
 - All code for Modules 0-5 is built and tested (registration form excepted, waiting for the client).
@@ -185,3 +185,4 @@ Client's logic: 1) everyone registers first, 2) a logged-in customer gets a new 
 - 14 Nov 2026: Module 7 built and tested (197/197, browser checked at 375px). Registration e-mail fix included (shared mailer, `config/email.php`). Next: client confirms option wording and prices; then SQL + upload.
 - 14 Nov 2026: full local run checked (198/198 tests, customer + admin pages). Questions e-mailed to Per Olav (reply in "Suggestion for the order form" thread): option wording, prices, free customers see form?, Paralyse.jpg + MI.jpg. Old bug found: admin/admin_emails view uses $users (controller passes admin_emails), PHP warning + empty list.
 - 14 Nov 2026: Module 3 fix (client): info and lock icons lined up in every row - lock gets a fixed 56px slot (= PDF + gap + Start). Branch `fix/catalog-icon-alignment`, 4 tests (3 fail on old CSS), 202/202, checked in browser with open + locked + "Utgått" rows.
+- 16 Nov 2026: client answered: option wording + prices (done, saved per order), all registered customers order (already so, now tested), MI.jpg said enclosed but not attached, Paralyse.jpg = article 81 "Lider også du av Mobil-paralyse?". 202/202.
