@@ -87,16 +87,16 @@ $show_slots = order_plans()['per_show']['shows'];
 										<div class="col-md-3 lh">Jeg vil bestille:</div>
 										<div class="col-md-9">
 											<?php foreach (order_plans() as $key => $plan) { ?>
-												<label class="order-plan"><input type="radio" name="plan" value="<?= $e($key) ?>" <?= $posted_plan === $key ? 'checked' : '' ?> required> <?= $e($plan['label']) ?></label>
+												<label class="order-plan"><input type="radio" name="plan" value="<?= $e($key) ?>" <?= $posted_plan === $key ? 'checked' : '' ?> required> <?= $e(order_plan_text($key)) ?></label>
 											<?php } ?>
 										</div>
 									</div>
 									<div class="row mg_btm order-shows" id="order_shows">
-										<div class="col-md-3 lh">Forestillinger:</div>
+										<div class="col-md-3 lh">Quizer:</div>
 										<div class="col-md-9">
 											<?php for ($i = 0; $i < $show_slots; $i++) { ?>
-												<select class="form-control" name="shows[]" aria-label="Forestilling <?= $i + 1 ?>">
-													<option value="">Velg forestilling <?= $i + 1 ?></option>
+												<select class="form-control" name="shows[]" aria-label="Quiz <?= $i + 1 ?>">
+													<option value="">Velg quiz <?= $i + 1 ?></option>
 													<?php foreach ($show_choices as $value => $name) { ?>
 														<option value="<?= $e($value) ?>" <?= isset($posted_shows[$i]) && $posted_shows[$i] === $value ? 'selected' : '' ?>><?= $e($name) ?></option>
 													<?php } ?>
@@ -118,7 +118,7 @@ $show_slots = order_plans()['per_show']['shows'];
 									</div>
 								</form>
 								<script>
-								// The show pickers only belong to the 2-show plan (the server checks it again).
+								// The quiz pickers only belong to the 2-quiz plan (the server checks it again).
 								(function () {
 									var form = document.getElementById('order_form');
 									var shows = document.getElementById('order_shows');

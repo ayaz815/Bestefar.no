@@ -6,13 +6,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // The plan keys are the paid plans the access rule already knows (access_helper.php).
 
 if (!function_exists('order_plans')) {
-	// plan key => array(label shown to the customer, number of shows to pick)
+	// plan key => label shown to the customer, price in kr, number of quizzes to pick.
+	// Wording and prices from the client (e-mail 16 Nov 2026).
 	function order_plans() {
 		return array(
-			'per_show'     => array('label' => '2 forestillinger, 3 dager (f.eks. bursdag)', 'shows' => 2),
-			'audio_simple' => array('label' => 'AudioQuiz og enkle spørreark, 1 år', 'shows' => 0),
-			'all_shows'    => array('label' => 'Alle forestillinger, 1 år', 'shows' => 0),
+			'per_show'     => array('label' => '2 quizer i 3 dager',                 'price' => 150,  'shows' => 2),
+			'audio_simple' => array('label' => 'Audio Quiz og Tekst Quiz i ett år', 'price' => 1800, 'shows' => 0),
+			'all_shows'    => array('label' => 'Alle variantene i ett år',          'price' => 2900, 'shows' => 0),
 		);
+	}
+}
+
+if (!function_exists('order_plan_text')) {
+	// "2 quizer i 3 dager (kr 150)". $price: the price saved with an order, so an
+	// old order keeps the price the customer saw; NULL = today's price.
+	function order_plan_text($plan, $price = null) {
+		$plans = order_plans();
+		if (!isset($plans[$plan])) {
+			return (string) $plan;
+		}
+		$kr = $price === null || $price === '' ? $plans[$plan]['price'] : (int) $price;
+		return $plans[$plan]['label'] . ' (kr ' . number_format($kr, 0, ',', '.') . ')';
 	}
 }
 
@@ -41,7 +55,7 @@ if (!function_exists('order_input')) {
 				}
 			}
 			if (count($shows) !== $plans[$plan]['shows'] || count($picked) !== count($shows)) {
-				$errors[] = 'Velg ' . $plans[$plan]['shows'] . ' forskjellige forestillinger.';
+				$errors[] = 'Velg ' . $plans[$plan]['shows'] . ' forskjellige quizer.';
 			}
 		}
 
@@ -60,6 +74,7 @@ if (!function_exists('order_input')) {
 		}
 		return array('order' => array(
 			'plan'       => $plan,
+			'price'      => $plans[$plan]['price'],
 			'shows'      => $shows ? json_encode($shows, JSON_UNESCAPED_UNICODE) : null,
 			'start_date' => $start !== '' ? $start : null,
 			'comment'    => $text('comment', 1000),
@@ -71,17 +86,16 @@ if (!function_exists('order_input')) {
 if (!function_exists('order_summary_html')) {
 	// The order as e-mail HTML, for the admin and the customer's copy. $user is a users row.
 	function order_summary_html(array $user, array $order) {
-		$plans = order_plans();
 		$e = function ($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); };
 		$rows = array(
 			'Institusjon/forening' => $user['institute'],
 			'Kontaktperson'        => trim($user['fname'] . ' ' . $user['lname']),
 			'Telefon'              => trim($user['phone'] . ' / ' . $user['mobile'], ' /'),
 			'Epostadresse'         => $user['email'],
-			'Bestilling'           => isset($plans[$order['plan']]) ? $plans[$order['plan']]['label'] : $order['plan'],
+			'Bestilling'           => order_plan_text($order['plan'], isset($order['price']) ? $order['price'] : null),
 		);
 		if (!empty($order['shows'])) {
-			$rows['Forestillinger'] = implode(', ', array_column(json_decode($order['shows'], true), 'name'));
+			$rows['Quizer'] = implode(', ', array_column(json_decode($order['shows'], true), 'name'));
 		}
 		if (!empty($order['start_date'])) {
 			$rows['Ønsket startdato'] = date('d.m.Y', strtotime($order['start_date']));

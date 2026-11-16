@@ -42,6 +42,28 @@ test("plans are the three paid plans the access rule knows, per_show picks 2 sho
   for (const key of Object.keys(plans)) assert.match(rule, new RegExp(`'${key}'`), key);
 });
 
+test("client wording and prices (e-mail 16 Nov 2026)", () => {
+  const plans = helper("order_plans");
+  assert.deepStrictEqual(Object.fromEntries(Object.entries(plans).map(([k, p]) => [k, [p.label, p.price]])), {
+    per_show: ["2 quizer i 3 dager", 150],
+    audio_simple: ["Audio Quiz og Tekst Quiz i ett år", 1800],
+    all_shows: ["Alle variantene i ett år", 2900],
+  });
+  assert.strictEqual(helper("order_plan_text", "per_show"), "2 quizer i 3 dager (kr 150)");
+  assert.strictEqual(helper("order_plan_text", "audio_simple"), "Audio Quiz og Tekst Quiz i ett år (kr 1.800)");
+  assert.strictEqual(helper("order_plan_text", "all_shows"), "Alle variantene i ett år (kr 2.900)");
+});
+
+test("an order keeps the price it was placed at; unknown plan shown as-is", () => {
+  assert.strictEqual(helper("order_plan_text", "all_shows", 2500), "Alle variantene i ett år (kr 2.500)");
+  assert.strictEqual(helper("order_plan_text", "all_shows", "2500"), "Alle variantene i ett år (kr 2.500)");
+  assert.strictEqual(helper("order_plan_text", "all_shows", null), "Alle variantene i ett år (kr 2.900)");
+  assert.strictEqual(helper("order_plan_text", "old_plan"), "old_plan");
+  for (const plan of ["audio_simple", "all_shows"]) {
+    assert.strictEqual(helper("order_input", { plan }, SHOWS, TODAY).order.price, helper("order_plans")[plan].price);
+  }
+});
+
 test("valid 2-show order is accepted with the picked shows' names", () => {
   const r = helper("order_input", { plan: "per_show", shows: ["audio:a1", "image:i1"], start_date: "2026-12-01", comment: "  Bursdag  " }, SHOWS, TODAY);
   assert.deepStrictEqual(r.errors, []);
@@ -50,13 +72,14 @@ test("valid 2-show order is accepted with the picked shows' names", () => {
   assert.strictEqual(r.order.start_date, "2026-12-01");
   assert.strictEqual(r.order.comment, "Bursdag");
   assert.strictEqual(r.order.status, "new");
+  assert.strictEqual(r.order.price, 150);
 });
 
 test("2-show plan refuses one show, the same show twice, or a show not in the catalog", () => {
   for (const shows of [["audio:a1"], ["audio:a1", "audio:a1"], ["audio:a1", "audio:fake"], ["audio:a1", "image:i1", "imagemusic:m1"], undefined]) {
     const r = helper("order_input", { plan: "per_show", shows }, SHOWS, TODAY);
     assert.strictEqual(r.order, null, JSON.stringify(shows));
-    assert.deepStrictEqual(r.errors, ["Velg 2 forskjellige forestillinger."]);
+    assert.deepStrictEqual(r.errors, ["Velg 2 forskjellige quizer."]);
   }
 });
 
@@ -97,7 +120,8 @@ test("e-mail summary escapes what the customer typed", () => {
   assert.match(html, /&lt;script&gt;/);
   assert.doesNotMatch(html, /<script>/);
   assert.match(html, /Ønsket startdato:<\/strong> 01\.12\.2026/);
-  assert.match(html, /2 forestillinger, 3 dager/);
+  assert.match(html, /Bestilling:<\/strong> 2 quizer i 3 dager \(kr 150\)/);
+  assert.match(html, /Quizer:<\/strong> A &amp; B/);
 });
 
 // ── Order_model (saving + e-mails) ────────────────────────────────────────
@@ -218,6 +242,29 @@ test("route requires a logged-in customer and redirects after saving (no resubmi
   assert.doesNotMatch(body, /Access_model->enabled/, "must not depend on the access switch");
 });
 
+test("every registered customer can order: free/test customers too (client, 16 Nov 2026)", () => {
+  const home = read("controllers/Home.php");
+  const body = home.slice(home.indexOf("public function bestilling("), home.indexOf("public function blogs("));
+  assert.doesNotMatch(body, /client_type|approval_status|payment_registered|\['plan'\]|access_end/);
+  const model = read("models/Order_model.php");
+  const cur = model.slice(model.indexOf("function current_customer"), model.indexOf("function show_choices"));
+  assert.doesNotMatch(cur, /client_type|payment_registered|plan/);
+  for (const client_type of ["test", "free", "full"]) {
+    const out = harness("place", { tables: { admin_emails: admins, orders: [] }, customer: { ...customer, client_type }, catalog, post: { plan: "all_shows" } });
+    assert.deepStrictEqual(out.result, { ok: true, errors: [] }, client_type);
+    assert.strictEqual(out.inserts[0].data.price, 2900);
+  }
+});
+
+test("form shows each option with its price and the quiz pickers in the client's words", () => {
+  const view = read("views/frontend/bestilling.php");
+  assert.match(view, /<\?= \$e\(order_plan_text\(\$key\)\) \?><\/label>/);
+  assert.match(view, /Quizer:/);
+  assert.match(view, /Velg quiz <\?= \$i \+ 1 \?>/);
+  assert.doesNotMatch(view, /forestilling/i);
+  assert.match(read("views/admin/modals/customer_orders.php"), /order_plan_text\(\$order\['plan'\], isset\(\$order\['price'\]\)/);
+});
+
 test("form matches the client's sketch: read-only details, Detaljer options, Bestill button", () => {
   const view = read("views/frontend/bestilling.php");
   for (const label of ["Institusjon/forening:", "Kontaktperson:", "Telefon(er):", "Epostadresse:"]) assert.ok(view.includes(label), label);
@@ -254,7 +301,7 @@ test("SQL creates the orders table with every column the model writes; down scri
   const up = sql("2026-11-14_orders_up.sql");
   const down = sql("2026-11-14_orders_down.sql");
   assert.match(up, /CREATE TABLE IF NOT EXISTS `orders`/);
-  for (const col of ["orders_id", "users_id", "plan", "shows", "start_date", "comment", "status", "created_at"]) assert.match(up, new RegExp("`" + col + "`"), col);
+  for (const col of ["orders_id", "users_id", "plan", "price", "shows", "start_date", "comment", "status", "created_at"]) assert.match(up, new RegExp("`" + col + "`"), col);
   assert.doesNotMatch(up, /ALTER TABLE|DROP|DELETE|UPDATE/i);
   assert.match(down, /DROP TABLE IF EXISTS `orders`;/);
   assert.doesNotMatch(down.replace(/DROP TABLE IF EXISTS `orders`;/, ""), /DROP|DELETE|ALTER/i);
