@@ -14,6 +14,8 @@ httpd.private/
 *.zip
 *.tar.gz
 *.sql
+# ...but schema migrations are code: keep them in git
+!database/migrations/*.sql
 *.sql.gz
 !/database/*.sql
 
