@@ -162,7 +162,9 @@ User decisions 23 Nov: push as is (SMTP password already in main's history; chan
 - [x] Upload package + checklist: `~/Per Olav Projects/_upload_2026-11-23_release/` (`DEPLOY.md`, 52 website files, 4 SQL scripts + undo). Live check 23 Nov: of the 5 Nov package only the PHP files and the AudioQuiz player went up (catalog CSS/JS and the ImageQuiz/BilderMusikk players are still the old ones; live `sporreleker.js` is an older copy, no own changes), so the new package holds every file changed since `main`, checked byte for byte against the release branch.
 - [x] Rehearsal on a copy of the live database (`bestefar_rehearsal`, from the 22 Aug dump + the 3 catalog tables created since): the 4 SQL scripts in order, then the site with the switch off: catalog 13 rows no locks, registration (amplifier saved, password hashed), order (kr 1800 saved), 8 admin pages, customer window with Customer access + Orders, ajax 403/200, bad addresses 404. No errors.
 - [x] Found and fixed: the Module 1 SQL was never in git (`*.sql` ignore rule); `.gitignore` now keeps `database/migrations/*.sql`.
-- [ ] User: backup, SQL (registration amplifier, orders; Module 1 if not run yet), upload. Claude: live checks after each step.
+- [x] Backend deployed to EC2 23 Nov (user asked): `fix/remove-dead-download-zip` (`36ed575`) on top of the live `feature/private-media`; pm2 restarted; lists, play, PDF, access-tier, generator ZIP all 200, old `/download-zip` 404; `ACCESS_ENFORCE` off.
+- [x] Generator build 23 Nov: `index-XdUNniSo.js` (same as the 5 Nov build; only change since the live 27 Oct build is the generator login, inactive while enforcement is off). Checked with `vite preview` against the live API. In the package as `generator/` (3 files to upload) with a rollback copy of the live build.
+- [ ] User: backup, SQL (4 checks/scripts), upload website (52 files) + generator (3 files). Claude: live checks after.
 - [ ] Later: switch on (after Per Olav), then the AWS bucket step.
 
 ## Deployment status (5 Nov 2026)
