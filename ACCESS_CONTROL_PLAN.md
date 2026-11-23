@@ -152,7 +152,10 @@ User decisions 23 Nov: push as is (SMTP password already in main's history; chan
 - [x] Branches pushed: `fix/music-type-stemme`, `feature/registration-form`, `feature/order-form`, `fix/catalog-icon-alignment`, `fix/registration-pointer-cursor`.
 - [x] Release branch = every module branch + `fix/admin-logo` (218/218). Not included: `feature/staging-site` (Module 6, parked by the user), `feature/blog-image-remove` (Sep, unpushed, status unknown).
 - [ ] Module 8 fixed and merged.
-- [ ] Scenario tests: every customer type x every quiz type x switch off/on, logged out, admin flows, order, registration (automated + browser, desktop and phone width).
+- [~] Scenario tests: every customer type x every quiz type x switch off/on, logged out, admin flows, order, registration (automated + browser, desktop and phone width).
+  - [x] Automated (`tests/scenarios.test.js`, branch `test/all-scenarios`): 134 592 combinations (customer type, approved/active, ticks, plan, payment, dates, quiz type, tag, picked shows, switch) checked against the plan's rules; each customer type from the brief through the real catalog + Start; whole flow register -> order -> admin -> open. 31 tests. Mutation check: 8 deliberately broken copies of the rule, every one caught (1-8 failing tests each). Whole suite 268/268.
+  - [ ] Same scenarios on the local site with the real database (HTTP + browser, desktop and phone).
+  - Found (behaviour as built, to confirm with the client): a paid 'all shows' customer still needs the demo tick to open demo-tagged shows; 'Audio Quiz og Tekst Quiz' opens AudioQuiz through the rule, Tekst Quiz (crosswords) stays open to everyone as today (crossword access control postponed).
 - [ ] Release PR to `main`.
 - [ ] Upload package + checklist (only what is not live yet; the 5 Nov package is already live: live has `open_quiz` and the `v=20261105` player).
 - [ ] User: backup, SQL (registration amplifier, orders; Module 1 if not run yet), upload. Claude: live checks after each step.
