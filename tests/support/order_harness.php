@@ -2,7 +2,7 @@
 // Test harness: runs Order_model and the shared mailer (Admin_model::send_site_email)
 // outside CodeIgniter with fake session / database / e-mail. JSON scenario on stdin, JSON out.
 //   php order_harness.php <application dir> <action>
-//   actions: place, customer, for_customer, mail
+//   actions: place, customer, for_customer, mail, admin_login, admin_profile
 define('BASEPATH', 'test');
 $app = $argv[1];
 $action = $argv[2];
@@ -17,12 +17,22 @@ class FakeQuery {
 	private $rows;
 	function __construct($rows) { $this->rows = array_values($rows); }
 	function row_array() { return $this->rows ? $this->rows[0] : null; }
+	function row() { return $this->rows ? (object) $this->rows[0] : null; }
+	function num_rows() { return count($this->rows); }
 	function result_array() { return $this->rows; }
+	function result() { return array_map(function ($r) { return (object) $r; }, $this->rows); }
 }
 class FakeDb {
-	public $tables, $inserts = array(), $order = null;
+	public $tables, $inserts = array(), $updates = array(), $order = null, $pending = array(), $from = null;
 	function __construct($tables) { $this->tables = $tables; }
-	function select($cols) { return $this; }
+	function where($k, $v) { $this->pending[$k] = $v; return $this; }
+	// Query-builder style used by older code: from()->where()->get().
+	function from($table) { $this->from = $table; return $this; }
+	function get() { $q = $this->get_where($this->from, $this->pending); $this->pending = array(); return $q; }
+	function update($table, $data) { $this->updates[] = array('table' => $table, 'where' => $this->pending, 'data' => $data); $this->pending = array(); return true; }
+	// Only used for SHOW COLUMNS: the scenario's "columns" rows.
+	function query($sql) { global $in; return new FakeQuery(isset($in['columns']) ? $in['columns'] : array()); }
+	function select($cols = "*") { return $this; }
 	function order_by($col, $dir) { $this->order = array($col, $dir); return $this; }
 	function get_where($table, $cond) {
 		$rows = array_filter(isset($this->tables[$table]) ? $this->tables[$table] : array(), function ($r) use ($cond) {
@@ -59,6 +69,11 @@ class FakeOutput { function set_header($h) {} }
 class FakeSession {
 	public $data;
 	function userdata($k) { return isset($this->data[$k]) ? $this->data[$k] : null; }
+	function set_userdata($k, $v) { $this->data[$k] = $v; }
+}
+class FakeInput {
+	public $data;
+	function post($k = null) { return $k === null ? $this->data : (isset($this->data[$k]) ? $this->data[$k] : null); }
 }
 class CI_Model {
 	public static $deps;
@@ -72,7 +87,8 @@ class Access_model {
 $db = new FakeDb(isset($in['tables']) ? $in['tables'] : array());
 $email = new FakeEmail(); $email->fail = !empty($in['mail_fails']);
 $session = new FakeSession(); $session->data = isset($in['session']) ? $in['session'] : array();
-CI_Model::$deps = array('db' => $db, 'load' => new FakeLoader(), 'session' => $session, 'email' => $email, 'output' => new FakeOutput());
+$input = new FakeInput(); $input->data = isset($in['post']) ? $in['post'] : array();
+CI_Model::$deps = array('input' => $input, 'db' => $db, 'load' => new FakeLoader(), 'session' => $session, 'email' => $email, 'output' => new FakeOutput());
 
 // The real Admin_model, with the catalog read from the scenario instead of the quiz API.
 require $app . '/models/Admin_model.php';
@@ -97,11 +113,17 @@ try {
 		$out['orders'] = $orders->for_customer($in['users_id']);
 	} elseif ($action === 'mail') {
 		$out['result'] = $admin->send_site_email($in['to'], $in['subject'], $in['html']);
+	} elseif ($action === 'admin_login') {
+		$row = $admin->admin_login_varify();
+		$out['result'] = $row ? (array) $row : false;
+	} elseif ($action === 'admin_profile') {
+		$admin->update_admin_profile();
 	}
 } catch (Exception $ex) {
 	$out['exception'] = $ex->getMessage();
 }
 $out['inserts'] = $db->inserts;
+$out['updates'] = $db->updates;
 $out['sent'] = $email->sent;
 $out['library_loads'] = $email->loads;
 $out['logged'] = $logged;

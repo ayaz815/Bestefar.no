@@ -1,11 +1,20 @@
 <?php
 	class Ajax extends CI_Controller{
-		
+
+		// Everything here reads or changes admin data, so it needs the admin login.
+		// Only these are used by public pages (read-only): get_video_images (blog page).
+		const PUBLIC_ACTIONS = array('index', 'get_video_images');
+
 		function __construct() {
 			parent::__construct();
 			//$this->load->model('App_model');
-			$this->load->library('session');   
+			$this->load->library('session');
 			$this->load->library('upload');
+			if (!in_array(strtolower($this->router->fetch_method()), self::PUBLIC_ACTIONS, true)
+				&& $this->session->userdata('admin_login') != 1) {
+				$this->output->set_status_header(403);
+				exit('Forbidden');
+			}
 	    }
 		
 		

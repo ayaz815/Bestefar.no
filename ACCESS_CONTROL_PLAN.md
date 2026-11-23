@@ -139,6 +139,25 @@ Client's logic: 1) everyone registers first, 2) a logged-in customer gets a new 
 - [ ] Not verified: real e-mail delivery from one.com (the app's `log_threshold` is 0, so failed sends are not written to a log file on live either); real iPhone/Safari; one.com server.
 - Client answered 16 Nov 2026: wording + prices done; all registered customers see the form.
 
+### [~] Module 8. Remaining bugs (added 23 Nov 2026, user: "all modules finished, tested and deployed")
+- [x] `ajax/*` admin routes answer without an admin login (anyone can call them). Now 403 without the admin session; `get_video_images` (public blog page) stays open.
+- [x] `home/shows` gives a 500 error (`views/frontend/theme/head.php`). Only without/with an unknown category; now 404. Also found: `shows_f.php` puts the URL numbers into its SQL, now forced to whole numbers in the controller.
+- [x] `home/save_cart` is broken. Dead route (called a model method that never existed, nothing links to it): removed, now 404.
+- [~] Backend `/download-zip` gives a 500 error (backend repo). The generator uses `/api/zip/download-zip`, which works on live (200, zip). `/download-zip` is an old unused copy: remove it in the backend.
+- [x] Admin "Admin Emails" page: view loops over `$users`, controller passes `admin_emails` (PHP warning, empty list). Leftover customer modal removed; list itself was fine.
+- [x] Module 0 follow-up: admin passwords still plain text (column too short to hold a hash). SQL `2026-11-23_admin_password_up.sql` widens the column; hash stored at next login only once the column is wide enough (no lock-out if the files go up first); profile form no longer prints the password.
+
+### [~] Release 23 Nov 2026 (branch `release/2026-11-23`)
+User decisions 23 Nov: push as is (SMTP password already in main's history; change it in one.com); user uploads to one.com, Claude checks live after each step; access control stays OFF until Per Olav approves the customer mapping.
+- [x] Branches pushed: `fix/music-type-stemme`, `feature/registration-form`, `feature/order-form`, `fix/catalog-icon-alignment`, `fix/registration-pointer-cursor`.
+- [x] Release branch = every module branch + `fix/admin-logo` (218/218). Not included: `feature/staging-site` (Module 6, parked by the user), `feature/blog-image-remove` (Sep, unpushed, status unknown).
+- [ ] Module 8 fixed and merged.
+- [ ] Scenario tests: every customer type x every quiz type x switch off/on, logged out, admin flows, order, registration (automated + browser, desktop and phone width).
+- [ ] Release PR to `main`.
+- [ ] Upload package + checklist (only what is not live yet; the 5 Nov package is already live: live has `open_quiz` and the `v=20261105` player).
+- [ ] User: backup, SQL (registration amplifier, orders; Module 1 if not run yet), upload. Claude: live checks after each step.
+- [ ] Later: switch on (after Per Olav), then the AWS bucket step.
+
 ## Deployment status (5 Nov 2026)
 - All code for Modules 0-5 is built and tested (registration form excepted, waiting for the client).
 - Upload package: `~/Per Olav Projects/_upload_2026-11-05_access_control/` with `DEPLOY.md` (order, checks, rollback, how to switch on).
@@ -186,3 +205,4 @@ Client's logic: 1) everyone registers first, 2) a logged-in customer gets a new 
 - 14 Nov 2026: full local run checked (198/198 tests, customer + admin pages). Questions e-mailed to Per Olav (reply in "Suggestion for the order form" thread): option wording, prices, free customers see form?, Paralyse.jpg + MI.jpg. Old bug found: admin/admin_emails view uses $users (controller passes admin_emails), PHP warning + empty list.
 - 14 Nov 2026: Module 3 fix (client): info and lock icons lined up in every row - lock gets a fixed 56px slot (= PDF + gap + Start). Branch `fix/catalog-icon-alignment`, 4 tests (3 fail on old CSS), 202/202, checked in browser with open + locked + "Utgått" rows.
 - 16 Nov 2026: client answered: option wording + prices (done, saved per order), all registered customers order (already so, now tested), MI.jpg said enclosed but not attached, Paralyse.jpg = article 81 "Lider også du av Mobil-paralyse?". 202/202.
+- 23 Nov 2026: Module 8 (website part) fixed on `fix/module-8-bugs`: 19 tests (12 fail on old code, 7 regression/file checks pass there), whole suite 237/237. Checked on the local site: ajax 403 logged out / works for admin, shows 404 for bad addresses, admin login before and after the SQL (hash stored, wrong password refused), profile form empty.

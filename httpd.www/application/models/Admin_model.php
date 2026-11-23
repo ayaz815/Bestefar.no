@@ -14,16 +14,29 @@
 			$username= $this->input->post('username');
 			$password= $this->input->post('password');
 			
-		    $this->db->select();
-			$this->db->from('admin');
-			$this->db->where('username',$username);
-			$this->db->where('password',$password);
-			$query = $this->db->get(); 
-			if($query->num_rows()== 1){
-			  return $query->row();
-			}else{ 
+			// Same rules as customer logins (user_password_helper): hashed or old
+			// plain-text password; a plain-text one is replaced by a hash on login,
+			// but only once the column can hold one (2026-11-23_admin_password_up.sql).
+			$this->load->helper('user_password');
+			$rows = $this->db->get_where('admin', array('username'=>$username))->result();
+			$picked = user_password_pick_login($rows, $password);
+			if(!$picked['row']){
 			  return false;
-			}	
+			}
+			if($picked['new_hash'] && $this->admin_password_column_ready()){
+			  $this->db->where('admin_id', $picked['row']->admin_id)->update('admin', array('password'=>$picked['new_hash']));
+			}
+			return $picked['row'];
+		}
+		
+		// TRUE once admin.password is wide enough for a hash (was varchar(55), a hash is 60).
+		function admin_password_column_ready(){
+			static $ready = null;
+			if($ready === null){
+			  $column = $this->db->query("SHOW COLUMNS FROM `admin` LIKE 'password'")->row_array();
+			  $ready = $column && preg_match('/^(?:var)?char\((\d+)\)/i', $column['Type'], $m) ? (int) $m[1] >= 60 : ($column && stripos($column['Type'], 'text') !== false);
+			}
+			return $ready;
 		}
 		
 		function user_login_varify(){
@@ -173,7 +186,13 @@
 			$save_data['phone'] = $this->input->post('phone');
 			$save_data['email'] = $this->input->post('email');
 			$save_data['username'] = $this->input->post('username');
-			$save_data['password'] = $this->input->post('password');
+			// Empty box = keep the current password. A new one is stored as a hash
+			// once the column can hold one.
+			$password = (string) $this->input->post('password');
+			if($password !== ''){
+				$this->load->helper('user_password');
+				$save_data['password'] = $this->admin_password_column_ready() ? user_password_hash($password) : $password;
+			}
 			$save_data['address'] = $this->input->post('address');
 			if(!empty($_FILES['user_image']['name'])){
 				$file_name = 'admin_'.$this->session->userdata('admin_id').'.jpg';

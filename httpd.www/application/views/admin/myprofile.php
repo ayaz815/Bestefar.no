@@ -97,7 +97,7 @@
 												<div class="col-sm-8 col-lg-10">
 													<div class="input-group">
 														<span class="input-group-addon"><i class="fa fa-lock"></i></span>
-														<input type="password" name="password" class="form-control" placeholder="" value="<?php echo $profile_data->password; ?>" required>
+														<input type="password" name="password" class="form-control" placeholder="Leave empty to keep the current password" value="" autocomplete="new-password">
 													</div>
 												</div>
 											</div>

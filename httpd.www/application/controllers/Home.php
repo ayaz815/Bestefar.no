@@ -263,6 +263,10 @@
 		}
 		 
 		public function shows($param1='',$param2=''){
+			// Whole numbers only: shows_f.php puts these into its SQL, and a missing or
+			// unknown category used to end in a PHP/SQL error page (500).
+			$param1 = (int) $param1;
+			$param2 = (int) $param2;
 			$data['system_setting'] = $this->Admin_model->get_row_id('system_setting', 1);
 		    if($param2>0){
 		        $this->db->select('image');
@@ -278,8 +282,9 @@
     			$query = $this->db->get(); 
     			$data['categories_data'] =  $query->result_array();
 		    }
-			
-			
+			if(empty($data['categories_data'])){
+				show_404();
+			}
 			
 			$data['page_name'] = 'shows';
 			$data['param1'] = $param1;
@@ -353,10 +358,6 @@
 			$this->load->view('frontend/index',$data);
 		}
 		 
-		public function save_cart(){
-			$this->Admin_model->cart_data_saved();
-		}
-		
 		
 		
 		public function check(){
