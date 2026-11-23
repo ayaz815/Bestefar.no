@@ -6,6 +6,8 @@ Short, newest-first log of what's actually shipped in this repo, so a new sessio
 
 Hold these for one combined email once the current batch of fixes is done - don't send piecemeal.
 
+- **Admin profile picture (5 Nov 2026):** the admin top bar logo and profile picture were uploaded in admin Settings from the website's own Logo-1 and Bf icon. Ask Per Olav if he wants his own picture or a different logo there, and for the original logo files.
+
 - **Music Type Norwegian labels (raised 14 Oct 2026):** the mobile popup now shows "Musikk" for Music-type quizzes (confirmed from the mockup). "Saying" and "Sound" are guessed as "Talemåte" and "Lyd" (`Admin_model.php`'s `$firm_naming_labels`) - please confirm or correct these.
 
 ## Changelog
@@ -16,6 +18,8 @@ Hold these for one combined email once the current batch of fixes is done - don'
 - **2026-11-14** (branch `fix/music-type-stemme`, not live) Music Type "Saying" shown as "Stemme" instead of "Talemåte" (client, 8 Nov). Upload: `application/models/Admin_model.php`. (`0289a5b`)
 - **2026-11-14** (branch `fix/registration-pointer-cursor`, not live) Registration form: hand (pointer) cursor over every field, label and radio button (client). Upload: `application/views/frontend/register.php`.
 - **2026-11-07** (branch `feature/registration-form`, not live) Client's revised registration form (new amplifier/speakers question, placeholders, all fields required) and new high-resolution logo in the site header and confirmation email. Run `database/migrations/2026-11-07_registration_amplifier_up.sql` first. (`94a94b2`)
+- **2026-11-05** — Admin UI: feather icons visible (phone menu button), icofont icons via Font Awesome, 'Welcome' popup no longer repeats (CI flashdata + PHP 8 fix), correct page headings, visitors chart readable on phones. (`39a80bd`)
+- **2026-11-05** — Admin tab icon is now the Bestefar icon; the logo uploaded in System Setting always fits the top bar (desktop and phone). Header logo and profile picture come from admin Settings. (`f44c031`)
 - 2026-11-05 (branch `feature/access-admin-customers`, not live) Access-control Module 5 (admin): "Customer access" section in the customer details window and an Access column in the customer list. Upload: `application/views/admin/modals/customer_access.php` (new), `application/views/admin/modals/user_details.php`, `application/views/admin/users.php`, `application/controllers/Admin.php`, plus `application/models/Access_model.php` and `application/helpers/access_helper.php`.
 - 2026-11-05 (branch `feature/access-play-keys`, not live) Access-control Module 4b: catalog reads question count and Music Type from either list shape, so it keeps working when the backend trims the public lists. Upload with Module 4: `application/models/Admin_model.php`.
 - 2026-11-05 (branch `feature/access-play-keys`, not live) Access-control Module 4a: 12-hour signed play keys in `open_quiz` links and PDF buttons; players read from the backend `/api/play/...` routes and send the key. Needs backend branch `feature/play-keys` deployed BEFORE the player files are uploaded.

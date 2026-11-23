@@ -1,6 +1,5 @@
 					<nav class="pcoded-navbar">
                         <div class="pcoded-inner-navbar main-menu">
-                            <div class="pcoded-navigatio-lavel">Navigation</div>
                             <ul class="pcoded-item pcoded-left-item">
                                 <li class="<?php if($page_name == 'dashboard'){ echo 'active'; } ?>">
 									<a href="<?php echo base_url(); ?>admin/dashboard">

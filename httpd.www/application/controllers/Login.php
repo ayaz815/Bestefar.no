@@ -54,7 +54,7 @@
 				$this->session->set_userdata('admin_id',$answer->admin_id);
 				$this->session->set_userdata('role_name','admin'); 
 				$this->session->set_userdata('name',$answer->name);
-				$this->session->set_flashdata('msg_success', ' Wellcome '.$this->session->userdata('name')) ;
+				$this->session->set_flashdata('msg_success', ' Welcome '.$this->session->userdata('name')) ;
 				redirect(strtolower($this->session->userdata('role_name')) . '/dashboard', 'refresh');			
 			}else{ 
 				$this->session->set_flashdata('msg_success', ' Invalid Username and Password.');
@@ -77,7 +77,7 @@
 				$this->session->set_userdata('approval_status',$answer->approval_status);
 				//$this->session->set_userdata('role_name','user'); 
 				$this->session->set_userdata('name',$answer->fname);
-				$this->session->set_flashdata('msg_success', ' Wellcome '.$this->session->userdata('name')) ;
+				$this->session->set_flashdata('msg_success', ' Welcome '.$this->session->userdata('name')) ;
 				redirect('home', 'refresh');			
 			}else{ 
 				//$this->session->set_flashdata('msg_error', 'Ugyldig brukernavn og passord.');

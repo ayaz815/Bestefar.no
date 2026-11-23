@@ -25,7 +25,7 @@
 									</li>
 									<li class="breadcrumb-item"><a href="#!">Admin</a>
 									</li>
-									<li class="breadcrumb-item"><a href="#"> Users</a>
+									<li class="breadcrumb-item"><a href="#"> Admin Emails</a>
 									</li>
 								</ul>
 							</div>
@@ -39,7 +39,7 @@
 					<div class="row"  id="print_div">
 						<div class="card col-md-12">
 							<div class="card-header">
-								<h5>Listing users</h5>
+								<h5>Listing emails</h5>
 								<div class="card-header-right">
 									<ul class="list-unstyled card-option">
 										<li><i class="feather icon-maximize full-card print_hide"></i></li>

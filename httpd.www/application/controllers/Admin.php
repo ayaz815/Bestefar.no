@@ -376,8 +376,8 @@ class Admin extends CI_Controller {
 // 		print_r($data['shows']);
 // 		exit;
 		$data['categories'] 	= $this->Admin_model->get_data_conditions('categories', ' main_categories_id != 2')->result_array();
-		$data['page_title'] 	= 'Add New Show';
-		$data['page_sub_title'] = 'Update, Delete, And View All Blogs';
+		$data['page_title'] 	= 'Add New Blog';
+		$data['page_sub_title'] = 'Write And Publish A New Blog';
 		$data['page_name'] = 'blogs_add';
 		$this->load->view('admin/index', $data);
 	}
@@ -468,7 +468,7 @@ class Admin extends CI_Controller {
     	
     	$data['admin_emails'] 	= $this->Admin_model->get_data_desc('admin_emails');
     	$data['page_title'] 	= 'Manage Admin Emails';
-    	$data['page_sub_title'] = 'Update, Delete, And View All Users';
+    	$data['page_sub_title'] = 'Update, Delete, And View All Admin Emails';
     	$data['page_name'] = 'admin_email';
     	
     	$this->load->view('admin/index', $data);

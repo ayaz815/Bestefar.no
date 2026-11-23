@@ -26,7 +26,7 @@
 									</li>
 									<li class="breadcrumb-item"><a href="#!">Admin</a>
 									</li>
-									<li class="breadcrumb-item"><a href="#"> Users</a>
+									<li class="breadcrumb-item"><a href="#"> Visitors</a>
 									</li>
 								</ul>
 							</div>
@@ -53,9 +53,9 @@
 
 							</div>
 							<div class="card-block">
-								<div class="dt-responsive table-responsive">
+								<div style="position:relative;height:60vh;min-height:300px">
 									
-									<canvas id="visitorChart" width="400" height="200"></canvas>
+									<canvas id="visitorChart"></canvas>
 									
 								</div>
 							</div>
@@ -66,7 +66,7 @@
 		</div>
 	</div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
  <script>
         var ctx = document.getElementById('visitorChart').getContext('2d');
         var visitorChart = new Chart(ctx, {
@@ -82,6 +82,7 @@
                 }]
             },
             options: {
+                maintainAspectRatio: false, // fill the box above, so phones get a readable chart
                 scales: {
                     y: {
                         beginAtZero: true
