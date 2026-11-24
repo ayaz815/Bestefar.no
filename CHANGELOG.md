@@ -6,12 +6,15 @@ Short, newest-first log of what's actually shipped in this repo, so a new sessio
 
 Hold these for one combined email once the current batch of fixes is done - don't send piecemeal.
 
+- **Missing article pictures (24 Nov 2026):** still 404 on live: article 81 "Lider også du av Mobil-paralyse?" (`Paralyse.jpg`) and article 86 "Start en quiz når som helst og hvor som helst fra mobilen din" (`IMG_7157.JPEG`). Ask Per Olav for both.
+
 - **Admin profile picture (5 Nov 2026):** the admin top bar logo and profile picture were uploaded in admin Settings from the website's own Logo-1 and Bf icon. Ask Per Olav if he wants his own picture or a different logo there, and for the original logo files.
 
 - **Music Type Norwegian labels (raised 14 Oct 2026):** the mobile popup now shows "Musikk" for Music-type quizzes (confirmed from the mockup). "Saying" and "Sound" are guessed as "Talemåte" and "Lyd" (`Admin_model.php`'s `$firm_naming_labels`) - please confirm or correct these.
 
 ## Changelog
 
+- **2026-11-24** (upload package only, `uploads/` is not in git) Client's MI.jpg added as `uploads/admin/blogs/1761383946-MI.jpg` for article 44 (picture was 404 on live). Package now 53 files.
 - **2026-11-23** (branch `release/2026-11-23`, not live) Release: every module branch + `fix/admin-logo` + Module 8 + scenario tests (268 unit tests; 134 592 access combinations; 17 end-to-end scenarios on the local site; deploy rehearsed on a copy of the live database). Upload package with checklist: `~/Per Olav Projects/_upload_2026-11-23_release/DEPLOY.md` (4 SQL scripts, 52 files). Access control stays switched off.
 - **2026-11-23** (branch `fix/module-8-bugs`, not live) Module 8 bug fixes: `ajax/*` admin actions need the admin login (403 otherwise; public blog pictures still open); `home/shows` with a missing/unknown/non-number category gives a 404 instead of a PHP/SQL error page, and its URL numbers are forced to whole numbers before they reach the SQL; dead `home/save_cart` route removed; Admin Emails page warning gone; admin passwords become hashes at next login (after `database/migrations/2026-11-23_admin_password_up.sql`), profile form no longer prints the password and an empty box keeps it. Upload: `application/controllers/Ajax.php`, `application/controllers/Home.php`, `application/models/Admin_model.php`, `application/views/admin/admin_email.php`, `application/views/admin/myprofile.php`.
 - **2026-11-16** (branch `feature/order-form`, not live) Order form: client's wording and prices on the 3 options (kr 150 / 1.800 / 2.900), shown on the form, in both e-mails and in admin; price saved with each order (new `price` column in `2026-11-14_orders_up.sql`). Upload: same files as the order form entry below.
