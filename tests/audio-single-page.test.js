@@ -20,7 +20,9 @@ test("shell exists and hosts exactly one full-size iframe", () => {
   assert.strictEqual((shell.match(/<iframe/g) || []).length, 1);
   assert.match(shell, /id="aqFrame"/);
   assert.match(shell, /allow="autoplay; fullscreen"/);
-  assert.match(shell, /100dvh/);
+  // Full screen height that stays put while the browser bars slide (svh, was dvh
+  // until 24 Nov 2026: that made the player jump on iPhone, see no-jumping-everywhere.test.js).
+  assert.match(shell, /100svh/);
   assert.match(shell, /name="viewport"/);
 });
 function runShell(search, hash = "") {

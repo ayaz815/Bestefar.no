@@ -57,7 +57,7 @@
 				$this->session->set_flashdata('msg_success', ' Welcome '.$this->session->userdata('name')) ;
 				redirect(strtolower($this->session->userdata('role_name')) . '/dashboard', 'refresh');			
 			}else{ 
-				$this->session->set_flashdata('msg_success', ' Invalid Username and Password.');
+				$this->session->set_flashdata('msg_error', ' Invalid Username and Password.'); // red error pop-up (was the green success one)
 				redirect('admin', 'refresh');
 			}
 		}

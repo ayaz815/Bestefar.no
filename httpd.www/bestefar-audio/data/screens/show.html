@@ -9,12 +9,14 @@
     <title>Music App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Fixed full-viewport screen (no page scroll). dvh tracks the visible
-         area on iOS Safari/Android Chrome as their toolbars show/hide; vh is
-         the fallback for browsers without dvh. */
+      /* Fixed full-viewport screen (no page scroll). svh = the visible area
+         with the browser bars showing, so it stays the same height while the
+         bars slide in/out on iOS Safari/Android Chrome (dvh followed them and
+         made the page jump, client 24 Nov 2026); vh is the fallback for
+         browsers without svh. Inside player.html's frame all three are equal. */
       .app-vh {
         height: 100vh !important;
-        height: 100dvh !important;
+        height: 100svh !important;
       }
 
       /* Small phones: smaller play / speaker icons so the two black boxes

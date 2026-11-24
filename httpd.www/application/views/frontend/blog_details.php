@@ -172,10 +172,16 @@ if($blog->background_color == 1){
 
 							<div id="blog-content-wrapper">
 
+								<?php
+									// Real picture size on the <img>: keeps its space while it loads, so the
+									// text below no longer jumps down (client, 24 Nov 2026).
+									$this->load->helper('image_size');
+									$cover_size = image_size_attrs(FCPATH.'uploads/admin/blogs/'.$blog->c_image);
+								?>
 								<?php if($blog->cover_url){ ?>
-								<a href="<?php echo $blog->cover_url; ?>"><img src="<?php echo base_url(); ?>uploads/admin/blogs/<?php echo $blog->c_image; ?>" class="img-responsive" style="width:100%;display:block;"></a>
+								<a href="<?php echo $blog->cover_url; ?>"><img src="<?php echo base_url(); ?>uploads/admin/blogs/<?php echo $blog->c_image; ?>"<?php echo $cover_size; ?> class="img-responsive" style="width:100%;display:block;"></a>
 								<?php } else { ?>
-								<img src="<?php echo base_url(); ?>uploads/admin/blogs/<?php echo $blog->c_image; ?>" class="img-responsive" style="width:100%;display:block;">
+								<img src="<?php echo base_url(); ?>uploads/admin/blogs/<?php echo $blog->c_image; ?>"<?php echo $cover_size; ?> class="img-responsive" style="width:100%;display:block;">
 								<?php } ?>
 
 								<h5 class="caption"><?php if(!empty($blog->caption)){ echo $blog->caption; } ?></h5>

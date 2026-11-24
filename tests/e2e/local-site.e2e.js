@@ -105,8 +105,14 @@ async function catalogRows(browser) {
   };
 
   const original = fs.readFileSync(SWITCH_FILE, "utf8");
+  // PHP's opcache re-reads a changed file at most every opcache.revalidate_freq (2 s
+  // here), so wait a little longer before the next request sees the new switch.
+  const setSwitch = async (on) => {
+    fs.writeFileSync(SWITCH_FILE, original.replace(/access_control_enabled'\]\s*=\s*(TRUE|FALSE)/, `access_control_enabled'] = ${on ? "TRUE" : "FALSE"}`));
+    await new Promise((r) => setTimeout(r, 2500));
+  };
   try {
-    fs.writeFileSync(SWITCH_FILE, original.replace(/access_control_enabled'\]\s*=\s*(TRUE|FALSE)/, "access_control_enabled'] = TRUE"));
+    await setSwitch(true);
 
     await check("logged out: catalog asks for login", async () => {
       const r = await catalogRows(new Browser());
@@ -212,7 +218,7 @@ async function catalogRows(browser) {
       for (const label of ["Full", "Paid · All shows", "Paid · Per show"]) assert.ok(r.html.includes(label), label);
     });
 
-    fs.writeFileSync(SWITCH_FILE, original.replace(/access_control_enabled'\]\s*=\s*(TRUE|FALSE)/, "access_control_enabled'] = FALSE"));
+    await setSwitch(false);
     await check("switch OFF: catalog as today for everybody (no login needed, no locks)", async () => {
       for (const b of [new Browser(), await loginAs(unapproved), c1Browser]) {
         const { rows, redirect } = await catalogRows(b);
