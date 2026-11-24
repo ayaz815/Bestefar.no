@@ -27,7 +27,13 @@
    them exactly, instead of the nav buttons' narrower 900px row. */
 /* Sizes brought down overall per feedback ("all in all it looks too big") -
    roughly 25% smaller across the board from the previous pass. */
-.quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0; color:rgb(0,0,0); font-size:20px; line-height:24px; flex:1 0 auto; }
+.quiz-catalog{ max-width:1140px; width:100%; margin:30px auto; padding:0; color:rgb(0,0,0); font-size:20px; line-height:24px; flex:1 0 auto; transition:opacity .15s ease; }
+/* No "jumping" while the page loads (client video 24 Nov 2026): the qc-wait class
+   (set on <html> by views/frontend/index.php, removed by the qc-ready script in
+   sporreleker.php or after 3 s) keeps the list invisible until all its rows and the
+   Agency font are ready. visibility, not display:none, so its space is kept and
+   nothing below it moves when it fades in. */
+.qc-wait .quiz-catalog{ visibility:hidden; opacity:0; }
 /* Title, count and the category filter all sit on one line together now,
    per feedback ("All in one line") - title left, count + filter grouped
    together on the right, same row. */

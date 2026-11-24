@@ -103,6 +103,14 @@
 /* ── Global responsive fixes ── */
 img { max-width: 100%; height: auto; }
 
+/* Header logo + key (desktop and phone header): their links were inline-block, so as
+   wide as the picture inside, while the picture is a % of the link (post-241.css).
+   Before the picture arrived both were 0 px, then the header grew ~50 px and the
+   whole page "jumped" down (client video 24 Nov 2026). As blocks the links are
+   full-width from the start (where they always ended up), so the picture's space is
+   kept from the first paint. */
+#masthead .elementor-widget-container > a { display: block; }
+
 .elementor-column.elementor-col-100 {
     width: 100% !important;
 }

@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="<?php echo base_url('assets/frontend/css/sporreleker.css'); ?>">
-
+<?php /* sporreleker.css is linked in <head> (views/frontend/index.php), not here: linked
+   half way down the page it made the list "jump" while loading (client, 24 Nov 2026). */ ?>
 <div class="quiz-catalog">
 	<div class="quiz-catalog-head">
 		<h1>Velkommen til BestefarQuiz</h1>
@@ -149,4 +149,13 @@
 	</div>
 </div>
 
+<!-- The whole list is on the page now: show it once the Agency font is ready, so
+     it appears in one go at its final size (the qc-wait script in <head> hid it
+     and shows it after 3 s at the latest). Not run for AJAX sort/filter swaps. -->
+<script id="qc-ready">
+(function(){
+	var show = function(){ document.documentElement.classList.remove('qc-wait'); };
+	if (document.fonts && document.fonts.load) { document.fonts.load('16px agency_fbregular').then(show, show); } else { show(); }
+})();
+</script>
 <script src="<?php echo base_url('assets/frontend/js/sporreleker.js'); ?>"></script>

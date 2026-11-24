@@ -14,6 +14,7 @@ Hold these for one combined email once the current batch of fixes is done - don'
 
 ## Changelog
 
+- **2026-11-24** (branch `fix/catalog-no-jumping`, merged into `release/2026-11-23`, not live) Quiz list no longer "jumps" while the page loads (client video): catalog stylesheet + Agency font preload in `<head>`, list shown in one go once its rows and font are ready (max 3 s), header logo/key keep their space before the pictures load (all pages). Upload: `application/views/frontend/index.php`, `application/views/frontend/theme/head.php`, `application/views/frontend/sporreleker.php`, `assets/frontend/css/sporreleker.css`.
 - **2026-11-24** (tests only) Local test admin renamed to `zz-admin@test.local`: the admin login box is an e-mail field, so the browser refused plain `zz-admin` (the e2e test posted directly and never noticed). `tests/e2e/local-site.e2e.js` updated. Nothing to upload.
 - **2026-11-24** (upload package only, `uploads/` is not in git) Client's MI.jpg added as `uploads/admin/blogs/1761383946-MI.jpg` for article 44 (picture was 404 on live). Package now 53 files.
 - **2026-11-23** (branch `release/2026-11-23`, not live) Release: every module branch + `fix/admin-logo` + Module 8 + scenario tests (268 unit tests; 134 592 access combinations; 17 end-to-end scenarios on the local site; deploy rehearsed on a copy of the live database). Upload package with checklist: `~/Per Olav Projects/_upload_2026-11-23_release/DEPLOY.md` (4 SQL scripts, 52 files). Access control stays switched off.
