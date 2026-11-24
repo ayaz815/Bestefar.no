@@ -22,7 +22,7 @@ const SWITCH_FILE = path.join(app, "config", "development", "access.php");
 const dbName = (fs.readFileSync(path.join(app, "config", "development", "database.php"), "utf8").match(/'database'\s*=>\s*'([^']+)'/) || [])[1];
 if (dbName !== "bestefar_m3test") throw new Error(`refusing to run: local database is ${dbName}, expected bestefar_m3test`);
 const sql = (q) => execFileSync("mysql", ["-N", "-B", dbName, "-e", q], { encoding: "utf8" }).trim();
-const adminPassword = fs.readFileSync(path.join(app, "config", "development", "TEST_ACCOUNTS.txt"), "utf8").match(/zz-admin .*password:\s*(\S+)/)[1];
+const adminPassword = fs.readFileSync(path.join(app, "config", "development", "TEST_ACCOUNTS.txt"), "utf8").match(/zz-admin@test\.local .*password:\s*(\S+)/)[1];
 
 class Browser {
   constructor() { this.cookies = {}; }
@@ -66,7 +66,7 @@ async function catalogRows(browser) {
   const stamp = Date.now().toString(36);
   const PASSWORD = "E2e-test-1234";
   const admin = new Browser();
-  await admin.go("/login/admin_login_varify", { username: "zz-admin", password: adminPassword });
+  await admin.go("/login/admin_login_varify", { username: "zz-admin@test.local", password: adminPassword });
   assert.strictEqual((await admin.go("/admin/dashboard")).status, 200, "admin login");
 
   // Registers a new customer through the real registration form; returns users_id.
