@@ -48,6 +48,118 @@ test("regression: the frame still fills the width and the player shell still nev
   assert.match(page, /background:\s*#ffc000/i, "theme yellow behind the frame");
 });
 
+// ── AudioQuiz question screen: same section sizes on every question ──────────
+// Client 25 Nov 2026: "the black containers ... sizes must be consistent and same in
+// all pages". The two black boxes share what is left of the screen; the answer (up to
+// 75 characters, 1-3 lines) and the artist line (empty until the data arrives) changed
+// that. Measured 390x664 (live shows): before, black boxes 200 -> 176 px when the data
+// arrived and 176 vs 164 px between short and long answers; after, 176 on every
+// question from the first frame (also 320x568, 375x553, 428x746, 820x1100).
+const showHtml = () => read("bestefar-audio/data/screens/show.html");
+const fitScript = () => {
+  const m = showHtml().match(/<script id="aq-fit-text">([\s\S]*?)<\/script>/);
+  assert.ok(m, "#aq-fit-text script");
+  return m[1];
+};
+
+test("answer and artist boxes have a fixed size, so the black boxes are the same on every question", () => {
+  const html = showHtml();
+  const answer = cssBlock(html, "#answer-text");
+  assert.match(answer, /height:\s*3\.5rem/, "2 lines in the height the old 1-line answer took (76 px section)");
+  assert.match(answer, /overflow:\s*hidden/);
+  assert.match(answer, /box-sizing:\s*border-box/);
+  const artist = cssBlock(html, "#artist-name-display");
+  assert.match(artist, /height:\s*3rem/, "'Utøver:' + name, kept even when empty");
+  assert.match(artist, /white-space:\s*nowrap/);
+  assert.match(artist, /flex-shrink:\s*0/, "not squeezed on short screens");
+  assert.match(html, /<img src="\.\.\/assets\/vite\.jpg" alt="" width="555" height="128" class="w-40" \/>/, "'Nyttig å vite' keeps its space before the picture loads");
+  // the script must come after both boxes (it looks them up straight away)
+  const at = html.indexOf('<script id="aq-fit-text">');
+  assert.ok(at > html.indexOf('id="answer-text"') && at > html.indexOf('id="artist-name-display"'));
+});
+
+test("regression: the black boxes still share the rest of the screen equally (and keep their minimum)", () => {
+  const html = showHtml();
+  assert.match(html, /class="bg-black flex flex-col items-center justify-between music-section flex-1 min-h-\[11rem\]"/);
+  assert.match(html, /mic-section toggle-question-area cursor-pointer flex flex-1 min-h-\[11rem\]"/);
+  assert.match(html, /class="p-4 px-4 text-center answer-text opacity-0 pointer-events-none/, "answer still hidden until tapped");
+});
+
+// The fit script against a tiny fake page: text length -> lines -> height, like a browser.
+function fitPage() {
+  let observer, frames = [], resize;
+  const box = (id, { width, height, wrap }) => ({
+    id, text: "", style: { fontSize: "" }, clientWidth: width, clientHeight: height,
+    get font() { return this.style.fontSize ? parseFloat(this.style.fontSize) : 16; },
+    get scrollHeight() { if (!wrap) return this.clientHeight; const perLine = Math.floor(this.clientWidth / (0.55 * this.font)); return Math.ceil(this.text.length / perLine) * 1.5 * this.font; },
+    get scrollWidth() { return wrap ? this.clientWidth : Math.ceil(this.text.length * 0.55 * this.font); },
+  });
+  const els = { "answer-text": box("answer-text", { width: 340, height: 48, wrap: true }), "artist-name-display": box("artist-name-display", { width: 358, height: 48, wrap: false }) };
+  const env = {
+    document: { getElementById: (id) => els[id], fonts: { ready: { then: () => {} } } },
+    window: { addEventListener: (ev, fn) => { if (ev === "resize") resize = fn; } },
+    getComputedStyle: (el) => ({ fontSize: el.font + "px" }),
+    MutationObserver: class { constructor(fn) { observer = { fn, watched: [] }; } observe(el, opts) { observer.watched.push([el.id, opts]); } },
+    requestAnimationFrame: (fn) => frames.push(fn),
+  };
+  new Function(...Object.keys(env), fitScript())(...Object.values(env));
+  const flush = () => { const f = frames; frames = []; f.forEach((fn) => fn()); };
+  flush();
+  return {
+    els, observer, resize, flush,
+    fill: (id, text) => { els[id].text = text; observer.fn(); flush(); return els[id].style.fontSize; },
+    frames: () => frames.length,
+  };
+}
+const fits = (el) => el.scrollHeight <= el.clientHeight + 1 && el.scrollWidth <= el.clientWidth + 1;
+
+test("short answer and artist keep the normal text size", () => {
+  const p = fitPage();
+  assert.strictEqual(p.fill("answer-text", "Priscilla Presley"), "");
+  assert.strictEqual(p.fill("artist-name-display", "Utøver:Elvis Presley"), "");
+});
+
+test("long answer gets the largest smaller text that fits; the box never grows", () => {
+  const p = fitPage();
+  const size = parseFloat(p.fill("answer-text", "Heinrich Hoffmann von Fallersleben ca. 1835. Til Norsk ved Johan Nicolaisen, og mer tekst her"));
+  assert.ok(size < 16 && size >= 11, `got ${size}px`);
+  assert.ok(fits(p.els["answer-text"]), "fits");
+  p.els["answer-text"].style.fontSize = size + 1 + "px";
+  assert.ok(!fits(p.els["answer-text"]), "one size bigger would not fit");
+});
+
+test("very long text stops at 11px (still readable)", () => {
+  const p = fitPage();
+  assert.strictEqual(p.fill("answer-text", "x".repeat(2000)), "11px");
+});
+
+test("next text that is short goes back to the normal size", () => {
+  const p = fitPage();
+  assert.notStrictEqual(p.fill("answer-text", "y".repeat(150)), "");
+  assert.strictEqual(p.fill("answer-text", "Tjeld"), "");
+});
+
+test("long artist name shrinks to fit the width (one line)", () => {
+  const p = fitPage();
+  const size = parseFloat(p.fill("artist-name-display", "Det Norske Solistkor og Kringkastingsorkesteret og venner"));
+  assert.ok(size < 16 && size >= 11);
+  assert.ok(fits(p.els["artist-name-display"]));
+});
+
+test("fit runs when script.js fills the boxes (any change, nested too), once per frame, and again on rotation", () => {
+  const p = fitPage();
+  assert.deepStrictEqual(p.observer.watched.map(([id]) => id), ["answer-text", "artist-name-display"]);
+  for (const [, opts] of p.observer.watched) assert.deepStrictEqual(opts, { childList: true, characterData: true, subtree: true });
+  p.observer.fn(); p.observer.fn(); p.observer.fn();
+  assert.strictEqual(p.frames(), 1, "three changes in one frame -> one fit");
+  p.flush();
+  assert.strictEqual(typeof p.resize, "function", "refits on resize / rotation");
+  assert.strictEqual(p.fill("answer-text", "z".repeat(60)), "", "fits a 340 px box");
+  p.els["answer-text"].clientWidth = 200; // narrower after rotation
+  p.resize(); p.flush();
+  assert.ok(parseFloat(p.els["answer-text"].style.fontSize) < 16 && fits(p.els["answer-text"]));
+});
+
 // ── Article cover picture ───────────────────────────────────────────────────
 const helper = path.join(root, "application", "helpers", "image_size_helper.php");
 const attrs = (files) => JSON.parse(execFileSync("php", ["-r", `

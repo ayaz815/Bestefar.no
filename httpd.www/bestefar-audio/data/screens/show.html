@@ -34,6 +34,33 @@
         }
       }
 
+      /* Same section sizes on every question, before and after the quiz data
+         arrives (client 25 Nov 2026: the black boxes changed size). The two
+         black boxes share what is left of the screen, and only the answer and
+         the artist line depend on the quiz, so both get a fixed box: answer =
+         2 lines in the same height the old 1-line answer took, artist =
+         "Utøver:" + 1 line, kept even when there is no artist. Longer text
+         gets smaller instead of making the box bigger (#aq-fit-text below). */
+      #answer-text {
+        box-sizing: border-box;
+        height: 3.5rem;
+        padding: 0.25rem 1rem;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      #artist-name-display {
+        box-sizing: border-box;
+        width: 100%;
+        height: 3rem;
+        flex-shrink: 0; /* never squeezed on short screens (overflow:hidden would allow it) */
+        line-height: 1.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
       @font-face {
         font-family: "AgencyFB";
         src: url("../fonts/AGENCYB.TTF") format("truetype");
@@ -297,7 +324,7 @@
           id="fact-info-button cursor-pointer"
           onclick="showFactInfo()"
         >
-          <img src="../assets/vite.jpg" alt="" class="w-40" />
+          <img src="../assets/vite.jpg" alt="" width="555" height="128" class="w-40" />
         </button>
       </div>
 
@@ -309,6 +336,45 @@
         class="px-4 text-center mt-2 mb-6 font-arial-black-normal"
         id="artist-name-display"
       ></p>
+      <script id="aq-fit-text">
+        // Long answer / artist name: the text gets smaller, the box keeps its
+        // size (#answer-text, #artist-name-display in <style>). Runs whenever
+        // script.js fills them in, and again on rotation / font load.
+        (function () {
+          var boxes = [
+            document.getElementById("answer-text"),
+            document.getElementById("artist-name-display"),
+          ];
+          function fit(el) {
+            el.style.fontSize = "";
+            var size = parseFloat(getComputedStyle(el).fontSize);
+            while (
+              size > 11 &&
+              (el.scrollHeight > el.clientHeight + 1 ||
+                el.scrollWidth > el.clientWidth + 1)
+            ) {
+              size -= 1;
+              el.style.fontSize = size + "px";
+            }
+          }
+          var queued = false;
+          function fitAll() {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(function () {
+              queued = false;
+              boxes.forEach(fit);
+            });
+          }
+          var watch = new MutationObserver(fitAll);
+          boxes.forEach(function (el) {
+            watch.observe(el, { childList: true, characterData: true, subtree: true });
+          });
+          window.addEventListener("resize", fitAll);
+          if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+          fitAll();
+        })();
+      </script>
 
       <!-- Fact Info Drawer -->
       <div class="relative">
