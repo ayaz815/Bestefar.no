@@ -111,6 +111,16 @@ img { max-width: 100%; height: auto; }
    kept from the first paint. */
 #masthead .elementor-widget-container > a { display: block; }
 
+/* The page scrolls inside <body> (html, body are height:100% + overflow-x:hidden
+   below). On Windows the scrollbar takes ~17 px of width. Most pages always have
+   one (#page.full-height is 110% tall), but the quiz list is only as tall as its
+   rows: while it was still arriving it was shorter than the screen, had no
+   scrollbar, and when the rest came in the scrollbar appeared and the whole page
+   moved ~8 px sideways (client video 24 Nov 2026, "see left edge"). The scrollbar
+   is now always there, like on the other pages, so the width never changes.
+   No effect on phones/Mac (their scrollbars float over the page). */
+body { overflow-y: scroll; }
+
 .elementor-column.elementor-col-100 {
     width: 100% !important;
 }

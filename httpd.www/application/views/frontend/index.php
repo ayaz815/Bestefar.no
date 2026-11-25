@@ -27,9 +27,11 @@
      its stylesheet and the Agency font are fetched here, early, instead of half
      way down the page, and the list stays invisible (its space kept) until its
      rows and font are ready - see the qc-ready script in sporreleker.php.
-     The stylesheet stays after theme/head.php: it overrides #page.full-height. -->
+     The stylesheet stays after theme/head.php: it overrides #page.full-height.
+     ?v= is the file's upload time: one.com sends no cache headers, so browsers
+     kept an old copy for a day or more after an upload; a new file = a new link. -->
 <link rel="preload" href="<?php echo base_url('assets/frontend/agencyfb_font/agencyr-webfont.woff2'); ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?php echo base_url('assets/frontend/css/sporreleker.css'); ?>">
+<link rel="stylesheet" href="<?php echo base_url('assets/frontend/css/sporreleker.css') . '?v=' . (int) @filemtime(FCPATH . 'assets/frontend/css/sporreleker.css'); ?>">
 <script id="qc-wait">document.documentElement.classList.add('qc-wait'); setTimeout(function(){ document.documentElement.classList.remove('qc-wait'); }, 3000);</script>
 <?php } ?>
 

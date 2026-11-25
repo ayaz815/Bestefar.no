@@ -100,6 +100,49 @@ test("the cover keeps its shape before it loads: pictures get height:auto from t
   assert.match(head, /img\s*\{\s*max-width:\s*100%;\s*height:\s*auto;\s*\}/);
 });
 
+// ── Quiz list moving sideways (Windows scrollbar) ─────────────────────────────
+// Client, 25 Nov 2026: "the catalog jump sidewise. See left edge". The page scrolls
+// inside <body> (html, body: height 100% + overflow-x hidden). The quiz list is the
+// one page that is only as tall as its rows, so while it arrived it was shorter than
+// the screen, had no scrollbar, and moved ~8 px sideways when the scrollbar came.
+// Measured (1366x657, page sent in two parts): before 1366 -> 1349 px wide, list
+// edge 113 -> 105; after 1349 / 105 from the first paint.
+test("every page always has its scrollbar, on body (the element that scrolls), so nothing moves sideways", () => {
+  const head = read("application/views/frontend/theme/head.php");
+  const fixes = head.match(/<style id="responsive-fixes">([\s\S]*?)<\/style>/);
+  assert.ok(fixes, "responsive-fixes block");
+  assert.match(fixes[1], /(^|\n)body\s*\{\s*overflow-y:\s*scroll;\s*\}/);
+  // why it is body and not html: these two shared rules make body the scroller
+  assert.match(head, /html, body \{\s*height: 100%;/);
+  assert.match(head, /html, body \{\s*overflow-x: hidden;/);
+  // a second always-on scrollbar on html would show two bars
+  assert.doesNotMatch(head.replace(/\/\*[\s\S]*?\*\//g, ""), /(^|[\s,}])html\s*\{[^}]*overflow-y\s*:\s*scroll/);
+  // regression: the quiz list still sizes the page to its rows (the sticky footer)
+  assert.match(read("assets/frontend/css/sporreleker.css"), /#page\.full-height\{ height:auto; min-height:100vh;/);
+});
+
+// ── New uploads reach the browser ─────────────────────────────────────────────
+// one.com sends no cache headers, so browsers kept old copies for a day or more after
+// an upload (client 25 Nov 2026: generator "Tilgang - cannot see it", player "still
+// jumps"). Checked on a local Apache with the site's own root .htaccess: these folders
+// answer "no-cache, must-revalidate" (cheap 304 when unchanged), other files untouched.
+const noCache = (file, filesRe) => {
+  const txt = read(file);
+  const block = txt.match(/<IfModule mod_headers\.c>([\s\S]*?)<\/IfModule>/);
+  assert.ok(block, `${file}: rule inside <IfModule mod_headers.c> (no 500 error if the module is missing)`);
+  const files = block[1].match(/<FilesMatch "([^"]+)">([\s\S]*?)<\/FilesMatch>/);
+  assert.ok(files, `${file}: FilesMatch`);
+  assert.strictEqual(files[1], filesRe);
+  assert.match(files[2], /Header set Cache-Control "no-cache, must-revalidate"/);
+  assert.doesNotMatch(txt, /Rewrite|Deny|Require|Options/, `${file}: nothing else (the root .htaccess does the routing)`);
+};
+test("generator page is always checked with the server (its JS/CSS names change with every build)", () => {
+  noCache("html-generator-app/.htaccess", "\\.html$");
+});
+test("AudioQuiz player pages and script are always checked with the server", () => {
+  noCache("bestefar-audio/.htaccess", "\\.(html|js)$");
+});
+
 // ── Admin login message ─────────────────────────────────────────────────────
 test("wrong admin login: the message is the red error pop-up, not the green success one", () => {
   const login = read("application/controllers/Login.php");

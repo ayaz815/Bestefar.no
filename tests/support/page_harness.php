@@ -7,6 +7,7 @@
 define('BASEPATH', 'test');
 $app = rtrim($argv[1], '/');
 $page = $argv[2];
+define('FCPATH', dirname($app) . '/'); // httpd.www/
 
 function base_url($path = '') { return 'https://bestefar.no/' . ltrim($path, '/'); }
 

@@ -68,7 +68,8 @@ const expectAll = (list, allowed, why) => {
   const bad = list.filter((c) => c.allowed !== allowed);
   assert.strictEqual(bad.length, 0, `${why}: ${bad.length} of ${list.length} wrong, e.g. ${bad.slice(0, 3).map(show).join("\n")}`);
 };
-const active = (c) => c.user && c.user.status === "Active" && c.user.approval_status === 1;
+// The old users.status ("Paid / Not Paid") is ignored (client, 25 Nov 2026), only approval counts.
+const active = (c) => c.user && c.user.approval_status === 1;
 const controlled = (c) => c.quiz.type !== "crossword";
 const restricted = (c) => !c.quiz.tier || c.quiz.tier === "restricted";
 const on = (c) => c.enabled;
@@ -96,8 +97,25 @@ test("'Open to all registered' shows open for every logged-in customer: unapprov
   expectAll(when((c) => on(c) && c.user && controlled(c) && c.quiz.tier === "registered"), true, "registered tier");
 });
 
-test("unapproved or inactive customers open nothing else", () => {
-  expectAll(when((c) => on(c) && c.user && controlled(c) && c.quiz.tier !== "registered" && !active(c)), false, "unapproved/inactive");
+test("unapproved customers open nothing else", () => {
+  expectAll(when((c) => on(c) && c.user && controlled(c) && c.quiz.tier !== "registered" && !active(c)), false, "unapproved");
+});
+
+test("the old 'Paid / Not Paid' field changes nothing: every case gets the same answer with Active and Inactive", () => {
+  const key = (c) => JSON.stringify([{ ...c.user, status: undefined }, c.quiz, c.g, c.enabled]);
+  const byKey = new Map();
+  for (const c of when((c) => c.user)) {
+    const k = key(c);
+    if (!byKey.has(k)) byKey.set(k, []);
+    byKey.get(k).push(c);
+  }
+  let pairs = 0;
+  for (const [, list] of byKey) {
+    assert.strictEqual(new Set(list.map((c) => c.user.status)).size, list.length);
+    if (list.length === 2) pairs++;
+    assert.ok(list.every((c) => c.allowed === list[0].allowed && c.reason === list[0].reason), `status changed the answer: ${list.map(show).join("\n")}`);
+  }
+  assert.ok(pairs > 50000, `compared ${pairs} Active/Inactive pairs`);
 });
 
 test("B. Full customers (approved, active) open every show, demo included, whatever the ticks", () => {
@@ -258,8 +276,10 @@ test("journey: C3 year over -> 'Utgått' on every restricted row; year not start
   assert.deepStrictEqual(catalogFor(future), LOCKED_EXCEPT(["ar"], (k) => (k === "ad" ? "demo_not_allowed" : "not_started")));
 });
 
-test("journey: customer switched to Inactive -> only 'open to all registered'", () => {
-  assert.deepStrictEqual(catalogFor(customer({ client_type: "full", status: "Inactive" })), LOCKED_EXCEPT(["ar"], "inactive"));
+test("journey: old field set to 'Not Paid' (Inactive) -> the new settings still decide (client, 25 Nov 2026)", () => {
+  assert.deepStrictEqual(catalogFor(customer({ client_type: "full", status: "Inactive" })), LOCKED_EXCEPT(["a1", "a2", "ar", "ad", "i1", "m1"], ""));
+  assert.deepStrictEqual(catalogFor(customer({ client_type: "test", allow_audio: 1, status: "Inactive" })), catalogFor(customer({ client_type: "test", allow_audio: 1, status: "Active" })));
+  assert.deepStrictEqual(catalogFor(customer({ status: "Inactive", approval_status: 0 })), LOCKED_EXCEPT(["ar"], "not_approved"), "approval still counts");
 });
 
 test("journey: Start on a locked show is refused (no player link), and a crossword Start is not handled by open_quiz", () => {

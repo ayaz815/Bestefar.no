@@ -33,10 +33,11 @@ test("REGRESSION: switch off, the catalog HTML matches main's view (ignoring ind
   const squash = (html) => html.replace(/\s+/g, " ");
   // The only intended differences (24 Nov 2026, tests/catalog-no-jumping.test.js): the
   // stylesheet link moved from the top of this view into <head>, and the qc-ready
-  // script was added after the list. Everything else must stay identical.
+  // script was added after the list. 25 Nov 2026: the script link got ?v=<upload time>
+  // (browsers kept old copies). Everything else must stay identical.
   const beforeWithoutLink = before.replace(/^\s*<link rel="stylesheet" href="[^"]*sporreleker\.css">\s*/, "");
   assert.notStrictEqual(beforeWithoutLink, before, "main's view starts with the stylesheet link");
-  const nowWithoutReveal = render(rows).replace(/<!-- The whole list is on the page now:[\s\S]*?-->\s*<script id="qc-ready">[\s\S]*?<\/script>\s*/, "");
+  const nowWithoutReveal = render(rows).replace(/(sporreleker\.js)\?v=\d+/, "$1").replace(/<!-- The whole list is on the page now:[\s\S]*?-->\s*<script id="qc-ready">[\s\S]*?<\/script>\s*/, "");
   assert.notStrictEqual(nowWithoutReveal, render(rows), "the qc-ready script is there");
   assert.strictEqual(squash(nowWithoutReveal).trim(), squash(beforeWithoutLink).trim());
 });

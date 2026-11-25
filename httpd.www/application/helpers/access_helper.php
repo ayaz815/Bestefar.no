@@ -5,7 +5,7 @@ defined('BASEPATH') OR define('BASEPATH', 'standalone'); // lets tests load this
 // Pure functions: no database, no session. The caller loads the customer row and
 // that customer's grants and passes them in.
 //
-//   $user   customer row (array) or null when not logged in. Uses: status,
+//   $user   customer row (array) or null when not logged in. Uses:
 //           approval_status, client_type (test|full|paid|null), plan
 //           (per_show|audio_simple|all_shows), payment_registered, access_start,
 //           access_end, allow_audio, allow_image, allow_imagemusic, allow_demo
@@ -52,9 +52,9 @@ if (!function_exists('access_can_open')) {
 			return access_decision(true, 'open_to_registered');
 		}
 
-		if (isset($user['status']) && $user['status'] !== 'Active') {
-			return access_decision(false, 'inactive');
-		}
+		// The old users.status field (admin "Paid / Not Paid") is not used: payment is
+		// payment_registered now and every new registration is saved as "Not Paid"
+		// (client, 25 Nov 2026: "Use only the new!").
 		if ((int) (isset($user['approval_status']) ? $user['approval_status'] : 0) !== 1) {
 			return access_decision(false, 'not_approved');
 		}

@@ -6,6 +6,7 @@
 define('BASEPATH', 'test');
 $app = $argv[1];
 $action = $argv[2];
+define('FCPATH', dirname(rtrim($app, '/')) . '/'); // httpd.www/
 $in = json_decode(file_get_contents('php://stdin'), true);
 
 function base_url($path = '') { return 'https://bestefar.no/' . $path; }

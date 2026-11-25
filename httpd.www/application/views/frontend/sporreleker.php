@@ -158,4 +158,5 @@
 	if (document.fonts && document.fonts.load) { document.fonts.load('16px agency_fbregular').then(show, show); } else { show(); }
 })();
 </script>
-<script src="<?php echo base_url('assets/frontend/js/sporreleker.js'); ?>"></script>
+<?php /* ?v= = upload time of the file, so browsers fetch a new copy as soon as it changes (see views/frontend/index.php) */ ?>
+<script src="<?php echo base_url('assets/frontend/js/sporreleker.js') . '?v=' . (int) @filemtime(FCPATH . 'assets/frontend/js/sporreleker.js'); ?>"></script>

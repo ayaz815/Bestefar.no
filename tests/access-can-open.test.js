@@ -29,7 +29,11 @@ const matrix = [
   ["registered-tier show: any logged-in customer", U({ approval_status: 0 }), Q("audio", "registered"), [], true, "open_to_registered"],
   ["registered-tier show: even an unapproved old customer", U({ approval_status: 0, status: "Inactive" }), Q("image", "registered"), [], true, "open_to_registered"],
   ["unapproved customer, restricted show", U({ approval_status: 0, allow_audio: 1 }), Q("audio", null), [], false, "not_approved"],
-  ["inactive customer", U({ status: "Inactive", allow_audio: 1 }), Q("audio", null), [], false, "inactive"],
+  // Old "Paid / Not Paid" field (users.status) is ignored (client, 25 Nov 2026).
+  ["old field 'Not Paid', ticked test customer: opens", U({ status: "Inactive", client_type: "test", allow_audio: 1 }), Q("audio", null), [], true, "type_allowed"],
+  ["old field 'Not Paid', full customer: opens", U({ status: "Inactive", client_type: "full" }), Q("image", null), [], true, "full_access"],
+  ["old field 'Paid' gives nothing by itself", U({ status: "Active" }), Q("audio", null), [], false, "not_allowed"],
+  ["old field 'Paid' does not replace payment_registered", U({ status: "Active", client_type: "paid", plan: "all_shows" }), Q("audio", null), [], false, "payment_missing"],
   ["full access: restricted", U({ client_type: "full" }), Q("imagemusic", "restricted"), [], true, "full_access"],
   ["full access: demo", U({ client_type: "full" }), Q("audio", "demo"), [], true, "full_access"],
   ["full access but unapproved", U({ client_type: "full", approval_status: 0 }), Q("audio", null), [], false, "not_approved"],

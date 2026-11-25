@@ -42,11 +42,22 @@ const tick = () => new Promise((r) => setImmediate(r));
 
 test("catalog stylesheet loads in <head>, after the theme styles it overrides, and only once", () => {
   const h = head(catalogPage);
-  const link = h.match(/<link\b[^>]*href="[^"]*assets\/frontend\/css\/sporreleker\.css"[^>]*>/);
+  const link = h.match(/<link\b[^>]*href="[^"]*assets\/frontend\/css\/sporreleker\.css(?:\?v=\d+)?"[^>]*>/);
   assert.ok(link, "sporreleker.css must be linked inside <head>");
   assert.match(link[0], /rel="stylesheet"/);
   assert.ok(h.indexOf(link[0]) > h.indexOf("<!--view:frontend/theme/head-->"), "must come after theme/head.php (it overrides #page.full-height)");
   assert.strictEqual((catalogPage.match(/sporreleker\.css/g) || []).length, 1, "linked once, not again in the body");
+});
+
+test("catalog stylesheet and script links carry the file's upload time, so a new upload reaches browsers at once", () => {
+  // one.com sends no cache headers; browsers kept old copies for a day or more (client, 25 Nov 2026).
+  const mtime = (p) => Math.floor(fs.statSync(path.join(root, p)).mtimeMs / 1000);
+  const css = "assets/frontend/css/sporreleker.css", js = "assets/frontend/js/sporreleker.js";
+  assert.ok(head(catalogPage).includes(`href="https://bestefar.no/${css}?v=${mtime(css)}"`), "stylesheet link with ?v=<upload time>");
+  assert.ok(catalogPage.includes(`<script src="https://bestefar.no/${js}?v=${mtime(js)}"></script>`), "script link with ?v=<upload time>");
+  const partial = render("partial");
+  assert.ok(partial.includes(`${js}?v=${mtime(js)}`), "the list on its own (sort/filter) renders the same link");
+  assert.doesNotMatch(render("home"), /sporreleker\.(css|js)/, "regression: other pages don't load the catalog files");
 });
 
 test("Agency font is fetched early: <head> preloads the same file the @font-face uses", () => {
@@ -83,7 +94,7 @@ test("list is shown when all its rows are on the page and the Agency font is rea
   const reveal = script(catalogPage, "qc-ready");
   const at = catalogPage.indexOf('<script id="qc-ready">');
   assert.ok(at > catalogPage.lastIndexOf('class="quiz-row"') && at > catalogPage.indexOf("</table>"), "runs only after the whole table");
-  const catalogScript = catalogPage.search(/<script src="[^"]*sporreleker\.js"/);
+  const catalogScript = catalogPage.search(/<script src="[^"]*sporreleker\.js(?:\?v=\d+)?"/);
   assert.ok(catalogScript > 0 && at < catalogScript, "does not wait for the slow catalog script");
 
   let resolveFont;

@@ -1,0 +1,9 @@
+# Generator: the browser always asks the server whether index.html changed (cheap
+# 304 when it did not). The JS/CSS get a new name on every build, so only the page
+# itself needs this. one.com sends no cache headers, so after an upload browsers
+# kept showing the old generator (client, 25 Nov 2026: "Tilgang - cannot see it").
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

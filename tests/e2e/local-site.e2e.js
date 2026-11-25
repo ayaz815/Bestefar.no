@@ -160,11 +160,8 @@ async function catalogRows(browser) {
 
     const inactiveTest = await register("test-not-paid");
     await adminSets(inactiveTest, { status: "Inactive", access: { client_type: "test", allow_audio: "1" } });
-    await check("FINDING: test customer approved + AudioQuiz tick but old status left at 'Not Paid' (registration default)", async () => {
-      const { rows } = await catalogRows(await loginAs(inactiveTest));
-      const audio = rows.filter((r) => r.category === "AudioQuiz" && tiers[r.id] !== "registered");
-      console.log(`     -> ${audio.filter((r) => r.state === "open").length} of ${audio.length} restricted AudioQuiz rows open`);
-      assert.ok(audio.every((r) => r.state === "Låst"), "locked because status is Inactive");
+    await check("A. test customer approved + AudioQuiz tick, old field left at 'Not Paid' (registration default): AudioQuiz open (client 25 Nov: old field ignored)", async () => {
+      expectRows((await catalogRows(await loginAs(inactiveTest))).rows, (r) => (r.category === "AudioQuiz" ? "open" : "Låst"));
     });
 
     const c2 = await register("c2");
