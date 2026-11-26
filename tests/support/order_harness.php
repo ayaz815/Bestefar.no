@@ -93,7 +93,7 @@ CI_Model::$deps = array('input' => $input, 'db' => $db, 'load' => new FakeLoader
 // The real Admin_model, with the catalog read from the scenario instead of the quiz API.
 require $app . '/models/Admin_model.php';
 class TestAdminModel extends Admin_model {
-	function get_quizzes_catalog($quiz_type = '', $sort = '', $dir = 'desc') { global $in; return isset($in['catalog']) ? $in['catalog'] : array(); }
+	function get_quizzes_catalog($quiz_type = '', $sort = '', $dir = 'desc') { global $in, $catalog_args; $catalog_args = func_get_args(); return isset($in['catalog']) ? $in['catalog'] : array(); }
 }
 $admin = new TestAdminModel();
 CI_Model::$deps['Admin_model'] = $admin;
@@ -106,6 +106,7 @@ try {
 	if ($action === 'place') {
 		$choices = $orders->show_choices();
 		$out['choices'] = $choices;
+		$out['catalog_args'] = $catalog_args;
 		$out['result'] = $orders->place($in['customer'], $in['post'], $choices);
 	} elseif ($action === 'customer') {
 		$out['customer'] = $orders->current_customer();

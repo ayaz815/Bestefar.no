@@ -25,13 +25,22 @@ class Order_model extends CI_Model {
 
 	// 'type:id' => 'Category - name' for every show a customer can pick
 	// (same values as the admin "Picked shows" list, see Access_model::QUIZ_TYPES).
+	// Sorted by type (AudioQuiz, BildeQuiz, BilderMusikk), newest first inside each
+	// type like the quiz list (client 26 Nov 2026: "sorted by type and by date").
 	public function show_choices() {
 		$this->load->model('Access_model');
-		$choices = array();
-		foreach ($this->Admin_model->get_quizzes_catalog('', 'name', 'asc') as $quiz) {
-			if (isset(Access_model::QUIZ_TYPES[$quiz['quiz_type']])) {
-				$choices[Access_model::QUIZ_TYPES[$quiz['quiz_type']] . ':' . $quiz['external_id']] = $quiz['quiz_type'] . ' - ' . $quiz['name'];
+		$rank = array_flip(array_keys(Access_model::QUIZ_TYPES));
+		$quizzes = array();
+		foreach ($this->Admin_model->get_quizzes_catalog('', 'date', 'desc') as $i => $quiz) {
+			if (isset($rank[$quiz['quiz_type']])) {
+				$quizzes[] = array('rank' => $rank[$quiz['quiz_type']], 'i' => $i, 'quiz' => $quiz);
 			}
+		}
+		usort($quizzes, function ($a, $b) { return ($a['rank'] - $b['rank']) ?: ($a['i'] - $b['i']); });
+		$choices = array();
+		foreach ($quizzes as $row) {
+			$quiz = $row['quiz'];
+			$choices[Access_model::QUIZ_TYPES[$quiz['quiz_type']] . ':' . $quiz['external_id']] = $quiz['quiz_type'] . ' - ' . $quiz['name'];
 		}
 		return $choices;
 	}

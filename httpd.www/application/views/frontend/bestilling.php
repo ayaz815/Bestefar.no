@@ -21,6 +21,9 @@ $show_slots = order_plans()['per_show']['shows'];
 	.order-form .order-plan{ display: block; font-weight: normal; margin-bottom: 8px; cursor: pointer; }
 	.order-form .order-plan input{ transform: scale(1.3); margin: 0 10px 0 3px; }
 	.order-form .order-shows select{ margin-bottom: 8px; }
+	/* iPhone: a date field ignores width:100% and ran past the right edge (client 26 Nov 2026) */
+	.order-form input[type="date"]{ -webkit-appearance: none; appearance: none; display: block; width: 100%; min-width: 0; max-width: 100%; }
+	.order-form input[type="date"]::-webkit-date-and-time-value{ text-align: left; }
 	.order-form .order-errors{ background: #fff; border-left: 4px solid #c00; padding: 8px 12px; margin-bottom: 15px; }
 	.order-form .order-btn{
 		border-radius: 100px !important;
@@ -97,8 +100,12 @@ $show_slots = order_plans()['per_show']['shows'];
 											<?php for ($i = 0; $i < $show_slots; $i++) { ?>
 												<select class="form-control" name="shows[]" aria-label="Quiz <?= $i + 1 ?>">
 													<option value="">Velg quiz <?= $i + 1 ?></option>
-													<?php foreach ($show_choices as $value => $name) { ?>
-														<option value="<?= $e($value) ?>" <?= isset($posted_shows[$i]) && $posted_shows[$i] === $value ? 'selected' : '' ?>><?= $e($name) ?></option>
+													<?php foreach (order_show_groups($show_choices) as $group => $names) { ?>
+														<optgroup label="<?= $e($group) ?>">
+														<?php foreach ($names as $value => $name) { ?>
+															<option value="<?= $e($value) ?>" <?= isset($posted_shows[$i]) && $posted_shows[$i] === $value ? 'selected' : '' ?>><?= $e($name) ?></option>
+														<?php } ?>
+														</optgroup>
 													<?php } ?>
 												</select>
 											<?php } ?>
@@ -118,15 +125,30 @@ $show_slots = order_plans()['per_show']['shows'];
 									</div>
 								</form>
 								<script>
-								// The quiz pickers only belong to the 2-quiz plan (the server checks it again).
+								// The quiz pickers only belong to the 2-quiz plan, and a quiz picked in one
+								// can't be picked in the other (the server checks both again).
 								(function () {
 									var form = document.getElementById('order_form');
 									var shows = document.getElementById('order_shows');
+									var pickers = shows.querySelectorAll('select');
+									function noTwice() {
+										var taken = [];
+										pickers.forEach(function (s) { // a later picker can't keep a quiz an earlier one has
+											if (s.value && taken.indexOf(s.value) !== -1) s.value = '';
+											if (s.value) taken.push(s.value);
+										});
+										pickers.forEach(function (s) { // the other pickers' quizzes are greyed out
+											Array.prototype.forEach.call(s.options, function (o) {
+												o.disabled = o.value !== '' && o.value !== s.value && taken.indexOf(o.value) !== -1;
+											});
+										});
+									}
 									function update() {
 										var picked = form.querySelector('input[name="plan"]:checked');
 										var on = !!picked && picked.value === 'per_show';
 										shows.style.display = on ? '' : 'none';
-										shows.querySelectorAll('select').forEach(function (s) { s.disabled = !on; s.required = on; });
+										pickers.forEach(function (s) { s.disabled = !on; s.required = on; });
+										noTwice();
 									}
 									form.addEventListener('change', update);
 									update();

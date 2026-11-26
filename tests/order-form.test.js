@@ -306,3 +306,99 @@ test("SQL creates the orders table with every column the model writes; down scri
   assert.match(down, /DROP TABLE IF EXISTS `orders`;/);
   assert.doesNotMatch(down.replace(/DROP TABLE IF EXISTS `orders`;/, ""), /DROP|DELETE|ALTER/i);
 });
+
+// ── Client 26 Nov 2026 (iPhone screenshots): same quiz twice, unsorted list, date field too wide ──
+const renderForm = (vars) => execFileSync("php", ["-r", `
+  define('BASEPATH', 'test');
+  function base_url($p = '') { return 'https://bestefar.no/' . $p; }
+  require $argv[1] . '/helpers/order_helper.php';
+  extract(json_decode($argv[2], true));
+  include $argv[1] . '/views/frontend/bestilling.php';`, app, JSON.stringify(vars)], { encoding: "utf8" });
+const formVars = (o = {}) => ({ customer, show_choices: {}, errors: [], posted: {}, sent: false, ...o });
+
+test("quiz list: grouped by type (AudioQuiz, BildeQuiz, BilderMusikk), newest first inside each type", () => {
+  // catalog as the quiz list returns it: newest first, types mixed
+  const mixed = [
+    { quiz_type: "BildeQuiz", external_id: "i2", name: "Berømte personer I" },
+    { quiz_type: "AudioQuiz", external_id: "a3", name: "Historiske stemmer I" },
+    { quiz_type: "BilderMusikk", external_id: "m1", name: "Livet på dypet" },
+    { quiz_type: "TekstQuiz", external_id: "t1", name: "Kryssord" },
+    { quiz_type: "AudioQuiz", external_id: "a1", name: "Elvis Presley" },
+    { quiz_type: "BildeQuiz", external_id: "i1", name: "Musikkinstrumenter" },
+  ];
+  const out = harness("place", { tables: { orders: [] }, customer, catalog: mixed, post: {} });
+  assert.deepStrictEqual(out.catalog_args, ["", "date", "desc"], "asks the catalog for newest first");
+  assert.deepStrictEqual(Object.keys(out.choices), ["audio:a3", "audio:a1", "image:i2", "image:i1", "imagemusic:m1"]);
+  assert.strictEqual(out.choices["audio:a3"], "AudioQuiz - Historiske stemmer I", "regression: stored name (e-mails, admin) unchanged");
+});
+
+test("order_show_groups: one group per type, names without the type, order kept", () => {
+  assert.deepStrictEqual(helper("order_show_groups", { "audio:a3": "AudioQuiz - Historiske stemmer I", "audio:a1": "AudioQuiz - Elvis Presley", "image:i2": "BildeQuiz - Navn - med bindestrek" }),
+    { AudioQuiz: { "audio:a3": "Historiske stemmer I", "audio:a1": "Elvis Presley" }, BildeQuiz: { "image:i2": "Navn - med bindestrek" } });
+  assert.deepStrictEqual(helper("order_show_groups", {}), []);
+});
+
+test("form: each picker shows the types as headings with the quiz names under them; a posted pick stays selected", () => {
+  const html = renderForm(formVars({ show_choices: { "audio:a1": "AudioQuiz - Elvis Presley", "image:i1": "BildeQuiz - Dyr & <natur>" }, posted: { plan: "per_show", shows: ["image:i1", ""] } }));
+  const selects = html.match(/<select[\s\S]*?<\/select>/g);
+  assert.strictEqual(selects.length, 2);
+  for (const s of selects) {
+    assert.deepStrictEqual([...s.matchAll(/<optgroup label="([^"]*)">/g)].map((m) => m[1]), ["AudioQuiz", "BildeQuiz"]);
+    assert.match(s, /<option value="audio:a1" >Elvis Presley<\/option>/);
+    assert.match(s, /Dyr &amp; &lt;natur&gt;/, "names escaped");
+  }
+  assert.match(selects[0], /<option value="image:i1" selected>/);
+  assert.doesNotMatch(selects[1], /selected/);
+});
+
+// The picker script against a tiny fake page.
+function pickerPage(values, plan = "per_show") {
+  const html = renderForm(formVars({ show_choices: { "audio:a1": "AudioQuiz - A", "audio:a2": "AudioQuiz - B", "image:i1": "BildeQuiz - C" } }));
+  const code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const opts = ["", "audio:a1", "audio:a2", "image:i1"];
+  const pickers = values.map((v) => ({ value: v, disabled: false, required: false, options: opts.map((value) => ({ value, disabled: false })) }));
+  pickers.forEach((p) => { const set = p.value; Object.defineProperty(p, "value", { get: () => set === undefined ? "" : p._v, set: (x) => { p._v = x; } }); p._v = set; });
+  let onChange;
+  const form = { querySelector: () => (plan ? { value: plan } : null), addEventListener: (ev, fn) => { onChange = fn; } };
+  const shows = { style: {}, querySelectorAll: () => pickers };
+  const document = { getElementById: (id) => ({ order_form: form, order_shows: shows })[id] };
+  new Function("document", code)(document);
+  const greyed = (p) => p.options.filter((o) => o.disabled).map((o) => o.value);
+  return { pickers, shows, change: () => onChange(), greyed };
+}
+
+test("same quiz can't be picked twice: the other picker greys it out", () => {
+  const p = pickerPage(["audio:a1", ""]);
+  assert.deepStrictEqual(p.greyed(p.pickers[1]), ["audio:a1"]);
+  assert.deepStrictEqual(p.greyed(p.pickers[0]), [], "a picker never greys out its own choice");
+  p.pickers[1].value = "image:i1"; p.change();
+  assert.deepStrictEqual(p.greyed(p.pickers[0]), ["image:i1"]);
+  assert.deepStrictEqual(p.greyed(p.pickers[1]), ["audio:a1"]);
+  p.pickers[0].value = "audio:a2"; p.change();
+  assert.deepStrictEqual(p.greyed(p.pickers[1]), ["audio:a2"], "changing a pick frees the old quiz");
+});
+
+test("same quiz already in both (e.g. sent back with an error): the second is cleared", () => {
+  const p = pickerPage(["audio:a1", "audio:a1"]);
+  assert.strictEqual(p.pickers[0].value, "audio:a1");
+  assert.strictEqual(p.pickers[1].value, "");
+  assert.deepStrictEqual(p.greyed(p.pickers[1]), ["audio:a1"]);
+});
+
+test("regression: pickers only for the 2-quiz plan, required there, hidden and off for the year plans", () => {
+  const on = pickerPage(["", ""]);
+  assert.ok(on.pickers.every((s) => !s.disabled && s.required));
+  assert.strictEqual(on.shows.style.display, "");
+  const off = pickerPage(["", ""], "all_shows");
+  assert.ok(off.pickers.every((s) => s.disabled && !s.required));
+  assert.strictEqual(off.shows.style.display, "none");
+});
+
+test("date field is as wide as the other fields on iPhone (no own width, text on the left)", () => {
+  const view = read("views/frontend/bestilling.php");
+  const rule = view.match(/\.order-form input\[type="date"\]\{([^}]*)\}/);
+  assert.ok(rule, "date field rule");
+  for (const d of ["-webkit-appearance: none", "display: block", "width: 100%", "min-width: 0", "max-width: 100%"]) assert.ok(rule[1].includes(d), d);
+  assert.match(view, /input\[type="date"\]::-webkit-date-and-time-value\{ text-align: left; \}/);
+  assert.match(renderForm(formVars()), /<input type="date" class="form-control" name="start_date" min="\d{4}-\d{2}-\d{2}"/, "regression: same field, earliest date today");
+});

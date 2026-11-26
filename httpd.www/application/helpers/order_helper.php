@@ -30,6 +30,20 @@ if (!function_exists('order_plan_text')) {
 	}
 }
 
+if (!function_exists('order_show_groups')) {
+	// The pickable shows ('type:id' => 'AudioQuiz - Name') as option groups for the
+	// form: 'AudioQuiz' => array('type:id' => 'Name'), in the order given.
+	function order_show_groups(array $show_names) {
+		$groups = array();
+		foreach ($show_names as $value => $label) {
+			$parts = explode(' - ', (string) $label, 2);
+			$group = count($parts) === 2 ? $parts[0] : '';
+			$groups[$group][$value] = count($parts) === 2 ? $parts[1] : (string) $label;
+		}
+		return $groups;
+	}
+}
+
 if (!function_exists('order_input')) {
 	// Checks the posted form against the plans and the catalog.
 	// $show_names: 'type:id' => name, the shows a customer may pick.

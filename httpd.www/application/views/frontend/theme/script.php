@@ -12,18 +12,23 @@ var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false
     
 <script>
  $(document).ready(function(){
-    $(".dropdown .elementor-widget-container a").hover(function(){
-      $(".hfe-nav-menu__toggle").removeClass("hfe-active-menu");
-      $(".hfe-nav-menu__toggle").removeClass("hfe-active-menu-full-width");
-    })
+    // Touching the key closes the menu (≡). On an iPad a tap is also a hover.
+    $(".dropdown .elementor-widget-container a").hover(close_nav_menu)
      if (window.matchMedia('(min-width: 100px) and (max-width: 1179px)').matches) {
              $("#nav_bar").css('display', 'none');
          }
   })
- function hide_dropdown(){
-     $('nav.hfe-nav-menu__layout-horizontal').removeClass('menu-open');
+ // Closes the menu (≡) completely: our .menu-open and the theme's own classes
+ // together, so the next tap on ≡ opens it again (before, each place reset only
+ // one of them and on iPad the menu stopped opening, client 26 Nov 2026).
+ function close_nav_menu(){
+     $('nav.hfe-nav-menu__layout-horizontal').removeClass('menu-open menu-is-active');
+     $('.hfe-nav-menu__toggle').removeClass('hfe-active-menu hfe-active-menu-full-width');
      }
-     
+ function hide_dropdown(){
+     close_nav_menu();
+     }
+
      function give_margin(){
          var mobileNav = $('nav.hfe-nav-menu__layout-horizontal');
          mobileNav.toggleClass('menu-open');

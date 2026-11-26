@@ -150,8 +150,20 @@ body { overflow-y: scroll; }
         z-index: 9999 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
+    /* .menu-open alone decides. The theme (frontend.css) also hides the menu
+       unless its own .hfe-active-menu is on; the two got out of step on iPad
+       (touching the key turned only one off) and from then on every tap on
+       the menu button turned one on and the other off, so the menu never
+       showed again (client 26 Nov 2026). */
     nav.hfe-nav-menu__layout-horizontal.menu-open {
         display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+    }
+    nav.hfe-nav-menu__layout-horizontal.menu-open ul.hfe-nav-menu {
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     nav.hfe-nav-menu__layout-horizontal ul.hfe-nav-menu {
         flex-direction: column;
