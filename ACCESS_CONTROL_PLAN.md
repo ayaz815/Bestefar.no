@@ -212,12 +212,13 @@ Client 25 Nov: the ticks must include the simple Q&A quiz ("this has been the me
 - Ticks: AudioQuiz, BildeQuiz, BilderMusikk + the plain-text Q&A quiz (Module 9, not built yet).
 - Paralyse.jpg / IMG_7157.JPEG: he will find other pictures this week.
 - Player still jumps (iPhone + iPad); catalog jumps sideways (fixed, see Release 23 Nov). Generator "Tilgang": cannot see it (it is live, see Module 1).
+- 27 Nov (reply to the 26 Nov e-mail): order form list newest first is right ("yes The newest first"); "Not active yet?" meant ordering did not work at that time (SQL not run yet then), not that access should start right after ordering. Nothing to change. No retest result yet.
 
 ## Still open
 1. Module 9 scope (plain-text quiz) and Module 10 (crossword), next week.
 2. Per Olav retests the player on iPhone/iPad after the follow-up upload.
 3. Still not on live (26 Nov 15:00): the two hidden `.htaccess` files (no Cache-Control header) and the `Plakat_påske.jpg` rename (404).
-4. Waiting for Per Olav: retest, answers to "newest or oldest first" and "Not active yet?" (reply e-mail 26 Nov).
+4. Waiting for Per Olav's retest on iPhone/iPad (player, menu, order form). His 27 Nov reply answered the two questions only.
 
 ## Log
 - 2 Nov 2026: plan written, Module 0 started.
