@@ -58,8 +58,8 @@ test("no player still reads from the old open endpoints", () => {
   }
 });
 
-test("AudioQuiz pages load the new script version, so browsers don't use the cached old one", () => {
+test("AudioQuiz pages load the new script version (28 Nov: screen shown only when complete), so browsers don't use the cached old one", () => {
   for (const f of ["index.html", "data/screens/show.html", "data/screens/screen17.html", "data/screens/screen18.html"]) {
-    assert.match(read("bestefar-audio/" + f), /script\.js\?v=20261105"/, f);
+    assert.match(read("bestefar-audio/" + f), /script\.js\?v=20261128"/, f);
   }
 });

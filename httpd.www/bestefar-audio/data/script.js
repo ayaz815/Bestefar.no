@@ -768,6 +768,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               <input
                 type="range"
                 id="seekBar${i}"
+                value="0"
                 class="seek-bar w-[80%] h-[3px] my-2 bg-gray-300 accent-gray-500 rounded-lg cursor-pointer focus:outline-none"
               />
             </div>
@@ -1236,18 +1237,36 @@ function navigateToScreen(url) {
   }
 }
 
-// Ensure the screen fades in on load
+// ── SCREEN REVEAL ───────────────────────────────────────────────────────
+// Fade the screen in only when it is complete: the page has loaded AND the
+// quiz data is filled in. It used to fade in on load alone, and the data
+// usually arrives later, so on every question the audio bar knob jumped back
+// to 0 and the texts changed ("Melodi" -> "Stemme", question, artist) while
+// the screen was already showing (client, 28 Nov 2026). The filling code is
+// attached to the same data promise earlier (on DOMContentLoaded), so it
+// always runs before this. Slow or failed data: shown anyway after maxWaitMs,
+// so a screen is never left blank.
+const AQ_REVEAL_MAX_WAIT_MS = 3000;
+function revealScreenWhenReady(container, dataReady, maxWaitMs) {
+  if (!container) return;
+  let shown = false;
+  const reveal = () => {
+    if (shown) return;
+    shown = true;
+    container.classList.remove("opacity-0");
+    container.classList.add("opacity-100", "transition-opacity", "duration-500");
+  };
+  setTimeout(reveal, maxWaitMs);
+  Promise.resolve(dataReady).then(reveal, reveal);
+}
 window.addEventListener("load", () => {
-  const mainContainer = document.getElementById("screen2FullScreen");
-  if (mainContainer) {
-    mainContainer.classList.remove("opacity-0");
-    mainContainer.classList.add(
-      "opacity-100",
-      "transition-opacity",
-      "duration-500"
-    );
-  }
+  revealScreenWhenReady(
+    document.getElementById("screen2FullScreen"),
+    loadAudioQuizData(),
+    AQ_REVEAL_MAX_WAIT_MS
+  );
 });
+// ── END SCREEN REVEAL ───────────────────────────────────────────────────
 
 // ---------------------- Drawer Logic -------------------------
 document.addEventListener("DOMContentLoaded", () => {
